@@ -1,0 +1,8 @@
+logs
+storage
+objects/reactions
+.che/
+pkg/
+results.html
+.idea/
+nbproject/

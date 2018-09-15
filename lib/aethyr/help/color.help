@@ -1,0 +1,56 @@
+Command: Set Color
+Syntax: SET COLOR [ON|OFF]
+Syntax: SET COLOR DEFAULT
+Syntax: SET COLOR <setting> <color>
+
+These commands allow you to customize your color palette.
+To view your current settings, use SHOW COLOR.
+To disable all colors, use SET COLOR OFF.
+To renable, use SET COLOR ON.
+To set colors back to the default, use SET COLOR DEFAULT.
+To set individual colors, use SET COLOR <setting> <color>
+
+You can currently set:
+
+Setting          Meaning
+----------------------------------------
+roomtitle    |  Room title
+roomdesc     |  Room description
+object       |  Object name
+player       |  Player name
+mob          |  Mob name
+exits        |  Exit list
+important    |  Important messages
+say          |  Messages people say
+tell         |  Messages sent via TELL
+identifier   |  An object's identifier
+regular      |  Regular text
+
+Color Options
+--------------------------
+red                green
+yellow             blue
+magenta            cyan
+white              black
+brightred          brightgreen
+brightyellow       brightblue
+brightmagenta      brightcyan
+brightwhite        brightblack
+darkred            darkgreen
+darkyellow         darkblue
+darkmagenta        darkcyan
+darkwhite          darkblack
+underlinewhite     underlineblack
+underlinered       underlinegreen
+underlineyellow    underlineblue
+underlinemagenta   underlinecyan
+underlinewhite     underlineblack
+blinkred           blinkgreen
+blinkyellow        blinkblue
+blinkmagenta       blinkcyan
+blinkwhite         blinkblack
+bold               none
+
+Example:
+
+SET COLOR roomdesc brightmagenta

@@ -1,0 +1,33 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require 'methadone'
+require 'aethyr/server'
+
+class App
+    include Methadone::Main
+    include Methadone::CLILogging
+
+    main do |command, subcommand|
+        puts 'verbose output enabled' if options[:verbose]
+        puts 'flag set to: ' + options['flag'] if options[:verbose]
+        Aethyr::main
+    end
+
+    description 'The Aethyr MUD server.'
+    version Aethyr::VERSION
+
+    # Proxy to an OptionParser instance's on method
+    on('--verbose', '-v', 'Prints extra output to the screen.')
+    on('--flag VALUE', 'Sets the flag.')
+
+    #arg :command, "The COMMAND to run. One of the follow: run"
+    #arg :subcommand, :optional
+
+    defaults_from_env_var 'AETHYR_CFG'
+    defaults_from_config_file '.aethyr.rc'
+
+    use_log_level_option :toggle_debug_on_signal => 'USR1'
+
+    go!
+end

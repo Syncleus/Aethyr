@@ -1,0 +1,32 @@
+= Peak
+
+{<img src="https://badge.fury.io/rb/aethyr.svg" alt="Gem Version" />}[https://badge.fury.io/rb/aethyr]
+{<img src="http://img.shields.io/badge/yard-docs-blue.svg" />}[http://www.rubydoc.info/github/Syncleus/aethyr/master]
+
+Author::  Jeffrey Phillips Freeman (freemo@gmail.com)
+Copyright:: Copyright (c) 2018 - present Jeffrey Phillips Freeman.
+
+Aethyr is a Ruby based MUD.
+
+For more information on the project please check out {the project's home page}[https://github.com/Syncleus/Aethyr].
+
+Aethyr is Free and Open-source software under Apache Software License v2
+
+== Installation
+
+Install the application using gem.
+
+    gem install aethyr
+
+== Running the app
+
+Just run the application with the following command.
+
+    aethyr
+
+== From source
+
+     bundle install
+     bundle exec rake
+     bundle exec ./bin/aethyr_setup
+     bundle exec ./bin/aethyr run

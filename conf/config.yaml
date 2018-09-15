@@ -1,0 +1,15 @@
+---
+:log_level: 1
+:save_rate: 1440
+:debug: false
+:admin: freemo
+:goid_type: ":guid"
+:port: 8888
+:update_rate: 30
+:restart_delay: 10
+:address: 0.0.0.0
+:intro_file: intro.txt
+:start_room: 932ab029-53cb-1d0f-34d4-e7295f3c438f
+:restart_limit: 15
+:mccp: false
+:mssp: false

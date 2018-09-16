@@ -1,7 +1,7 @@
 require 'aethyr/gameobject'
 require 'aethyr/objects/equipment'
 require 'aethyr/traits/position'
-require 'aethyr/traits/hasinventory'
+require 'aethyr/traits/has_inventory'
 
 #Shared parent class of Player and Mobile.
 class LivingObject < GameObject

@@ -1,7 +1,7 @@
 require 'aethyr/objects/living'
 require 'aethyr/ansicolor'
 require 'aethyr/components/commandparser'
-require 'aethyr/traits/hasinventory'
+require 'aethyr/traits/has_inventory'
 require 'aethyr/help/syntax'
 
 #Base class for all players.

@@ -8,7 +8,7 @@
 #  require "aethyr/traits/#{f[0..-4]}"
 #end
 require 'aethyr/traits/expires'
-require 'aethyr/traits/hasinventory'
+require 'aethyr/traits/has_inventory'
 require 'aethyr/traits/news'
 require 'aethyr/traits/openable'
 require 'aethyr/traits/position'

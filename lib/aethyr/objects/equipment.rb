@@ -1,4 +1,4 @@
-require 'aethyr/traits/hasinventory'
+require 'aethyr/traits/has_inventory'
 
 #Holds an object's equipment, such as clothing, armor, weapons, etc.
 #

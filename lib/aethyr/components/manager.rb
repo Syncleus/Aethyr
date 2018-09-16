@@ -4,6 +4,7 @@ require 'aethyr/components/storage'
 require 'aethyr/errors'
 require 'aethyr/calendar'
 require 'set'
+require 'pp'
 
 #The Manager class uses the observer model to recieve events from objects, which
 #it then passes along to the EventHandler.
@@ -142,7 +143,7 @@ class Manager
   #Example:
   #
   #create_object(Box, room, nil, :@open => false)
-  def create_object(klass, room = nil, args = nil, vars = nil)
+  def create_object(klass, room = nil, args = nil, vars = nil, x = 0, y= 0)
     object = nil
     if room.is_a? Container
       room_goid = room.goid
@@ -166,20 +167,30 @@ class Manager
       end
     end
 
-    add_object(object)
-    room.add(object) unless room.nil?
+    add_object(object, x, y)
+    unless room.nil?
+      if room.is_a? MappableArea
+        room.add(object, x, y)
+      else
+        room.add(object)
+      end
+    end
     object
   end
 
   #Add GameObject to the game.
-  def add_object(game_object)
+  def add_object(game_object, x = 0, y = 0)
 
     @game_objects << game_object unless @game_objects.loaded? game_object.goid
 
     unless game_object.room.nil?
       room = @game_objects[game_object.room]
       unless room.nil?
-        room.add(game_object)
+        if room.is_a? MappableArea
+          room.add(game_object, x, y)
+        else
+          room.add(game_object)
+        end
       end
     end
 

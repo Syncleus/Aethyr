@@ -1,5 +1,5 @@
 require 'aethyr/gameobject'
-require 'aethyr/traits/hasinventory.rb'
+require 'aethyr/traits/has_inventory'
 
 #Container is used extensively inside the codebase, though essentially it is just a GameObject
 #with an Inventory that propogates events to its contents.
@@ -11,7 +11,7 @@ class Container < GameObject
     super(*args)
 
     @generic = "container"
-    @inventory = Inventory.new(capacity)
+    init_inventory capacity
   end
 
   #Add an object to the container.
@@ -76,5 +76,10 @@ class Container < GameObject
   #Returns a String describing contents.
   def look_inside(event)
     event[:player].output("#{self.name} contains:\n" << @inventory.show)
+  end
+  
+  protected
+  def init_inventory capacity = nil
+    @inventory = Inventory.new(capacity)
   end
 end

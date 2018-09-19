@@ -43,15 +43,19 @@ module Admin
         current_container = $manager.find object.container
         current_container.inventory.remove(object) if current_container
       end
+      
+      unless event[:at] == nil
+        position = event[:at].split('x').map{ |e| e.to_i}
+      end
 
       if container.is_a? Container
-        container.add object
+        container.add(object, position)
       else
-        container.inventory.add(object)
+        container.inventory.add(object, position)
         object.container = container.goid
       end
 
-      player.output "Moved #{object} into #{container}"
+      player.output "Moved #{object} into #{container}#{event[:at] == nil ? '' : ' at ' + event[:at]}"
     end
 
     #Loads/Reloads a .rb file. Do not provide the extension.
@@ -399,7 +403,7 @@ module Admin
 
       if object.respond_to? :inventory
         object.inventory.each do |o|
-          output << "\t#{o.name} # #{o.goid}\n"
+          output << "\t#{o.name} # #{o.goid} #{object.inventory.position(o) == nil ? "" : object.inventory.position(o).map(&:to_s).join('x')}\n"
         end
       else
         output << "\tNo Inventory"

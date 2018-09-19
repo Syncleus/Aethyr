@@ -57,6 +57,10 @@ class Array
         end
     end.simple_list(type)
   end
+  
+  def to_s
+    "[" + self.map{ |e| e.to_s}.join(',') + "]"
+  end
 end
 
 module Kernel

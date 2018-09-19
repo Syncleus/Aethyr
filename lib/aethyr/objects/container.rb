@@ -11,12 +11,17 @@ class Container < GameObject
     super(*args)
 
     @generic = "container"
-    init_inventory capacity
+    @inventory = Inventory.new(capacity)
   end
 
   #Add an object to the container.
   def add(object)
     @inventory << object
+    object.container = @game_object_id
+  end
+  
+  def add(object, position)
+    @inventory.add(object, position)
     object.container = @game_object_id
   end
 
@@ -76,10 +81,5 @@ class Container < GameObject
   #Returns a String describing contents.
   def look_inside(event)
     event[:player].output("#{self.name} contains:\n" << @inventory.show)
-  end
-  
-  protected
-  def init_inventory capacity = nil
-    @inventory = Inventory.new(capacity)
   end
 end

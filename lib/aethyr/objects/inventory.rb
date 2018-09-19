@@ -13,6 +13,38 @@ class Inventory < Gary
     else
       @capacity = capacity
     end
+    @grid = Hash.new
+  end
+  
+    #Add an object to the container. Checks capacity first.
+  def add( game_object, position = nil)
+    unless position == nil
+      return if @grid.has_key?(position) and @grid[position].eql? game_object
+      raise "Slot is already full!" if @grid.has_key?(position)
+      raise "Object already exists in another slot" if self.include?(game_object)
+    end
+    
+    if @capacity.nil? or length < @capacity
+      super game_object
+    else
+      raise "Inventory full!"
+    end
+    
+    @grid[position] = game_object unless position == nil
+  end
+  
+  def delete game_object
+    super game_object
+    @grid.delete_if{|_,v| v.eql? game_object}
+  end
+  
+  def find_by_position(position)
+    return nil if not @grid.has_key?(position)
+    @grid[position]
+  end
+  
+  def position game_object
+    @grid.key game_object
   end
 
   def full?
@@ -61,15 +93,6 @@ class Inventory < Gary
       @ghash.dup.each do |goid|
         yield goid
       end
-    end
-  end
-
-  #Add an object to the container. Checks capacity first.
-  def add game_object
-    if @capacity.nil? or length < @capacity
-      super game_object
-    else
-      raise "Inventory full!"
     end
   end
 

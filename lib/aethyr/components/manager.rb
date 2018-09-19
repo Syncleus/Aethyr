@@ -143,7 +143,7 @@ class Manager
   #Example:
   #
   #create_object(Box, room, nil, :@open => false)
-  def create_object(klass, room = nil, args = nil, vars = nil, x = 0, y= 0)
+  def create_object(klass, room = nil, position = nil, args = nil, vars = nil)
     object = nil
     if room.is_a? Container
       room_goid = room.goid
@@ -167,19 +167,19 @@ class Manager
       end
     end
 
-    add_object(object, x, y)
+    add_object(object, position)
     unless room.nil?
-      if room.is_a? MappableArea
-        room.add(object, x, y)
-      else
+      if position == nil
         room.add(object)
+      else
+        room.add(object, position)
       end
     end
     object
   end
 
   #Add GameObject to the game.
-  def add_object(game_object, x = 0, y = 0)
+  def add_object(game_object, position = nil)
 
     @game_objects << game_object unless @game_objects.loaded? game_object.goid
 
@@ -187,7 +187,7 @@ class Manager
       room = @game_objects[game_object.room]
       unless room.nil?
         if room.is_a? MappableArea
-          room.add(game_object, x, y)
+          room.add(game_object, position)
         else
           room.add(game_object)
         end

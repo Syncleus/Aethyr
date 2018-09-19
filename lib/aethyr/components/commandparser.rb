@@ -547,6 +547,11 @@ module CommandParser
         event[:attribute] = $2
         event[:value] = $3
         event[:force] = true
+      when /^aput\s+(.*?)\s+in\s+(.*?)\s+at\s+(.*?)$/i
+        event[:action] = :aput
+        event[:object] = $1
+        event[:in] = $2
+        event[:at] = $3
       when /^aput\s+(.*?)\s+in\s+(.*?)$/i
         event[:action] = :aput
         event[:object] = $1

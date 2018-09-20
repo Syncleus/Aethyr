@@ -124,10 +124,6 @@ module Login
       puts "Character is already logged in."
       show_server_menu
       return
-    rescue
-      puts "An error occurred when loading this character."
-      show_server_menu
-      return
     end
 
     if player.nil?

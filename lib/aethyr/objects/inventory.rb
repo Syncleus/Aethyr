@@ -1,4 +1,5 @@
 require 'aethyr/gary'
+require 'pp'
 
 #Fairly small extensions to Gary. Used everywhere.
 class Inventory < Gary
@@ -33,7 +34,7 @@ class Inventory < Gary
     @grid[position] = game_object unless position == nil
   end
   
-  def delete game_object
+  def delete(game_object)
     super game_object
     @grid.delete_if{|_,v| v.eql? game_object}
   end
@@ -118,6 +119,7 @@ class Inventory < Gary
     return inv_out.list(self)
   end
 
+  alias :remove :delete
   alias :shift :remove
   alias :<< :add
   alias :count :size

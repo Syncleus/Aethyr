@@ -284,7 +284,7 @@ class StorageMachine
 
     if object.respond_to? :inventory
       log "Loading inventory for #{object}", Logger::Ultimate
-      load_too = object.inventory
+      load_too = object.inventory.map{ |e| e[0]}
       object.inventory = Inventory.new(object.inventory.capacity)
       load_too.each do |goid|
         if game_objects.find_by_id(goid)
@@ -302,7 +302,7 @@ class StorageMachine
 
     if object.respond_to? :equipment
       log "Loading equipment for #{object}", Logger::Ultimate
-      load_too = object.equipment.inventory
+      load_too = object.equipment.inventory.map{ |e| e[0]}
       object.equipment.inventory = Inventory.new
       load_too.each do |goid|
         if game_objects.find_by_id(goid)

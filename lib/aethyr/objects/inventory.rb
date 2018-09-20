@@ -60,13 +60,14 @@ class Inventory < Gary
     inv = []
     each do |o|
       if o.is_a? GameObject
-        inv << o.game_object_id
+        inv << [o.game_object_id, position(o)]
       else
-        inv << o
+        inv << [o, position(o)]
       end
     end
 
     inv << @capacity
+    
 
     return inv
   end

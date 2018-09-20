@@ -449,10 +449,11 @@ class StorageMachine
     inv = Inventory.new(object.inventory.capacity)
 
     object.inventory.each do |inv_obj|
-      if game_objects.include? inv_obj
-        obj = game_objects[inv_obj]
+      if game_objects.include? inv_obj[0]
+        obj = game_objects[inv_obj[0]]
+        pos = inv_obj[1]
         unless obj.is_a? Player
-          inv.add(obj)
+          inv.add(obj, pos)
           obj.container = object.goid
         end
         #log "Added #{obj} to #{object}"

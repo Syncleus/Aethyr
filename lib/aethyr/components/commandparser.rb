@@ -7,6 +7,7 @@ module CommandParser
   'bug',
   'date',
   'delete',
+  'map',
   'look',
   'l',
   'get',
@@ -265,6 +266,8 @@ module CommandParser
       e = case input
           when /^delete me please$/i
             { :action => :deleteme }
+          when /^(m|map)$/i
+            { :action => :map }
           when /^(l|look)$/i
             { :action => :look }
           when /^(l|look)\s+(in|inside)\s+(.*)$/i

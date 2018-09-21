@@ -130,6 +130,12 @@ module Generic
       event[:to_blind_other] = "You hear something hit the ground."
       room.out_event(event)
     end
+    
+    #map
+    def map(event, player, room)
+      player.output("here is a map...")
+      player.output(room.area.render_map(player, [0,0]))
+    end
 
     #Look
     def look(event, player, room)

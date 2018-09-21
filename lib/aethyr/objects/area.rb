@@ -49,8 +49,10 @@ class Area < GridContainer
         #north_room = !self.find_by_position([room_column, room_row + 1]).nil?
         #north_west_room = !self.find_by_position([room_column - 1, room_row + 1]).nil?
         here_room = (room != nil && row < height - 1 && column < width - 1);
-        west_room = (row >= height - 1 ? false : self.find_by_position([room_column - 1, room_row]) != nil);
-        north_room = (column >= width - 1 ? false : self.find_by_position([room_column , room_row + 1 ]) != nil);
+        west = self.find_by_position([room_column - 1, room_row])
+        west_room = (row >= height - 1 ? false : west != nil);
+        north =  self.find_by_position([room_column , room_row + 1 ])
+        north_room = (column >= width - 1 ? false : north != nil);
         north_west_room = (row >= height - 1 || column >= width - 1 ? false : self.find_by_position([room_column - 1, room_row + 1]) != nil);
         
         if border_row
@@ -79,8 +81,16 @@ class Area < GridContainer
           elsif column >= 1 and ((column - 2) % 4 == 0)
             #is a row exit
             if here_room or north_room
-              if here_room and north_room and !room.exit("north").nil?
-                rendered += "↕"
+              if here_room and north_room
+                if !room.exit("north").nil? and !north.exit("south").nil?
+                  rendered += "↕"
+                elsif !north.exit("south").nil?
+                  rendered += "↓"
+                elsif !room.exit("north").nil?
+                  rendered += "↑"
+                else
+                  rendered += "─"
+                end
               else
                 rendered += "─"
               end
@@ -98,8 +108,16 @@ class Area < GridContainer
           if border_column
             # is an intersection between the four rooms
             if here_room or west_room
-              if here_room and west_room and !room.exit("west").nil?
-                rendered += "↔"
+              if here_room and west_room
+                if !room.exit("west").nil? and !west.exit("east").nil?
+                  rendered += "↔"
+                elsif !west.exit("east").nil?
+                  rendered += "→"
+                elsif !room.exit("west").nil?
+                  rendered += "←"
+                else
+                  rendered += "│"
+                end
               else
                 rendered += "│"
               end

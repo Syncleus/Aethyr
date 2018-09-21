@@ -48,8 +48,10 @@ module Admin
         position = event[:at].split('x').map{ |e| e.to_i}
       end
 
-      if container.is_a? Container
+      if container.is_a? Inventory
         container.add(object, position)
+      elsif container.is_a? Container
+        container.add(object)
       else
         container.inventory.add(object, position)
         object.container = container.goid

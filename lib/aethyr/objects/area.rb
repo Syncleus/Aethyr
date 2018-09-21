@@ -6,7 +6,8 @@ require 'aethyr/objects/container'
 #==Info
 # info.terrain = Info.new
 # info.terrain.area_type = :urban
-class Area < Container
+class Area < GridContainer
+  attr_accessor :map_type
 
   def initialize(*args)
     super
@@ -14,19 +15,11 @@ class Area < Container
     info.terrain.area_type = :urban
     @article = "an"
     @generic = "area"
+    @map_type = :rooms
   end
 
   #Returns self.
   def area
     self
-  end
-end
-
-class MappableArea < Area
-  attr_accessor :map_type
-  
-  def initialize(*args)
-    super
-    @map_type = :rooms
   end
 end

@@ -142,7 +142,7 @@ class Manager
   #
   #Example:
   #
-  #create_object(Box, room, nil, :@open => false)
+  #create_object(Box, room, nil, nil, :@open => false)
   def create_object(klass, room = nil, position = nil, args = nil, vars = nil)
     object = nil
     if room.is_a? Container
@@ -186,7 +186,7 @@ class Manager
     unless game_object.room.nil?
       room = @game_objects[game_object.room]
       unless room.nil?
-        if room.is_a? MappableArea
+        if room.is_a? Area
           room.add(game_object, position)
         else
           room.add(game_object)

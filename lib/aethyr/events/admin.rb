@@ -8,7 +8,7 @@ module Admin
 
     #Moves an object into a specified container.
     #
-    # APUT [OBJECT] IN [CONTAINER]
+    # APUT [OBJECT] IN [CONTAINER] AT [x]x[y]
     def aput(event, player, room)
       if event[:object].is_a? GameObject
         object = event[:object]
@@ -96,7 +96,7 @@ module Admin
       vars[:@generic] = event[:generic] if event[:generic]
       args = event[:args]
 
-      object = $manager.create_object(klass, room, args, vars)
+      object = $manager.create_object(klass, room, nil, args, vars)
 
       if room
         event[:to_player] = "Frowning in concentration, you make vague motions with your hands. There is a small flash of light as #{object.name} appears."
@@ -136,8 +136,8 @@ module Admin
         return
       end
 
-      door_here = $manager.create_object Door, room, exit_room.goid, :@alt_names => [event[:direction]], :@name => "a door to the #{event[:direction]}"
-      door_there = $manager.create_object Door, exit_room, room.goid, :@alt_names => [opposite_dir(event[:direction])], :@name => "a door to the #{opposite_dir event[:direction]}"
+      door_here = $manager.create_object Door, room, nil, exit_room.goid, :@alt_names => [event[:direction]], :@name => "a door to the #{event[:direction]}"
+      door_there = $manager.create_object Door, exit_room, nil, room.goid, :@alt_names => [opposite_dir(event[:direction])], :@name => "a door to the #{opposite_dir event[:direction]}"
       door_here.connect_to door_there
 
       player.output "Created: #{door_here}"
@@ -220,7 +220,7 @@ module Admin
 
     #Create a new area.
     def acarea(event, player, room)
-      area = $manager.create_object(Area, nil, nil, {:@name => event[:name]})
+      area = $manager.create_object(Area, nil, nil, nil, {:@name => event[:name]})
       player.output "Created: #{area}"
     end
 
@@ -230,12 +230,35 @@ module Admin
       if room.container
         area = $manager.get_object(room.container)
       end
+      
+      unless (area.nil? or area.map_type == :none)
+        current_pos = area.position(room)
+        new_pos = current_pos.dup
+        case event[:out_dir].downcase.strip
+          when "north"
+            new_pos[1] += 1
+          when "south"
+            new_pos[1] -= 1
+          when "west"
+            new_pos[0] -= 1
+          when "east"
+            new_pos[0] += 1
+          else
+            new_pos = nil
+        end
+        new_pos_text = new_pos.map{ |e| e.to_s}.join('x') unless new_pos.nil?
+      end
+      
+      unless (new_pos.nil? or area.find_by_position(new_pos).nil?)
+        player.output "There is already a room at the coordinates (#{new_pos_text}) that would be occupied by the new room, aborting"
+        return
+      end
 
-      new_room = $manager.create_object(Room, area, nil, :@name => event[:name])
-      out_exit = $manager.create_object(Exit, room, new_room.goid, :@alt_names => [event[:out_dir]])
-      in_exit = $manager.create_object(Exit, new_room, room.goid, :@alt_names => [event[:in_dir]])
+      new_room = $manager.create_object(Room, area, new_pos, nil, :@name => event[:name])
+      out_exit = $manager.create_object(Exit, room, nil, new_room.goid, :@alt_names => [event[:out_dir]])
+      in_exit = $manager.create_object(Exit, new_room, nil, room.goid, :@alt_names => [event[:in_dir]])
 
-      player.output "Created: #{new_room}"
+      player.output "Created: #{new_room}#{new_pos.nil? ? '' : ' @ ' + new_pos_text}"
       player.output "Created: #{out_exit}"
       player.output "Created: #{in_exit}"
 

@@ -19,11 +19,6 @@ class Container < GameObject
     @inventory << object
     object.container = @game_object_id
   end
-  
-  def add(object, position)
-    @inventory.add(object, position)
-    object.container = @game_object_id
-  end
 
   #Propagates alert to all in the container.
   def alert(event)
@@ -81,5 +76,20 @@ class Container < GameObject
   #Returns a String describing contents.
   def look_inside(event)
     event[:player].output("#{self.name} contains:\n" << @inventory.show)
+  end
+end
+
+class GridContainer < Container
+  def add(object, position)
+    @inventory.add(object, position)
+    object.container = @game_object_id
+  end
+  
+  def find_by_position(position)
+    @inventory.find_by_position(position)
+  end
+  
+  def position game_object
+    @inventory.position(game_object)
   end
 end

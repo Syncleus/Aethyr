@@ -79,7 +79,7 @@ class Area < GridContainer
           elsif column >= 1 and ((column - 2) % 4 == 0)
             #is a row exit
             if here_room or north_room
-              if here_room and north_room
+              if here_room and north_room and !room.exit("north").nil?
                 rendered += "↕"
               else
                 rendered += "─"
@@ -98,7 +98,7 @@ class Area < GridContainer
           if border_column
             # is an intersection between the four rooms
             if here_room or west_room
-              if here_room and west_room
+              if here_room and west_room and !room.exit("west").nil?
                 rendered += "↔"
               else
                 rendered += "│"

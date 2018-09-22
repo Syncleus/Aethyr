@@ -80,7 +80,7 @@ class Container < GameObject
 end
 
 class GridContainer < Container
-  def add(object, position)
+  def add(object, position = nil)
     @inventory.add(object, position)
     object.container = @game_object_id
   end

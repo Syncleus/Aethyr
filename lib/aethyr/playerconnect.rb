@@ -311,7 +311,7 @@ Tell                tell             <tell>#{@color_settings['tell']}</tell>
 Important           important        <important>#{@color_settings['important']}</important>
 Editor              editor           <editor>#{@color_settings['editor']}</editor>
 News                news             <news>#{@color_settings['news']}</news>
-Identifier          identifier       <identifier>#{@color_settings['identifiers']}</identifier>
+Identifier          identifier       <identifier>#{@color_settings['identifier']}</identifier>
 Regular             regular          #{@color_settings['regular']}
 CONF
 

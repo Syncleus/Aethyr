@@ -133,12 +133,15 @@ class Room < Container
           quantity = item.article
         end
         
+        idents = ["<identifier>#{item.generic}</identifier>"]
+        idents += item.alt_names.map() {|e| "<identifier>" + e + "</identifier>"}
+        idents = idents.join(', ')
         if item.can? :alive and item.alive
-          mobs << "<mob>#{item.name}</mob> [<identifier>#{item.generic}</identifier>]"
+          mobs << "<mob>#{item.name}</mob> [#{idents}]"
         elsif item.can? :pose and item.pose
-          things << "<object>#{item.name}</object> [<identifier>#{item.generic}</identifier>] (#{item.pose})#{item.short_desc ? ' - ' + item.short_desc : ''}"
+          things << "<object>#{item.name}</object> [#{idents}] (#{item.pose})#{item.short_desc ? ' - ' + item.short_desc : ''}"
         else
-          things << "<object>#{item.name}</object> [<identifier>#{item.generic}</identifier>]#{item.short_desc ? ' - ' + item.short_desc : ''}"
+          things << "<object>#{item.name}</object> [#{idents}]#{item.short_desc ? ' - ' + item.short_desc : ''}"
         end
       end
     end

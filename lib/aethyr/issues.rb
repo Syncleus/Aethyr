@@ -1,3 +1,5 @@
+require 'date'
+
 #Generic module for storing and manipulating issues
 #like ideas, bugs, and typos
 module Issues

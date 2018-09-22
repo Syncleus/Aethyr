@@ -204,13 +204,13 @@ class Area < GridContainer
       right_char = "<mob>*</mob>"
     elsif merchants_here
       right_char = "<merchant>☻<merchant>"
+    elsif other_player_here
+      right_char = "<player>☺</player>"
     end
     
     middle_char = " "
     if me_here
       middle_char = "<me>☺</me>"
-    elsif other_player_here
-      middle_char = "<player>☺</player>"
     end
     
     if (left_char.eql? " ") and (not right_char.eql? " ")

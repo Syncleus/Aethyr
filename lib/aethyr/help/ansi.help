@@ -16,10 +16,12 @@ Setting          Meaning
 ----------------------------------------
 roomtitle    |  Room title
 roomdesc     |  Room description
-object       |  Object name
-player       |  Player name
-mob          |  Mob name
-exits        |  Exit list
+object       |  Object name or map icon
+player       |  Player name or map icon
+mob          |  Mob name or map icon
+merchant     |  Merchant name or map icon
+exit         |  Exit list
+me           |  Your own name or map icon
 important    |  Important messages
 say          |  Messages people say
 tell         |  Messages sent via TELL

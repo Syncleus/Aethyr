@@ -168,11 +168,19 @@ class Area < GridContainer
     rendered
   end
   
+  def room_has_nonstandard_exits(room)
+    exits = room.exits.map() { |e| e.alt_names[0] }
+    exits.each do |exit|
+      return true unless exit.eql? "north" or exit.eql? "west" or exit.eql? "south" or exit.eql? "east" or exit.eql? "up" or exit.eql? "down"
+    end
+    false
+  end
+  
   def render_room(room, has_player)
     return "   " if room.nil?
     me_here = has_player
     merchants_here = false
-    zone_change_here = false
+    zone_change_here = room_has_nonstandard_exits(room)
     
     up_here = room.exits.map{ |e| e.alt_names[0]}.include?("up")
     down_here = room.exits.map{ |e| e.alt_names[0]}.include?("down")
@@ -180,34 +188,34 @@ class Area < GridContainer
     
     left_char = " "
     if zone_change_here
-      left_char = "☼"
+      left_char = "<exit>☼</exit>"
     elsif up_here
-      left_char = "↑"
+      left_char = "<exit>↑</exit>"
     elsif down_here
-      left_char = "↓"
+      left_char = "<exit>↓</exit>"
     end
     
     right_char = " "
     if mobs_here
-      right_char = "*"
+      right_char = "<mob>*</mob>"
     elsif merchants_here
-      right_char = "☻"
+      right_char = "<merchant>☻<merchant>"
     end
     
     middle_char = " "
     if me_here
-      middle_char = "☺"
+      middle_char = "<me>☺</me>"
     end
     
     if (left_char.eql? " ") and (not right_char.eql? " ")
       if mobs_here and merchants_here
-        left_char = "☻"
+        left_char = "<merchant>☻</merchant>"
       end
     elsif (not left_char.eql? " ") and (right_char.eql? " ")
       if zone_change_here and up_here
-        right_Char = "↑"
+        right_Char = "<exit>↑</exit>"
       elsif (zone_change_here or up_here) and down_here
-        right_char = "↓"
+        right_char = "<exit>↓</exit>"
       end
     end
     

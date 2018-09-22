@@ -150,10 +150,12 @@ module PlayerConnection
       "object" => "darkyellow",
       "player" => "darkcyan",
       "mob" => "darkblue",
-      "exits" => "darkgreen",
+      "merchant" => "lightblue",
+      "me" => "brightwhite",
+      "exit" => "darkgreen",
       "say" => "brightwhite",
       "tell" => "brightcyan",
-      "important" => "brightyellow",
+      "important" => "brightred",
       "editor" => "cyan",
       "news" => "brightcyan",
       "identifier" => "brightmagenta",
@@ -303,7 +305,9 @@ Room description    roomdesc         <roomdesc>#{@color_settings['roomdesc']}</r
 Object              object           <object>#{@color_settings['object']}</object>
 Player              player           <player>#{@color_settings['player']}</player>
 Mob                 mob              <mob>#{@color_settings['mob']}</mob>
-Exits               exits            <exits>#{@color_settings['exits']}</exits>
+Merchant            merchant         <merchant>#{@color_settings['merchant']}</merchant>
+Me                  me               <me>#{@color_settings['me']}</me>
+Exit                exit             <exit>#{@color_settings['exit']}</exit>
 Say                 say              <say>#{@color_settings['say']}</say>
 Tell                tell             <tell>#{@color_settings['tell']}</tell>
 Important           important        <important>#{@color_settings['important']}</important>

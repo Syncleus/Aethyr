@@ -120,11 +120,11 @@ class Room < Container
         end
       elsif item.is_a?(Exit) and item.visible
         if item.can? :open and item.closed?
-          exits << "#{item.alt_names[0]} (closed)"
+          exits << "<exit>#{item.alt_names[0]}</exit> (closed)"
         elsif item.can? :open and item.open?
-          exits << "#{item.alt_names[0]} (open)"
+          exits << "<exit>#{item.alt_names[0]}</exit> (open)"
         else
-          exits << (item.alt_names[0] || "[Improperly named exit]")
+          exits << ("<exit>#{item.alt_names[0]}</exit>" || "[Improperly named exit]")
         end
       elsif item != player and item.visible
         if not item.quantity.nil? and item.quantity > 1
@@ -168,7 +168,7 @@ class Room < Container
       things = "There are the following items in the room:\n#{things.list(@inventory, :expanded)}\n"
     end
 
-    "\n<roomtitle>#{@name}</title>\n\n<roomdesc>#{(@short_desc || '') + add_to_desc}</desc>\n\n<exits>[Exits: #{exits.list}]</exits>\n\n#{players}#{mobs}#{things}\n"
+    "\n<roomtitle>#{@name}</title>\n\n<roomdesc>#{(@short_desc || '') + add_to_desc}</desc>\n\n[Exits: #{exits.list}]\n\n#{players}#{mobs}#{things}\n"
   end
 end
 

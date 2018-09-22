@@ -26,34 +26,63 @@ class Area < GridContainer
   end
   
   def render_map player, position
-    return "" if @map_type.eql? :none
- 
+    player_room = self.inventory.find_by_id(player.container)
+    
+    if @map_type == :rooms
+      return render_rooms(player_room, position)
+    elsif @map_type == :world
+      return render_world(player_room, position)
+    elsif @map_type == :none
+      return "This area defies the laws of physics, it can not be mapped!\r\n"
+    else
+      raise "Invalid map type for area!"
+    end
+  end
+  
+  private
+  def render_world(player_room, position)
     rendered = ""
-    width = (@map_columns) * 4 + 1;
-    height = (@map_rows) * 2 + 1;
+    width = @map_columns
+    height = @map_rows
+    (0..height).step(1) do |screen_row|
+      row = (height - screen_row) + (position[1] - (@map_rows / 2))
+      (0..width).step(1) do |screen_column|
+        column = screen_column + (position[0] - (@map_columns / 2))
+        room = self.find_by_position([column , row])
+        
+        if room.nil?
+          rendered += " "
+        elsif room.eql? player_room
+          rendered += "☺"
+        else
+          rendered += "░"
+        end
+      end
+      rendered += "\r\n"
+    end
+    rendered
+  end
+  
+  def render_rooms(player_room, position)
+    rendered = ""
+    width = (@map_columns) * 4 + 1
+    height = (@map_rows) * 2 + 1
     (0..height - 1).step(1) do |row|
       border_row = (row % 2 == 0);
       #room_row = row / 2;
-      room_row = ((height - row) / 2) + (position[0] - (@map_rows / 2))
+      room_row = ((height - row) / 2) + (position[1] - (@map_rows / 2))
       column = 0
       until column >= width
-      #(0..width).step(1) do |column|
         border_column = (column % 4 == 0);
-        #room_column = column / 4;
-        room_column = (column / 4) + (position[1] - (@map_columns / 2))
-        #rendered += room_column.to_s
+        room_column = (column / 4) + (position[0] - (@map_rows / 2))
         
         room = self.find_by_position([room_column, room_row])
-        #here_room = !room.nil?
-        #west_room = !self.find_by_position([room_column - 1, room_row]).nil?
-        #north_room = !self.find_by_position([room_column, room_row + 1]).nil?
-        #north_west_room = !self.find_by_position([room_column - 1, room_row + 1]).nil?
-        here_room = (room != nil && row < height - 1 && column < width - 1);
+        here_room = (room != nil && row < height - 1 && column < width - 1)
         west = self.find_by_position([room_column - 1, room_row])
-        west_room = (row >= height - 1 ? false : west != nil);
+        west_room = (row >= height - 1 ? false : west != nil)
         north =  self.find_by_position([room_column , room_row + 1 ])
-        north_room = (column >= width - 1 ? false : north != nil);
-        north_west_room = (row >= height - 1 || column >= width - 1 ? false : self.find_by_position([room_column - 1, room_row + 1]) != nil);
+        north_room = (column >= width - 1 ? false : north != nil)
+        north_west_room = (row >= height - 1 || column >= width - 1 ? false : self.find_by_position([room_column - 1, room_row + 1]) != nil)
         
         if border_row
           if border_column
@@ -127,7 +156,7 @@ class Area < GridContainer
           else
             #a room space
             # render the room here and append to rendered
-            rendered += self.render_room room, player
+            rendered += render_room(room, (player_room.eql? room))
             column += 2
           end
         end
@@ -140,9 +169,9 @@ class Area < GridContainer
     rendered
   end
   
-  def render_room room, player
+  def render_room(room, has_player)
     return "   " if room.nil?
-    me_here = room.inventory.include? player
+    me_here = has_player
     merchants_here = false
     zone_change_here = false
     up_here = false

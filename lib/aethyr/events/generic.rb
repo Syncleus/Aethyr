@@ -134,7 +134,7 @@ module Generic
     #map
     def map(event, player, room)
       player.output("here is a map...")
-      player.output(room.area.render_map(player, [0,0]))
+      player.output(room.area.render_map(player, room.area.position(room)))
     end
 
     #Look

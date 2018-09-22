@@ -16,8 +16,6 @@ class Area < GridContainer
     @article = "an"
     @generic = "area"
     @map_type = :rooms
-    @map_rows = 10
-    @map_columns = 10
   end
 
   #Returns self.
@@ -25,13 +23,13 @@ class Area < GridContainer
     self
   end
   
-  def render_map player, position
+  def render_map(player, position, map_rows = 10, map_columns = 10)
     player_room = self.inventory.find_by_id(player.container)
     
     if @map_type == :rooms
-      return render_rooms(player_room, position)
+      return render_rooms(player_room, position, map_rows, map_columns)
     elsif @map_type == :world
-      return render_world(player_room, position)
+      return render_world(player_room, position, map_rows, map_columns)
     elsif @map_type == :none
       return "This area defies the laws of physics, it can not be mapped!\r\n"
     else
@@ -40,14 +38,14 @@ class Area < GridContainer
   end
   
   private
-  def render_world(player_room, position)
+  def render_world(player_room, position, map_rows, map_columns)
     rendered = ""
-    width = @map_columns
-    height = @map_rows
+    width = map_columns
+    height = map_rows
     (0..height).step(1) do |screen_row|
-      row = (height - screen_row) + (position[1] - (@map_rows / 2))
+      row = (height - screen_row) + (position[1] - (map_rows / 2))
       (0..width).step(1) do |screen_column|
-        column = screen_column + (position[0] - (@map_columns / 2))
+        column = screen_column + (position[0] - (map_columns / 2))
         room = self.find_by_position([column , row])
         
         if room.nil?
@@ -63,18 +61,18 @@ class Area < GridContainer
     rendered
   end
   
-  def render_rooms(player_room, position)
+  def render_rooms(player_room, position, map_rows, map_columns)
     rendered = ""
-    width = (@map_columns) * 4 + 1
-    height = (@map_rows) * 2 + 1
+    width = (map_columns) * 4 + 1
+    height = (map_rows) * 2 + 1
     (0..height - 1).step(1) do |row|
       border_row = (row % 2 == 0);
       #room_row = row / 2;
-      room_row = ((height - row) / 2) + (position[1] - (@map_rows / 2))
+      room_row = ((height - row) / 2) + (position[1] - (map_rows / 2))
       column = 0
       until column >= width
         border_column = (column % 4 == 0);
-        room_column = (column / 4) + (position[0] - (@map_rows / 2))
+        room_column = (column / 4) + (position[0] - (map_rows / 2))
         
         room = self.find_by_position([room_column, room_row])
         here_room = (room != nil && row < height - 1 && column < width - 1)

@@ -146,9 +146,9 @@ module PlayerConnection
     @use_color = true
     @color_settings = {
       "roomtitle" => "brightgreen",
-      "roomdesc" => "cyan",
+      "roomdesc" => "white",
       "object" => "blue",
-      "player" => "darkcyan",
+      "player" => "cyan",
       "mob" => "brightyellow",
       "merchant" => "darkyellow",
       "me" => "brightwhite",

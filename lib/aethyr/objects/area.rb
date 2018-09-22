@@ -24,12 +24,10 @@ class Area < GridContainer
   end
   
   def render_map(player, position, map_rows = 10, map_columns = 10)
-    player_room = self.inventory.find_by_id(player.container)
-    
     if @map_type == :rooms
-      return render_rooms(player_room, position, map_rows, map_columns)
+      return render_rooms(player, position, map_rows, map_columns)
     elsif @map_type == :world
-      return render_world(player_room, position, map_rows, map_columns)
+      return render_world(player, position, map_rows, map_columns)
     elsif @map_type == :none
       return "This area defies the laws of physics, it can not be mapped!\r\n"
     else
@@ -38,7 +36,8 @@ class Area < GridContainer
   end
   
   private
-  def render_world(player_room, position, map_rows, map_columns)
+  def render_world(player, position, map_rows, map_columns)
+    player_room = self.inventory.find_by_id(player.container)
     rendered = ""
     width = map_columns
     height = map_rows
@@ -61,7 +60,8 @@ class Area < GridContainer
     rendered
   end
   
-  def render_rooms(player_room, position, map_rows, map_columns)
+  def render_rooms(player, position, map_rows, map_columns)
+    player_room = self.inventory.find_by_id(player.container)
     return "The current location doesn't appear on any maps." if position.nil?
     rendered = ""
     width = (map_columns) * 4 + 1
@@ -155,7 +155,7 @@ class Area < GridContainer
           else
             #a room space
             # render the room here and append to rendered
-            rendered += render_room(room, (player_room.eql? room))
+            rendered += render_room(room, player)
             column += 2
           end
         end
@@ -176,9 +176,13 @@ class Area < GridContainer
     false
   end
   
-  def render_room(room, has_player)
+  def render_room(room, player)
     return "   " if room.nil?
+    player_room = self.inventory.find_by_id(player.container)
+    has_player = (player_room.eql? room)
+    
     me_here = has_player
+    other_player_here = (!room.players(true, player).nil?) && (room.players(true, player).length > 0)
     merchants_here = false
     zone_change_here = room_has_nonstandard_exits(room)
     
@@ -205,6 +209,8 @@ class Area < GridContainer
     middle_char = " "
     if me_here
       middle_char = "<me>☺</me>"
+    elsif other_player_here
+      middle_char = "<player>☺</player>"
     end
     
     if (left_char.eql? " ") and (not right_char.eql? " ")

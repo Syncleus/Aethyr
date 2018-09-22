@@ -761,6 +761,8 @@ module Generic
           "in a foggy swamp"
         when :garden
           "a garden"
+        when :underground
+          "under the ground"
         else
           object.info.terrain.room_type.to_s
         end
@@ -795,6 +797,8 @@ module Generic
           "a swamp"
         when :garden
           "a garden"
+        when :underground
+          "an underground"
         else
           object.info.terrain.area_type.to_s
         end

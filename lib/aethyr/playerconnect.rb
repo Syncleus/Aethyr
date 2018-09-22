@@ -158,6 +158,18 @@ module PlayerConnection
       "editor" => "cyan",
       "news" => "brightcyan",
       "identifier" => "brightmagenta",
+      "water" => "blue",
+      "waterlow" => "darkblue",
+      "waterhigh" => "brightblue",
+      "earth" => "magenta",
+      "earthlow" => "darkmagenta",
+      "earthhigh" => "brightmagenta",
+      "air" => "white",
+      "airlow" => "darkwhite",
+      "airhigh" => "brightwhite",
+      "fire" => "red",
+      "firelow" => "darkred",
+      "firehigh" => "brightred",
       "regular" => "none"
     }
   end
@@ -312,6 +324,18 @@ Important           important        <important>#{@color_settings['important']}<
 Editor              editor           <editor>#{@color_settings['editor']}</editor>
 News                news             <news>#{@color_settings['news']}</news>
 Identifier          identifier       <identifier>#{@color_settings['identifier']}</identifier>
+Fire                fire             <fire>#{@color_settings['fire']}</fire>
+Fire when low       firelow          <firelow>#{@color_settings['firelow']}</firelow>
+Fire when high      firehigh         <firehigh>#{@color_settings['firehigh']}</firehigh>
+Air                 air              <air>#{@color_settings['air']}</air>
+Air when low        airlow           <airlow>#{@color_settings['airlow']}</airlow>
+Air when high       airhigh          <airhigh>#{@color_settings['airhigh']}</airhigh>
+Water               water            <water>#{@color_settings['water']}</water>
+Water when low      waterlow         <waterlow>#{@color_settings['waterlow']}</waterlow>
+Water when high     waterhigh        <waterhigh>#{@color_settings['waterhigh']}</waterhigh>
+Earth               earth            <earth>#{@color_settings['earth']}</earth>
+Earth when low      earthlow         <earthlow>#{@color_settings['earthlow']}</earthlow>
+Earth when high     earthhigh        <earthhigh>#{@color_settings['earthhigh']}</earthhigh>
 Regular             regular          #{@color_settings['regular']}
 CONF
 

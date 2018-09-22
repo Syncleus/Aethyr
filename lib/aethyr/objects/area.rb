@@ -12,10 +12,23 @@ class Area < GridContainer
   def initialize(*args)
     super
     info.terrain = Info.new
-    info.terrain.area_type = :urban
+    info.parent = self.container
+    info.terrain.area_type = :grassland
+    info.terrain.indoors = true
+    info.terrain.water = :normal
+    info.terrain.earth = :normal
+    info.terrain.air = :normal
+    info.terrain.fire = :normal
+    info.terrain.room_type = :grassland
+    
     @article = "an"
     @generic = "area"
     @map_type = :rooms
+  end
+  
+  def container=(new_container)
+    super new_container
+    info.parent = new_container
   end
 
   #Returns self.

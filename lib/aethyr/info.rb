@@ -22,6 +22,8 @@ require 'ostruct'
 #The info attributes used in the class are listed in the documentation for these classes.
 class Info < OpenStruct
 
+  attr_accessor :parent
+  
   #Creates a new Info object. If a hash is given, the Info will be initialized with the keys (Strings or Symbols)
   #as attributes and the values as values. Note that this will not work for nested keys.
   def initialize(hash = nil)
@@ -48,15 +50,11 @@ class Info < OpenStruct
   end
 
   #Retrieves a value by its name.
-  def get attrib
-    if attrib.is_a? String and attrib.include? "."
-      syms = attrib.split(".")
-      first = syms[0]
-      rest = syms[1..-1].join(".")
-      self.send(first).get(rest)
-    else
-      self.send(attrib.to_sym)
-    end
+  def get(attrib)
+    result = get_single(attrib)
+    return result unless result.nil?
+    result = @parent.get(attrib) unless @parent.nil?
+    result
   end
 
   #Deletes an attribute by name.
@@ -92,5 +90,17 @@ class Info < OpenStruct
 
   def to_s
     "Info object"
+  end
+  
+  private
+  def get_single(attrib)
+    if attrib.is_a? String and attrib.include? "."
+      syms = attrib.split(".")
+      first = syms[0]
+      rest = syms[1..-1].join(".")
+      self.send(first).get(rest)
+    else
+      self.send(attrib.to_sym)
+    end
   end
 end

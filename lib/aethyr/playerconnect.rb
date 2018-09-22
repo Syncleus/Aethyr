@@ -146,7 +146,6 @@ module PlayerConnection
     @use_color = true
     @color_settings = {
       "roomtitle" => "brightgreen",
-      "roomdesc" => "white",
       "object" => "blue",
       "player" => "cyan",
       "mob" => "brightyellow",
@@ -301,7 +300,6 @@ Colors are currently: #{@use_color ? "Enabled" : "Disabled"}
 Text                Setting          Color
 -----------------------------------------------
 Room Title          roomtitle        <roomtitle>#{@color_settings['roomtitle']}</roomtitle>
-Room description    roomdesc         <roomdesc>#{@color_settings['roomdesc']}</roomdesc>
 Object              object           <object>#{@color_settings['object']}</object>
 Player              player           <player>#{@color_settings['player']}</player>
 Mob                 mob              <mob>#{@color_settings['mob']}</mob>

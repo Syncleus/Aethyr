@@ -168,7 +168,7 @@ class Room < Container
       things = "There are the following items in the room:\n#{things.list(@inventory, :expanded)}\n"
     end
 
-    "\n<roomtitle>#{@name}</title>\n\n<roomdesc>#{(@short_desc || '') + add_to_desc}</desc>\n\n[Exits: #{exits.list}]\n\n#{players}#{mobs}#{things}\n"
+    "\n<roomtitle>#{@name}</title>\n\n#{(@short_desc || '') + add_to_desc}\n\n[Exits: #{exits.list}]\n\n#{players}#{mobs}#{things}\n"
   end
 end
 

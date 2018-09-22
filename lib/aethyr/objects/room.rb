@@ -1,5 +1,6 @@
 require 'aethyr/objects/container'
 require 'aethyr/objects/exit'
+require 'aethyr/info/terrain'
 
 #A room is where things live. Rooms themselves need to be in other rooms (kind of) and can certainly be nested as deeply as you would like.
 #Especially since doors can be set up arbitrarily. A room should be placed within an Area.
@@ -25,7 +26,8 @@ class Room < Container
     info.terrain.earth = :normal
     info.terrain.air = :normal
     info.terrain.fire = :normal
-    info.terrain.room_type = :grassland
+    info.terrain.swimming = false
+    info.terrain.type = Terrain::GRASSLAND
   end
 
   def container=(new_container)
@@ -180,7 +182,7 @@ class Room < Container
     end
     
     info = "You find some things unusual about this place:\n"
-    info += "  Type: " + self.info.terrain.room_type.to_s + "\n"
+    info += "  Type: " + self.info.terrain.type.name + "\n"
     if self.info.terrain.water == :high
       info += "  Everything around you is <waterhigh>humid</waterhigh> and <waterhigh>wet</waterhigh>\n"
     elsif self.info.terrain.water ==:low

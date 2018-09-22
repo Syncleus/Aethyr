@@ -1,4 +1,5 @@
 require 'aethyr/objects/container'
+require 'aethyr/info/terrain'
 
 #An Area contains rooms and can be used to manage the weather and other area-wide information.
 #Right now they don't do much but hold rooms, though.
@@ -13,13 +14,12 @@ class Area < GridContainer
     super
     info.terrain = Info.new
     info.parent = self.container
-    info.terrain.area_type = :grassland
+    info.terrain.type = Terrain::GRASSLAND
     info.terrain.indoors = true
     info.terrain.water = :normal
     info.terrain.earth = :normal
     info.terrain.air = :normal
     info.terrain.fire = :normal
-    info.terrain.room_type = :grassland
     
     @article = "an"
     @generic = "area"

@@ -730,79 +730,14 @@ module Generic
 
     #Describe an area.
     def describe_area(object)
-
       if object.is_a? Room
-        case object.info.terrain.room_type
-        when nil
-          "uncertain"
-        when :urban
-          "urban"
-        when :road
-          "a road"
-        when :forest
-            "a forest"
-        when :desert
-          "a sandy desert"
-        when :grassland
-          "part of the grasslands"
-        when :tundra
-          "a chilly tundra"
-        when :lake
-          "in a lake"
-        when :pond
-          "in a pond"
-        when :river
-          "in a flowing river"
-        when :bog
-          "in a murky bog"
-        when :marsh
-          "in a wet marsh"
-        when :swamp
-          "in a foggy swamp"
-        when :garden
-          "a garden"
-        when :underground
-          "under the ground"
-        else
-          object.info.terrain.room_type.to_s
-        end
-
+        result = object.info.terrain.type.room_text unless object.info.terrain.nil?
+        result = "uncertain" if result.nil?
       elsif object.is_a? Area
-        case object.info.terrain.area_type
-        when  nil
-          "unknown"
-        when :urban
-          "urban"
-        when :road
-          "roadways"
-        when :forest
-          "forested"
-        when :desert
-          "desert"
-        when :grassland
-          "waving grasslands"
-        when :tundra
-          "barren tundra"
-        when :lake
-          "a lake"
-        when :pond
-          "a pond"
-        when :river
-          "a river"
-        when :bog
-          "a bog"
-        when :marsh
-          "a marsh"
-        when :swamp
-          "a swamp"
-        when :garden
-          "a garden"
-        when :underground
-          "an underground"
-        else
-          object.info.terrain.area_type.to_s
-        end
+        result = object.info.terrain.type.area_text unless object.info.terrain.nil?
+        result = "uncertain" if result.nil?
       end
+      result
     end
   end
 

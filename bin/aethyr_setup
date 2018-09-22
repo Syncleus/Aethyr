@@ -11,6 +11,7 @@ require "aethyr/util/config"
 require "aethyr/util/log"
 require "aethyr/util"
 require "aethyr/components/manager"
+require 'aethyr/info/terrain'
 
 def log *args
 
@@ -112,7 +113,7 @@ def reset_storage
   room.info.terrain.earth = :high
   room.info.terrain.air = :high
   room.info.terrain.fire = :high
-  room.info.terrain.room_type = :underground
+  room.info.terrain.room_type = Terrain::UNDERGROUND
   ServerConfig[:start_room] = room.goid
   man = $manager.create_object(Mobile, room, nil, nil, :@generic => "tall man", :@short_desc => "A <mob>tall man</mob> with a <important>very</important> long beard stands here placidly.", :@alt_names => ["man"], :@show_in_look => "A <mob>tall man</mob> with a <important>very</important> long beard stands here regarding you placidly.", :@sex => "m")
 

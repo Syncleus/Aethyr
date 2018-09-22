@@ -1,5 +1,16 @@
-# To change this license header, choose License Headers in Project Properties.
-# To change this template file, choose Tools | Templates
-# and open the template in the editor.
+module Terrain
+  class Terrain
+    attr_reader :room_text, :area_text, :name, :flags
 
-puts "Hello World"
+    def initialize(name, room_text, area_text, flags = nil)
+      @name = name
+      @room_text = room_text
+      @area_text = area_text
+      @flags = Set.new flags unless flags.nil?
+    end
+  end
+
+  GRASSLAND = Terrain.new("grasslands", "part of the grasslands", "waving grasslands")
+  UNDERGROUND = Terrain.new("underground", "an underground cavern", "underground caverns")
+  TUNDRA = Terrain.new("tundra", "a snowy plain", "icy plains")
+end

@@ -245,6 +245,18 @@ module Admin
             new_pos[0] -= 1
           when "east"
             new_pos[0] += 1
+          when "northeast"
+            player.output "Can not create a #{event[:out_dir]} exit in a mappable area at this time"
+            return
+          when "northwest"
+            player.output "Can not create a #{event[:out_dir]} exit in a mappable area at this time"
+            return
+          when "southeast"
+            player.output "Can not create a #{event[:out_dir]} exit in a mappable area at this time"
+            return
+          when "southwest"
+            player.output "Can not create a #{event[:out_dir]} exit in a mappable area at this time"
+            return
           else
             new_pos = nil
         end

@@ -62,6 +62,7 @@ class Area < GridContainer
   end
   
   def render_rooms(player_room, position, map_rows, map_columns)
+    return "The current location doesn't appear on any maps." if position.nil?
     rendered = ""
     width = (map_columns) * 4 + 1
     height = (map_rows) * 2 + 1
@@ -172,9 +173,10 @@ class Area < GridContainer
     me_here = has_player
     merchants_here = false
     zone_change_here = false
-    up_here = false
-    down_here = false
-    mobs_here = false
+    
+    up_here = room.exits.map{ |e| e.alt_names[0]}.include?("up")
+    down_here = room.exits.map{ |e| e.alt_names[0]}.include?("down")
+    mobs_here = (!room.mobs.nil?) && (room.mobs.length > 0)
     
     left_char = " "
     if zone_change_here

@@ -62,6 +62,38 @@ class Room < Container
   def exits
     @inventory.find_all('class', Exit)
   end
+  
+  def players(only_visible = true, exclude = nil)
+    players = Array.new
+    @inventory.each do |item|
+      players << item if item.is_a?(Player) and item != exclude and (!only_visible or item.visible)
+    end
+    players
+  end
+  
+  def mobs(only_visible = true)
+    mobs = Array.new
+    @inventory.each do |item|
+          mobs << item if (!only_visible or item.visible) and item.can? :alive and item.alive and !item.is_a?(Player)
+    end
+    mobs
+  end
+  
+  def things(only_visible = true)
+    things = Array.new
+    @inventory.each do |item|
+          things << item if (!only_visible or item.visible) and (!item.can? :alive or !item.alive) and !item.is_a? Exit
+    end
+    things
+  end
+  
+  def exits(only_visible = true)
+    exits = Array.new
+    @inventory.each do |item|
+          exits << item if (!only_visible or item.visible) and item.is_a? Exit
+    end
+    exits
+  end
 
   #Look around the room. Player is the player that is looking (so they don't see themselves).
   #Returns a description of the room including: name of the room, room short description, visible people in the room,

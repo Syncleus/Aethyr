@@ -205,7 +205,7 @@ class Room < Container
     end
     info += "\n"
 
-    "\n<roomtitle>#{@name}</title>\n\n#{(@short_desc || '') + add_to_desc}\n\n[Exits: #{exits.list}]\n\n#{info}#{players}#{mobs}#{things}\n"
+    "\n<roomtitle>#{@name}</roomtitle>\n\n#{(@short_desc || '') + add_to_desc}\n\n[Exits: #{exits.list}]\n\n#{info}#{players}#{mobs}#{things}\n"
   end
 end
 

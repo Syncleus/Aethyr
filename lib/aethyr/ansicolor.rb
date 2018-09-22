@@ -38,56 +38,56 @@ module Color
   end
 
   # Turns the coloring on or off globally, so you can easily do
-    # this for example:
-    #  Term::ANSIColor::coloring = STDOUT.isatty
-    def self.coloring=(val)
-      @@coloring = val
-    end
-    self.coloring = true
-
-    @@attributes.each do |c, v|
-      eval %Q{
-        def #{c}(string = nil)
-          result = ''
-          result << "\e[#{v}m" if @@coloring
-          if block_given?
-            result << yield
-          elsif string
-            result << string
-          elsif respond_to?(:to_str)
-            result << self
-          else
-            return result #only switch on
-          end
-          result << "\e[0m" if @@coloring
-          result
-        end
-      }
-    end
-
-    # Regular expression that is used to scan for ANSI-sequences. It is used to
-    # uncolor strings.
-    COLORED_REGEXP = /\e\[([34][0-7]|[0-9])m/
-
-    # Returns an uncolored version of the string, that is all
-    # ANSI-sequences are stripped from the string.
-    def uncolored(string = nil) # :yields:
-      if block_given?
-        yield.gsub(COLORED_REGEXP, '')
-      elsif string
-        string.gsub(COLORED_REGEXP, '')
-      elsif respond_to?(:to_str)
-        gsub(COLORED_REGEXP, '')
-      else
-        ''
-      end
-    end
-
-    module_function
-
-    # Returns an array of all Term::ANSIColor attributes as symbols.
-    def attributes
-      @@attributes.map { |c| c.first }
-    end
-    extend self
+  # this for example:
+  #  Term::ANSIColor::coloring = STDOUT.isatty
+  def self.coloring=(val)
+    @@coloring = val
   end
+  self.coloring = true
+
+  @@attributes.each do |c, v|
+    eval %Q{
+      def #{c}(string = nil)
+        result = ''
+        result << "\e[#{v}m" if @@coloring
+        if block_given?
+          result << yield
+        elsif string
+          result << string
+        elsif respond_to?(:to_str)
+          result << self
+        else
+          return result #only switch on
+        end
+        result << "\e[0m" if @@coloring
+        result
+      end
+    }
+  end
+
+  # Regular expression that is used to scan for ANSI-sequences. It is used to
+  # uncolor strings.
+  COLORED_REGEXP = /\e\[([34][0-7]|[0-9])m/
+
+  # Returns an uncolored version of the string, that is all
+  # ANSI-sequences are stripped from the string.
+  def uncolored(string = nil) # :yields:
+    if block_given?
+      yield.gsub(COLORED_REGEXP, '')
+    elsif string
+      string.gsub(COLORED_REGEXP, '')
+    elsif respond_to?(:to_str)
+      gsub(COLORED_REGEXP, '')
+    else
+      ''
+    end
+  end
+
+  module_function
+
+  # Returns an array of all Term::ANSIColor attributes as symbols.
+  def attributes
+    @@attributes.map { |c| c.first }
+  end
+  extend self
+end

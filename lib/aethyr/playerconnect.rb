@@ -79,6 +79,7 @@ module PlayerConnection
     @player = nil
     @expect_callback = nil
     @ip_address = Socket.unpack_sockaddr_in(self.get_peername)[1]
+    @color_stack = []
 
     print File.read(ServerConfig.intro_file) if File.exist? ServerConfig.intro_file
 
@@ -270,16 +271,43 @@ module PlayerConnection
 
   #Sets the colors in the string according to the player's preferences.
   def colorize string
-    colors = @color_settings.keys.join("|")
+    colors = @color_settings.keys.dup
+    colors << "raw[^>]*"
+    colors = colors.join("|")
     if @use_color
-      string.gsub!(/<(#{colors})>/i) do |setting|
-        @@colors[@color_settings[$1.downcase]]
+      string.gsub!(/<([\/]{0,1})(#{colors})>/i) do |setting|
+        if ($1.nil?) || ($1.length <= 0)
+          color_encode($2) 
+        else
+          color_decode($2)
+        end
       end
-      string.gsub!(/<\/([^>]*)>/, @@colors[@color_settings["regular"]])
+      #string.gsub!(/<\/([^>]*)>/, @@colors[@color_settings["regular"]])
       #string.gsub!(/(\"(.*?)")/, @color_settings["quote"] + '\1' + @color_settings["regular"])
     else
       string.gsub!(/<(#{colors})>/i, "")
       string.gsub!(/<\/([^>]*)>/, "")
+    end
+  end
+  
+  def color_encode(code)
+    unless code.start_with? "raw "
+      result = @@colors[@color_settings[code.downcase]]
+    else
+      result = code.gsub(/raw ([0-9]{1,3})\s([0-9]{1,3})/i) do |setting|
+        "\e[38;5;#{$1}m\e[48;5;#{$2}m"
+      end
+    end
+    @color_stack << result
+    result
+  end
+  
+  def color_decode(code)
+    @color_stack.pop
+    unless @color_stack.empty?
+      @color_stack[-1]
+    else
+      @@colors[@color_settings["regular"]]
     end
   end
 

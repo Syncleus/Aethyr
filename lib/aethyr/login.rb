@@ -253,7 +253,7 @@ module Login
   #Creates a new player
   def create_new_player
     @player = Player.new(self, nil, ServerConfig.start_room, @new_name, [], "a typical person", "This is a normal, everyday kind of person.", "person", @sex)
-    @player.word_wrap = 80
+    @player.word_wrap = nil
 
     require 'objects/clothing_items' #why not
     shirt = Shirt.new

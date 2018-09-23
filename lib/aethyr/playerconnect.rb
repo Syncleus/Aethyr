@@ -24,7 +24,7 @@ module PlayerConnection
     @use_color = true
     @mccp_to_client = false
     @mccp_from_client = false
-    @word_wrap = 80
+    @word_wrap = nil
     @closed = false
     @state = :server_menu
     @login_name = nil
@@ -268,18 +268,16 @@ module PlayerConnection
 
     if not @color_settings.has_key? code
       "No such setting: #{code}"
-    elsif not @@colors.has_key? color
-      "Invalid color."
     else
       if not @use_color
         @color_settings.keys.each do |setting|
-          @color_settings[setting] = Color.clear
+          @color_settings[setting] = ""
         end
         @use_color = true
       end
 
       @color_settings[code] = color
-      "Set #{code} to <#{code}>#{color}</>."
+      "Set #{code} to <#{code}>#{color}</#{code}>."
     end
   end
 

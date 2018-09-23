@@ -867,7 +867,7 @@ class FormatState
   
   def apply
     result = ""
-    result += Color::Reset.all
+    result += Color::Reset.all + Color::Reset.blink + Color::Reset.bold + Color::Reset.dim + Color::Reset.underlined + Color::Reset.reverse
     result += self.fg unless self.fg.nil?
     result += self.bg unless self.bg.nil?
     result += Color::Formatting.blink if self.blink?
@@ -880,6 +880,6 @@ class FormatState
   
   def revert
     return @parent.apply unless @parent.nil?
-    return Color::Reset.all
+    return Color::Reset.all + Color::Reset.blink + Color::Reset.bold + Color::Reset.dim + Color::Reset.underlined + Color::Reset.reverse
   end
 end

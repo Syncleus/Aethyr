@@ -634,7 +634,7 @@ module CommandParser
       when /^set\s+colors?\s+(on|off|default)$/i
         event[:action] = :setcolor
         event[:option] = $1
-      when /^set\s+colors?\s+(\w+)\s+(\w+)$/i
+      when /^set\s+colors?\s+(\w+)\s+(.+)$/i
         event[:action] = :setcolor
         event[:option] = $1
         event[:color] = $2

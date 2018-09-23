@@ -50,7 +50,7 @@ class Player < LivingObject
     @color_settings = nil
     @use_color = nil
     @word_wrap = nil
-    @page_height = 100
+    @page_height = nil
     @deaf = false
     @blind = false
     @reply_to = nil

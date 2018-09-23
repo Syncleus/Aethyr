@@ -1,5 +1,4 @@
 require 'aethyr/objects/living'
-require 'aethyr/ansicolor'
 require 'aethyr/components/commandparser'
 require 'aethyr/traits/has_inventory'
 require 'aethyr/help/syntax'

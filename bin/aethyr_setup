@@ -115,7 +115,7 @@ def reset_storage
   room.info.terrain.fire = :high
   room.info.terrain.room_type = Terrain::UNDERGROUND
   ServerConfig[:start_room] = room.goid
-  man = $manager.create_object(Mobile, room, nil, nil, :@generic => "tall man", :@short_desc => "A <mob>tall man</mob> with a <raw 215 0>very</raw> long beard stands here placidly.", :@alt_names => ["man"], :@show_in_look => "A <mob>tall man</mob> with a <raw 215 0>very</raw> long beard stands here regarding you placidly.", :@sex => "m")
+  man = $manager.create_object(Mobile, room, nil, nil, :@generic => "tall man", :@short_desc => "A <mob>tall man</mob> with a <raw fg:orange_4>v<raw fg:red>e</raw fg:red>ry</raw fg:orange_4> long beard stands here placidly.", :@alt_names => ["man"], :@show_in_look => "A <mob>tall man</mob> with a <raw fg:orange_4>v<raw fg:red>e</raw fg:red>ry</raw fg:orange_4> long beard stands here regarding you placidly.", :@sex => "m")
 
   puts "Adding helper reactions..."
 

@@ -1,5 +1,5 @@
 require 'strscan'
-require 'aethyr/ansicolor'
+require 'aethyr/colorize/format'
 require 'aethyr/telnetcodes'
 require 'socket'
 require 'aethyr/errors'
@@ -15,52 +15,6 @@ module PlayerConnection
   #Input buffer
   attr_reader :in_buffer
   attr_accessor :color_settings, :use_color, :word_wrap
-
-  #Default colors
-  @@colors = {
-      "black" => Color.black,
-      "red" => Color.red,
-      "green" => Color.green,
-      "yellow" => Color.yellow,
-      "blue" => Color.blue,
-      "magenta" => Color.magenta,
-      "cyan" => Color.cyan,
-      "white" => Color.white,
-      "brightblack" => (Color.black + Color.bold),
-      "brightred" => (Color.red + Color.bold),
-      "brightgreen" => (Color.green + Color.bold),
-      "brightyellow" => (Color.yellow + Color.bold),
-      "brightblue" => (Color.blue + Color.bold),
-      "brightmagenta" => (Color.magenta + Color.bold),
-      "brightcyan" => (Color.cyan + Color.bold),
-      "brightwhite" => (Color.white + Color.bold),
-      "darkblack" => (Color.black + Color.dark),
-      "darkred" => (Color.red + Color.dark),
-      "darkgreen" => (Color.green + Color.dark),
-      "darkyellow" => (Color.yellow + Color.dark),
-      "darkblue" => (Color.blue + Color.dark),
-      "darkmagenta" => (Color.magenta + Color.dark),
-      "darkcyan" => (Color.cyan + Color.dark),
-      "darkwhite" => (Color.white + Color.dark),
-      "underlineblack" => (Color.black + Color.underline),
-      "underlinered" => (Color.red + Color.underline),
-      "underlinegreen" => (Color.green + Color.underline),
-      "underlineyellow" => (Color.yellow + Color.underline),
-      "underlineblue" => (Color.blue + Color.underline),
-      "underlinemagenta" => (Color.magenta + Color.underline),
-      "underlinecyan" => (Color.cyan + Color.underline),
-      "underlinewhite" => (Color.white + Color.underline),
-      "blinkblack" => (Color.black + Color.blink),
-      "blinkred" => (Color.red + Color.blink),
-      "blinkgreen" => (Color.green + Color.blink),
-      "blinkyellow" => (Color.yellow + Color.blink),
-      "blinkblue" => (Color.blue + Color.blink),
-      "blinkmagenta" => (Color.magenta + Color.blink),
-      "blinkcyan" => (Color.cyan + Color.blink),
-      "blinkwhite" => (Color.white + Color.blink),
-      "bold" => (Color.bold),
-      "none" => Color.reset
-    }
 
   #Set up everything
   def post_init
@@ -146,32 +100,32 @@ module PlayerConnection
   def to_default
     @use_color = true
     @color_settings = {
-      "roomtitle" => "brightgreen",
-      "object" => "blue",
-      "player" => "cyan",
-      "mob" => "brightyellow",
-      "merchant" => "darkyellow",
-      "me" => "brightwhite",
-      "exit" => "green",
-      "say" => "brightwhite",
-      "tell" => "brightcyan",
-      "important" => "brightred",
-      "editor" => "cyan",
-      "news" => "brightcyan",
-      "identifier" => "brightmagenta",
-      "water" => "blue",
-      "waterlow" => "darkblue",
-      "waterhigh" => "brightblue",
-      "earth" => "magenta",
-      "earthlow" => "darkmagenta",
-      "earthhigh" => "brightmagenta",
-      "air" => "white",
-      "airlow" => "darkwhite",
-      "airhigh" => "brightwhite",
-      "fire" => "red",
-      "firelow" => "darkred",
-      "firehigh" => "brightred",
-      "regular" => "none"
+      "roomtitle" => "fg:green bold",
+      "object" => "fg:blue",
+      "player" => "fg:cyan",
+      "mob" => "fg:yellow bold",
+      "merchant" => "fg:yellow dim",
+      "me" => "fg:white bold",
+      "exit" => "fg:green",
+      "say" => "fg:white bold",
+      "tell" => "fg:cyan bold",
+      "important" => "fg:red bold",
+      "editor" => "fg:cyan",
+      "news" => "fg:cyan bold",
+      "identifier" => "fg:magenta bold",
+      "water" => "fg:blue",
+      "waterlow" => "fg:blue dim",
+      "waterhigh" => "fg:blue bold",
+      "earth" => "fg:dark_goldenrod",
+      "earthlow" => "fg:dark_goldenrod dim",
+      "earthhigh" => "fg:dark_goldenrod bold",
+      "air" => "fg:white",
+      "airlow" => "fg:white dim",
+      "airhigh" => "fg:white bold",
+      "fire" => "fg:red",
+      "firelow" => "fg:red dim",
+      "firehigh" => "fg:red bold",
+      "regular" => "fg:gray"
     }
   end
 
@@ -216,7 +170,8 @@ module PlayerConnection
           message << "\r\n"
         end
       end
-      message = @@colors[@color_settings["regular"]] + message + Color.clear
+      regular_format = FormatState.new(@color_settings["regular"])
+      message = regular_format.apply + message + regular_format.revert
       send_data message
     end
   end
@@ -291,24 +246,19 @@ module PlayerConnection
   end
   
   def color_encode(code)
+    parent = @color_stack[-1]
     unless code.start_with? "raw "
-      result = @@colors[@color_settings[code.downcase]]
+      result = FormatState.new(@color_settings[code.downcase], parent)
     else
-      result = code.gsub(/raw ([0-9]{1,3})\s([0-9]{1,3})/i) do |setting|
-        "\e[38;5;#{$1}m\e[48;5;#{$2}m"
-      end
+      /raw (?<code>.*)/ =~ code
+      result = FormatState.new(code, parent)
     end
     @color_stack << result
-    result
+    result.apply
   end
   
   def color_decode(code)
-    @color_stack.pop
-    unless @color_stack.empty?
-      @color_stack[-1]
-    else
-      @@colors[@color_settings["regular"]]
-    end
+    @color_stack.pop.revert
   end
 
   #Sets the foreground color for a given setting.

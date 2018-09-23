@@ -11,6 +11,7 @@ require 'aethyr/objects/room'
 require 'aethyr/objects/area'
 require 'aethyr/objects/mobile'
 require 'aethyr/objects/clothing_items'
+require 'aethyr/info/flags/elements'
 load 'aethyr/util/all-behaviors.rb'
 load 'aethyr/util/all-objects.rb'
 

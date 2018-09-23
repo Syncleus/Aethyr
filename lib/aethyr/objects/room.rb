@@ -1,6 +1,7 @@
 require 'aethyr/objects/container'
 require 'aethyr/objects/exit'
 require 'aethyr/info/terrain'
+require 'aethyr/traits/location'
 
 #A room is where things live. Rooms themselves need to be in other rooms (kind of) and can certainly be nested as deeply as you would like.
 #Especially since doors can be set up arbitrarily. A room should be placed within an Area.
@@ -12,38 +13,15 @@ require 'aethyr/info/terrain'
 # terrain.underwater (Boolean)
 # terrain.room_type (Symbol)
 class Room < Container
-
+  include Location
+  
   attr_reader :terrain
 
   #Create new room. Arguments same as GameObject.
   def initialize(*args)
     super(nil, *args)
+    
     @generic = "room"
-    info.terrain = Info.new
-    info.parent = self.container
-    info.terrain.indoors = true
-    info.terrain.water = :normal
-    info.terrain.earth = :normal
-    info.terrain.air = :normal
-    info.terrain.fire = :normal
-    info.terrain.swimming = false
-    info.terrain.type = Terrain::GRASSLAND
-  end
-
-  def container=(new_container)
-    super new_container
-    info.parent = new_container
-  end
-
-  #This returns the Area object this room resides within.
-  #The reason it is someone recursive is for the case where rooms
-  #might be inside something other than an area
-  def area
-    if @container.nil?
-      nil
-    else
-      $manager.find(@container).area
-    end
   end
 
   #Checks if a room is indoors.
@@ -182,26 +160,11 @@ class Room < Container
     end
     
     info = "You find some things unusual about this place:\n"
-    info += "  Type: " + self.info.terrain.type.name + "\n"
-    if self.info.terrain.water == :high
-      info += "  Everything around you is <waterhigh>humid</waterhigh> and <waterhigh>wet</waterhigh>\n"
-    elsif self.info.terrain.water ==:low
-      info += "  It is <waterlow>dry</waterlow> and <waterlow>arid</waterlow>\n"
-    end
-    if self.info.terrain.earth == :high
-      info += "  The earth is <earthhigh>alive</earthhigh> and <earthhigh>growing</earthhigh>.\n"
-    elsif self.info.terrain.earth ==:low
-      info += "  The earth lies <earthlow>barren</earthlow>, covered in <earthlow>dust</earthlow>.\n"
-    end
-    if self.info.terrain.air == :high
-      info += "  The air is <airhigh>fresh</airhigh> with an <airhigh>inviting breeze</airhigh>.\n"
-    elsif self.info.terrain.air ==:low
-      info += "  The air is <airlow>stale</airlow> and <airlow>stagnant</airlow>.\n"
-    end
-    if self.info.terrain.fire == :high
-      info += "  It is so <firehigh>hot</firehigh> it is <firehigh>hard to breathe</firehigh>.\n"
-    elsif self.info.terrain.fire ==:low
-      info += "  It is <firelow>deathly cold</firelow>, your <firelow>breath freezes</firelow> as you exhale.\n"
+    info += "  Type: " + self.terrain_type.name + "\n"
+    self.flags.values.each do |f|
+      if f.can_see? player
+        info += "  #{f.affect_desc}\n"
+      end
     end
     info += "\n"
 

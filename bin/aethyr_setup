@@ -12,6 +12,7 @@ require "aethyr/util/log"
 require "aethyr/util"
 require "aethyr/components/manager"
 require 'aethyr/info/terrain'
+require 'aethyr/info/flags/elements'
 
 def log *args
 
@@ -107,13 +108,12 @@ def reset_storage
   $manager = Manager.new
   $manager.create_object(Room, nil, nil, nil, :@name => "GarbageRoom")
   area = $manager.create_object(Area, nil, nil, nil, :@name => "an Expansive Wilderness")
-  area.info.terrain.area_type = :underground
+  area.info.terrain.type =  Terrain::UNDERGROUND
+  area.add_flag MinusFire.new(area)
+  area.add_flag PlusEarth.new(area)
   room = $manager.create_object(Room, area, [0,0], nil,  :@name => "🙖 A vine-infested hole deep underground 🙐", :@short_desc => "The dirt is soft and wet, teaming with life, you smell green plants on the air. The air is hot and a thick mist hangs, obstructing your vision. All you see is the distant light overhead. After some tie a <mob>tall man</mob> appears before you, as if out of nowhere.")
-  room.info.terrain.water = :high
-  room.info.terrain.earth = :high
-  room.info.terrain.air = :high
-  room.info.terrain.fire = :high
-  room.info.terrain.room_type = Terrain::UNDERGROUND
+  room.add_flag PlusFire.new(room)
+  room.add_flag PlusWater.new(room)
   ServerConfig[:start_room] = room.goid
   man = $manager.create_object(Mobile, room, nil, nil, :@generic => "tall man", :@short_desc => "A <mob>tall man</mob> with a <raw fg:orange_4>v<raw fg:red>e</raw fg:red>ry</raw fg:orange_4> long beard stands here placidly.", :@alt_names => ["man"], :@show_in_look => "A <mob>tall man</mob> with a <raw fg:orange_4>v<raw fg:red>e</raw fg:red>ry</raw fg:orange_4> long beard stands here regarding you placidly.", :@sex => "m")
 

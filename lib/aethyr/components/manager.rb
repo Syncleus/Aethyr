@@ -4,7 +4,6 @@ require 'aethyr/components/storage'
 require 'aethyr/errors'
 require 'aethyr/calendar'
 require 'set'
-require 'pp'
 
 #The Manager class uses the observer model to recieve events from objects, which
 #it then passes along to the EventHandler.

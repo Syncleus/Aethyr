@@ -10,7 +10,7 @@ class GameObject
   include Observable
   include Pronoun
 
-  attr_reader :short_desc, :game_object_id, :alt_names, :generic, :article, :sex, :show_in_look, :actions, :balance, :admin
+  attr_reader :short_desc, :game_object_id, :alt_names, :generic, :article, :sex, :show_in_look, :actions, :balance, :admin, :manager
   attr_accessor :container, :show_in_look, :actions, :pose, :visible, :comment, :movable, :quantity, :info
   attr_writer :plural
   alias :room :container
@@ -21,6 +21,7 @@ class GameObject
   #because they can all be set later.
   def initialize(game_object_id = nil, container = nil, name = "", alt_names = Array.new, short_desc = "Nothing interesting here.", long_desc = "", generic = "", sex = "n", article = "a")
     @info = Info.new
+    @info.flags = Hash.new
     #Where the object is
     @container = container
     #The name of the object
@@ -67,6 +68,15 @@ class GameObject
     @plural = nil
     @actions = Set.new
     @admin = false
+  end
+  
+  def flags
+    Hash.new @info.flags
+  end
+  
+  def add_flag(new_flag)
+    new_flag.negate_flags(@info.flags)
+    @info.flags[new_flag.name] = new_flag
   end
 
   #Outputs a string to the object.

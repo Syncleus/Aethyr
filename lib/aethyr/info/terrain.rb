@@ -6,7 +6,7 @@ module Terrain
       @name = name
       @room_text = room_text
       @area_text = area_text
-      @flags = Set.new flags unless flags.nil?
+      @flags = Set.new flags
     end
   end
 

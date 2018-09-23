@@ -1,5 +1,6 @@
 require 'aethyr/objects/container'
 require 'aethyr/info/terrain'
+require 'aethyr/traits/location'
 
 #An Area contains rooms and can be used to manage the weather and other area-wide information.
 #Right now they don't do much but hold rooms, though.
@@ -8,32 +9,16 @@ require 'aethyr/info/terrain'
 # info.terrain = Info.new
 # info.terrain.area_type = :urban
 class Area < GridContainer
+  include Location
+  
   attr_accessor :map_type
 
   def initialize(*args)
     super
-    info.terrain = Info.new
-    info.parent = self.container
-    info.terrain.type = Terrain::GRASSLAND
-    info.terrain.indoors = true
-    info.terrain.water = :normal
-    info.terrain.earth = :normal
-    info.terrain.air = :normal
-    info.terrain.fire = :normal
     
     @article = "an"
     @generic = "area"
     @map_type = :rooms
-  end
-  
-  def container=(new_container)
-    super new_container
-    info.parent = new_container
-  end
-
-  #Returns self.
-  def area
-    self
   end
   
   def render_map(player, position, map_rows = 10, map_columns = 10)

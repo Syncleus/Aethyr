@@ -6,4 +6,4 @@ pkg/
 results.html
 .idea/
 nbproject/
-lib/aethyr/objects/reactions/
+lib/aethyr/extensions/reactions/

@@ -7,12 +7,12 @@ $LOAD_PATH << here << "."
 
 require "gdbm"
 require "fileutils"
-require "aethyr/util/config"
-require "aethyr/util/log"
-require "aethyr/util"
-require "aethyr/components/manager"
-require 'aethyr/info/terrain'
-require 'aethyr/info/flags/elements'
+require "aethyr/core/util/config"
+require "aethyr/core/util/log"
+require "aethyr/core/components/manager"
+require 'aethyr/core/objects/info/terrain'
+# TODO delete this next line
+require 'aethyr/extensions/flags/elements'
 
 def log *args
 
@@ -111,7 +111,7 @@ def reset_storage
   area.info.terrain.type =  Terrain::UNDERGROUND
   area.add_flag MinusFire.new(area)
   area.add_flag PlusEarth.new(area)
-  room = $manager.create_object(Room, area, [0,0], nil,  :@name => "🙖 A vine-infested hole deep underground 🙐", :@short_desc => "The dirt is soft and wet, teaming with life, you smell green plants on the air. The air is hot and a thick mist hangs, obstructing your vision. All you see is the distant light overhead. After some tie a <mob>tall man</mob> appears before you, as if out of nowhere.")
+  room = $manager.create_object(Room, area, [0,0], nil,  :@name => "🙖 A vine-infested hole deep underground 🙐", :@short_desc => "The dirt is soft and wet, teaming with life, you smell green plants on the air. The air is hot and a thick mist hangs, obstructing your vision. All you see is the distant light overhead. After some time a <mob>tall man</mob> appears before you, as if out of nowhere.")
   room.add_flag PlusFire.new(room)
   room.add_flag PlusWater.new(room)
   ServerConfig[:start_room] = room.goid
@@ -119,9 +119,9 @@ def reset_storage
 
   puts "Adding helper reactions..."
 
-  FileUtils.mkdir "lib/aethyr/objects/reactions" if not File.exist? "lib/aethyr/objects/reactions/"
+  FileUtils.mkdir "lib/aethyr/extensions/reactions" if not File.exist? "lib/aethyr/objects/reactions/"
 
-  File.open "lib/aethyr/objects/reactions/helper.rx", "w" do |f|
+  File.open "lib/aethyr/extensions/reactions/helper.rx", "w" do |f|
     f.write helper_reactions
   end
 

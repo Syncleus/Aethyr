@@ -1,11 +1,13 @@
 require 'strscan'
-require 'aethyr/colorize/format'
+require 'aethyr/render/format'
 require 'aethyr/telnetcodes'
 require 'socket'
 require 'aethyr/errors'
 require 'aethyr/login'
 require 'aethyr/koapaginator'
 require 'aethyr/editor'
+require 'render/text_util'
+include TextUtil
 
 #This is the network connection to the Player. Handles all input/output.
 module PlayerConnection
@@ -24,7 +26,7 @@ module PlayerConnection
     @use_color = true
     @mccp_to_client = false
     @mccp_from_client = false
-    @word_wrap = nil
+    @word_wrap = 120
     @closed = false
     @state = :server_menu
     @login_name = nil
@@ -188,8 +190,9 @@ module PlayerConnection
     ph = @player.page_height
 
     out = []
-    message = message.gsub(/((\e\[\d+m|[^\r\n\n\s\Z]){#@word_wrap})/, "\\1 ") if @word_wrap
-    message.scan(/((((\e\[\d+m)|.){1,#{@word_wrap}})(\r\n|\n|\s+|\Z))|(\r\n|\n)/) do |m|
+    #message = message.gsub(/((\e\[\d+[\;]{0,1}\d*[\;]{0,1}\d*m|[^\r\n\n\s\Z]){#@word_wrap})/, "\\1 ") if @word_wrap
+    message = wrap(message, @word_wrap).join("\r\n") if @word_wrap
+    message.scan(/((((\e\[\d+[\;]{0,1}\d*[\;]{0,1}\d*m)|.){1,#{@word_wrap}})(\r\n|\n|\s+|\Z))|(\r\n|\n)/) do |m|
       if $2
         out << $2
       else
@@ -207,8 +210,9 @@ module PlayerConnection
 
   #Only use if there is no line height
   def line_wrap message
-    message = message.gsub(/((\e\[\d+m|[^\r\n\n\s\Z]){#{@word_wrap}})/, "\\1 ") if @word_wrap
-    message.gsub(/(((\e\[\d+m)|.){1,#{@word_wrap}})(\r\n|\n|\s+|\Z)/, "\\1\r\n")
+    message = wrap(message, @word_wrap).join("\r\n") if @word_wrap
+    #message = message.gsub(/((\e\[\d+[\;]{0,1}\d*[\;]{0,1}\d*m|[^\r\n\n\s\Z]){#{@word_wrap}})/, "\\1 ") if @word_wrap
+    message.gsub(/(((\e\[\d+[\;]{0,1}\d*[\;]{0,1}\d*m)|.){1,#{@word_wrap}})(\r\n|\n|\s+|\Z)/, "\\1\r\n")
   end
 
   #Next page of paginated output
@@ -247,8 +251,9 @@ module PlayerConnection
   
   def color_encode(code)
     parent = @color_stack[-1]
+    code = code.downcase
     unless code.start_with? "raw "
-      result = FormatState.new(@color_settings[code.downcase], parent)
+      result = FormatState.new(@color_settings[code], parent)
     else
       /raw (?<code>.*)/ =~ code
       result = FormatState.new(code, parent)

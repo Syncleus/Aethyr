@@ -51,7 +51,7 @@ class Player < LivingObject
     @last_target = nil
     @color_settings = nil
     @use_color = nil
-    @word_wrap = nil
+    @word_wrap = 120
     @page_height = nil
     @deaf = false
     @blind = false

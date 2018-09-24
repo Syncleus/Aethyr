@@ -87,60 +87,6 @@ module Color
     extend self
   end
   
-#  module Foreground_8
-#    @@attributes = [
-#    [ :black, "\e[30m"],
-#    [ :red, "\e[31m"],
-#    [ :green, "\e[32m"],
-#    [ :yellow, "\e[33m"],
-#    [ :blue, "\e[34m"],
-#    [ :magenta, "\e[35m"],
-#    [ :cyan, "\e[36m"],
-#    [ :light_gray, "\e[37m"]
-#    ]
-#  end
-#  
-#  module Background_8
-#    @@attributes = [
-#    [ :black, "\e[40m"],
-#    [ :red, "\e[41m"],
-#    [ :green, "\e[42m"],
-#    [ :yellow, "\e[43m"],
-#    [ :blue, "\e[44m"],
-#    [ :magenta, "\e[45m"],
-#    [ :cyan, "\e[46m"],
-#    [ :light_gray, "\e[47m"]
-#    ]
-#  end
-#  
-#  module Foreground_16
-#    include Color::Foreground_8
-#    @@attributes =[
-#    [ :dark_gray, "\e[90m"],
-#    [ :light_red, "\e[91m"],
-#    [ :light_green, "\e[92m"],
-#    [ :light_yellow, "\e[93m"],
-#    [ :light_blue, "\e[94m"],
-#    [ :light_magenta, "\e[95m"],
-#    [ :light_cyan, "\e[96m"],
-#    [ :white, "\e[97m"]
-#    ]
-#  end
-#  
-#  module Background_16
-#    include Color::Background_8
-#    @@attributes = [
-#    [ :dark_gray, "\e[100m"],
-#    [ :light_red, "\e[101m"],
-#    [ :light_green, "\e[102m"],
-#    [ :light_yellow, "\e[103m"],
-#    [ :light_blue, "\e[104m"],
-#    [ :light_magenta, "\e[105m"],
-#    [ :light_cyan, "\e[106m"],
-#    [ :white, "\e[107m"]
-#    ]
-#  end
-  
   module Foreground
     @@attributes = [
     [ :magenta, "\e[35m"],
@@ -747,18 +693,6 @@ module Color
     end
     extend self
   end
-  
-#  module Foreground
-#    include Color::Foreground_256
-#    include Color::Foreground_16
-#    include Color::Foreground_8
-#  end
-#  
-#  module Background
-#    include Color::Background_256
-#    include Color::Background_16
-#    include Color::Background_8
-#  end
 end
 
 class FormatState

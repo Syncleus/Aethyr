@@ -1,4 +1,5 @@
 require 'aethyr/util/all-events'
+require 'aethyr/info/skills/all-skills'
 
 #The Manager passes events through a queue to the EventHandler, which then executes the events according to the type and action of the Event.
 #This is done by matching the type to a module defined in the events/ directory and calling the method with the name of the action.

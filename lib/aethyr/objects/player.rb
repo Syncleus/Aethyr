@@ -2,6 +2,8 @@ require 'aethyr/objects/living'
 require 'aethyr/components/commandparser'
 require 'aethyr/traits/has_inventory'
 require 'aethyr/help/syntax'
+require 'aethyr/info/skills/map'
+require 'aethyr/info/skills/kick'
 
 #Base class for all players.
 class Player < LivingObject
@@ -56,6 +58,9 @@ class Player < LivingObject
     @reply_to = nil
     @prompt_shown = false
     info.stats.satiety = 120
+    map_skill = Skills::Map.new(self.game_object_id)
+    kick_skill = Skills::Kick.new(self.game_object_id)
+    info.skills = { map_skill.id => map_skill, kick_skill.id => kick_skill}
   end
 
   #Searches inventory and equipment for item.

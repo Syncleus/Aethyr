@@ -1,8 +1,10 @@
 class Flag
-  attr_reader :name, :affected, :affect_desc, :help_desc
+  @@ID = nil
+  attr_reader :name, :affected, :affect_desc, :help_desc, :id
   
-  def initialize(affected, name, affect_desc, help_desc, flags_to_negate = nil)
+  def initialize(affected, id, name, affect_desc, help_desc, flags_to_negate = nil)
     @affected = affected
+    @id = id
     @name = name
     @affect_desc = affect_desc
     @help_desc = help_desc

@@ -76,7 +76,7 @@ class GameObject
   
   def add_flag(new_flag)
     new_flag.negate_flags(@info.flags)
-    @info.flags[new_flag.name] = new_flag
+    @info.flags[new_flag.id] = new_flag
   end
 
   #Outputs a string to the object.

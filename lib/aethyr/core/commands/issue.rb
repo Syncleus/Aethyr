@@ -1,4 +1,5 @@
-require "aethyr/core/commands/command"
+require "aethyr/core/registry"
+require "aethyr/core/commands/command_handler"
 
 module IssueCommands
   class << self
@@ -69,7 +70,7 @@ module IssueCommands
       super(["bug", "typo", "idea"])
     end
 
-    def handle(input, player)
+    def input_handle(input, player)
       e = case input
       when /^(bug|typo|idea)\s+(\d+)\s+(show|del|add|status)(\s+(.+))?$/i
         { :action => :issue, :itype => $1.downcase.to_sym, :issue_id => $2, :option => $3.downcase, :value => $5 }
@@ -89,7 +90,7 @@ module IssueCommands
       Event.new(:IssueCommands, e)
     end
     
-    def help(input, player)
+    def help_handle(input, player)
       <<'EOF'
 Command: Bug
 Command: Idea
@@ -118,5 +119,5 @@ EOF
     end
   end
 
-  Aethyr::Extend::InputHandlerRegistry.register_handler(IssueHandler)
+  Aethyr::Extend::HandlerRegistry.register_handler(IssueHandler)
 end

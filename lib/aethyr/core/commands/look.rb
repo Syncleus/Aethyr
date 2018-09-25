@@ -1,4 +1,5 @@
-require "aethyr/core/commands/command"
+require "aethyr/core/registry"
+require "aethyr/core/commands/command_handler"
 
 module LookCommand
   class << self
@@ -64,7 +65,7 @@ module LookCommand
       super(["l", "look"])
     end
 
-    def handle(input, player)
+    def input_handle(input, player)
       e = case input
       when /^(l|look)$/i
         { :action => :look }
@@ -79,7 +80,24 @@ module LookCommand
       return nil if e.nil?
       Event.new(:LookCommand, e)
     end
+    
+    def help_handle(input, player)
+      <<'EOF'
+Command: Look
+Syntax: LOOK
+Syntax: LOOK <object>
+Syntax: LOOK IN <object>
+
+Look by itself will show you your surroundings.
+
+Look followed by an object will look at that object.
+
+Look IN will look inside of a container (if it is open).
+
+'l' is a shortcut for look.
+EOF
+    end
   end
 
-  Aethyr::Extend::InputHandlerRegistry.register_handler(LookHandler)
+  Aethyr::Extend::HandlerRegistry.register_handler(LookHandler)
 end

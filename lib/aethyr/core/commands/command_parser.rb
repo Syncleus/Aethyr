@@ -1,6 +1,6 @@
 require 'set'
 require 'aethyr/core/event'
-require 'aethyr/core/commands/registry'
+require 'aethyr/core/registry'
 require 'aethyr/core/commands/look'
 
 #CommandParser parses commands into commands for the event handler.
@@ -221,7 +221,7 @@ module CommandParser
         command = command[0].downcase
       end
       
-      event = Aethyr::Extend::InputHandlerRegistry.handle(input, player)
+      event = Aethyr::Extend::HandlerRegistry.input_handle(input, player)
 
       if event.nil?
         event = if @generic_commands.include? command

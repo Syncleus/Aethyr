@@ -1,6 +1,6 @@
 module Aethyr
     module Extend
-        class InputHandlerRegistry
+        class HandlerRegistry
             @@handlers = Hash.new
             
             def self.register_handler(new_handler)
@@ -14,9 +14,9 @@ module Aethyr
                 return @@handlers.values.dup
             end
             
-            def self.handle(input, player)
+            def self.input_handle(input, player)
               @@handlers.values.each do |handler|
-                e = handler.handle(input, player)
+                e = handler.input_handle(input, player)
                 return e unless e.nil?
               end
               nil

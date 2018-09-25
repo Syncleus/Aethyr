@@ -1,5 +1,7 @@
 require 'set'
 require 'aethyr/core/commands/event'
+require 'aethyr/core/commands/command_registry'
+require 'aethyr/core/commands/look'
 
 #CommandParser parses commands into commands for the event handler.
 module CommandParser
@@ -8,8 +10,6 @@ module CommandParser
   'date',
   'delete',
   'map',
-  'look',
-  'l',
   'get',
   'take',
   'feel',
@@ -220,38 +220,42 @@ module CommandParser
       else
         command = command[0].downcase
       end
+      
+      event = Aethyr::Extend::CommandRegistry.handle(input, player)
 
-      event = if @generic_commands.include? command
-          parse_generic input
-        elsif @emotes.include? command
-          parse_emote input
-        elsif @movement.include? command
-          parse_movement input
-        elsif @equipment.include? command
-          parse_equipment input
-        elsif @settings.include? command
-          parse_settings input
-        elsif @admin.include? command and player.admin
-          parse_admin input
-        elsif @weapon_combat.include? command
-          parse_weapon_combat input
-        elsif @martial_combat.include? command
-          parse_martial_combat input
-        elsif @communication.include? command
-          parse_communication input
-        elsif @news.include? command
-          parse_news input
-        elsif skill_commands(player).include? command
-          parse_skill(input, player)
-        elsif @mobile.include? command and player.is_a? Mobile
-          parse_mobile command  ### implement me
-        elsif input =~ /^alarm\s+([0-9]+)$/i
-          after $1.to_i do
-            player.output "***ALARM***"
+      if event.nil?
+        event = if @generic_commands.include? command
+            parse_generic input
+          elsif @emotes.include? command
+            parse_emote input
+          elsif @movement.include? command
+            parse_movement input
+          elsif @equipment.include? command
+            parse_equipment input
+          elsif @settings.include? command
+            parse_settings input
+          elsif @admin.include? command and player.admin
+            parse_admin input
+          elsif @weapon_combat.include? command
+            parse_weapon_combat input
+          elsif @martial_combat.include? command
+            parse_martial_combat input
+          elsif @communication.include? command
+            parse_communication input
+          elsif @news.include? command
+            parse_news input
+          elsif skill_commands(player).include? command
+            parse_skill(input, player)
+          elsif @mobile.include? command and player.is_a? Mobile
+            parse_mobile command  ### implement me
+          elsif input =~ /^alarm\s+([0-9]+)$/i
+            after $1.to_i do
+              player.output "***ALARM***"
+            end
+          elsif input =~ /^(\w+)\s+(.*)$/
+            parse_custom input
           end
-        elsif input =~ /^(\w+)\s+(.*)$/
-          parse_custom input
-        end
+      end
 
       unless event.nil?
         event.player = player
@@ -285,12 +289,6 @@ module CommandParser
             { :action => :deleteme }
           when /^(m|map)$/i
             { :action => :map }
-          when /^(l|look)$/i
-            { :action => :look }
-          when /^(l|look)\s+(in|inside)\s+(.*)$/i
-            { :action => :look, :in => $3 }
-          when /^(l|look)\s+(.*)$/i
-            { :action => :look, :at => $2 }
           when /^lock\s+(.*)$/i
             { :action => :lock, :object => $1 }
           when /^unlock\s+(.*)$/i

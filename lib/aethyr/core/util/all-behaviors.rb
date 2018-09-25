@@ -7,14 +7,17 @@
 #
 #  require "aethyr/traits/#{f[0..-4]}"
 #end
-require 'aethyr/core/objects/traits/expires'
-require 'aethyr/core/objects/traits/has_inventory'
-require 'aethyr/core/objects/traits/news'
-require 'aethyr/core/objects/traits/openable'
-require 'aethyr/core/objects/traits/position'
-require 'aethyr/core/objects/traits/pronoun'
-require 'aethyr/core/objects/traits/reacts'
-require 'aethyr/core/objects/traits/readable'
-require 'aethyr/core/objects/traits/respawns'
-require 'aethyr/core/objects/traits/sittable'
-require 'aethyr/core/objects/traits/wearable'
+#require 'aethyr/core/objects/traits/expires'
+#require 'aethyr/core/objects/traits/has_inventory'
+#require 'aethyr/core/objects/traits/news'
+#require 'aethyr/core/objects/traits/openable'
+#require 'aethyr/core/objects/traits/position'
+#require 'aethyr/core/objects/traits/pronoun'
+#require 'aethyr/core/objects/traits/reacts'
+#require 'aethyr/core/objects/traits/readable'
+#require 'aethyr/core/objects/traits/respawns'
+#require 'aethyr/core/objects/traits/sittable'
+#require 'aethyr/core/objects/traits/wearable'
+
+require 'require_all'
+require_all 'lib/aethyr/core/objects/traits'

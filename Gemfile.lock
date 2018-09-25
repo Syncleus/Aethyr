@@ -5,6 +5,7 @@ PATH
       colorize (~> 0.8)
       eventmachine (~> 1.2)
       methadone (~> 1.9)
+      require_all (~> 2.0)
 
 GEM
   remote: https://rubygems.org/
@@ -49,6 +50,7 @@ GEM
     multi_test (0.1.2)
     rake (11.3.0)
     rdoc (4.3.0)
+    require_all (2.0.0)
     rspec-expectations (3.8.1)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.8.0)

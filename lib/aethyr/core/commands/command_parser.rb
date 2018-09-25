@@ -1,6 +1,6 @@
 require 'set'
-require 'aethyr/core/commands/event'
-require 'aethyr/core/commands/command_registry'
+require 'aethyr/core/event'
+require 'aethyr/core/commands/registry'
 require 'aethyr/core/commands/look'
 
 #CommandParser parses commands into commands for the event handler.
@@ -221,7 +221,7 @@ module CommandParser
         command = command[0].downcase
       end
       
-      event = Aethyr::Extend::CommandRegistry.handle(input, player)
+      event = Aethyr::Extend::InputHandlerRegistry.handle(input, player)
 
       if event.nil?
         event = if @generic_commands.include? command
@@ -287,8 +287,6 @@ module CommandParser
       e = case input
           when /^delete me please$/i
             { :action => :deleteme }
-          when /^(m|map)$/i
-            { :action => :map }
           when /^lock\s+(.*)$/i
             { :action => :lock, :object => $1 }
           when /^unlock\s+(.*)$/i
@@ -335,16 +333,6 @@ module CommandParser
               action = $1.downcase.to_sym
             end
             { :action => action, :target => $3}
-          when /^(bug|typo|idea)\s+(\d+)\s+(show|del|add|status)(\s+(.+))?$/i
-            { :action => :issue, :itype => $1.downcase.to_sym, :issue_id => $2, :option => $3.downcase, :value => $5 }
-          when /^(bug|typo|idea)\s+(\d+)/i
-            { :action => :issue, :itype => $1.downcase.to_sym, :option => "show", :issue_id => $2 }
-          when /^(bug|typo|idea)\s+(del|add|show|status)\s+(\d+)(\s+(.+))?/i
-            { :action => :issue, :itype => $1.downcase.to_sym, :option => $2.downcase, :issue_id => $3, :value => $5 }
-          when /^(bug|typo|idea)\s+(new|show|del|add|status|list)(\s+(.+))?$/i
-            { :action => :issue, :itype => $1.downcase.to_sym, :option => $2.downcase, :value => $4 }
-          when /^(bug|typo|idea)\s+(.*)$/i
-            { :action => :issue, :itype => $1.downcase.to_sym, :option => "new", :value => $2 }
           when /^who$/i
             { :action => :who }
           when /^time$/i

@@ -1,6 +1,6 @@
 require "aethyr/core/commands/command"
 
-module Generic
+module LookCommand
   class << self
     #Look
     def look(event, player, room)
@@ -58,12 +58,12 @@ module Generic
       end
     end
   end
-  
-  class LookCommand < Command
+
+  class LookHandler < Aethyr::Extend::CommandHandler
     def initialize
-      super("Look")
+      super(["l", "look"])
     end
-    
+
     def handle(input, player)
       e = case input
       when /^(l|look)$/i
@@ -75,11 +75,11 @@ module Generic
       else
         nil
       end
-      
+
       return nil if e.nil?
-      Event.new(:Generic, e)
+      Event.new(:LookCommand, e)
     end
   end
-  
-  Aethyr::Extend::CommandRegistry.register_handler(LookCommand)
+
+  Aethyr::Extend::InputHandlerRegistry.register_handler(LookHandler)
 end

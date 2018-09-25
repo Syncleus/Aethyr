@@ -1,6 +1,6 @@
 module Aethyr
     module Extend
-        class CommandRegistry
+        class InputHandlerRegistry
             @@handlers = Hash.new
             
             def self.register_handler(new_handler)

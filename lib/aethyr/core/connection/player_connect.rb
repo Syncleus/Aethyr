@@ -141,7 +141,7 @@ module PlayerConnection
   def puts message
     message = message.to_s
     first = message.index(/[a-zA-Z]/)
-    message[first,1] = message[first,1].capitalize unless first.nil?
+    message[first,1] = message[first,1] unless first.nil?
     self.print(message, true, true)
   end
 

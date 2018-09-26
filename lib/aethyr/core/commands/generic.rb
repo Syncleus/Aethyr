@@ -225,35 +225,6 @@ module Generic
       room.out_event(event)
     end
 
-    #Display help.
-    def help(event, player, room)
-      topic = event[:object].strip.downcase
-      if event[:action] == :ahelp
-        path = "lib/aethyr/help/admin/"
-      else
-        path = "lib/aethyr/help/"
-      end
-
-      if topic.include? 'topics' or topic == ''
-        player.output('Help topics available:', true)
-        topics = []
-        Dir.glob("#{path}*.help").sort.each do |filename|
-          topics << filename[/#{path}(.*)\.help/, 1].upcase
-        end
-
-        player.output(topics)
-        return
-      end
-
-      help_item = "#{path}#{topic}.help"
-
-      if File.exist? help_item
-        player.output(IO.read(help_item))
-      else
-        player.output("No help found for #{topic}.")
-      end
-    end
-
     #Lock something.
     def lock(event, player, room)
       object = player.search_inv(event[:object]) || room.find(event[:object])

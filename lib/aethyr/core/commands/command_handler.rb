@@ -1,11 +1,11 @@
-require 'aethyr/core/help/help_handler'
+require 'aethyr/core/commands/help_handler'
 
 module Aethyr
   module Extend
     
     class InputHandler
       def initialize(*args)
-        super()
+        super(*args)
       end
 
       def input_handle(input, player)
@@ -14,7 +14,7 @@ module Aethyr
     end
     
     class CommandHandler < InputHandler
-      include Aethyr::Help::HandleHelp
+      include Aethyr::Extend::HandleHelp
       
       def initialize(commands, help_text = nil, *args)
         super

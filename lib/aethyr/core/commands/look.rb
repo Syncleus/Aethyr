@@ -58,6 +58,23 @@ module LookCommand
         end
       end
     end
+    
+    def look_help(event, player, room)
+      player.output <<'EOF'
+Command: Look
+Syntax: LOOK
+Syntax: LOOK [object]
+Syntax: LOOK IN [object]
+
+Look by itself will show you your surroundings.
+
+Look followed by an object will look at that object.
+
+Look IN will look inside of a container (if it is open).
+
+'l' is a shortcut for look.
+EOF
+    end
   end
 
   class LookHandler < Aethyr::Extend::CommandHandler
@@ -82,20 +99,15 @@ module LookCommand
     end
     
     def help_handle(input, player)
-      <<'EOF'
-Command: Look
-Syntax: LOOK
-Syntax: LOOK <object>
-Syntax: LOOK IN <object>
+      e = case input
+      when /^(l|look).*$/i
+        { :action => :look_help }
+      else
+        nil
+      end
 
-Look by itself will show you your surroundings.
-
-Look followed by an object will look at that object.
-
-Look IN will look inside of a container (if it is open).
-
-'l' is a shortcut for look.
-EOF
+      return nil if e.nil?
+      Event.new(:LookCommand, e)
     end
   end
 

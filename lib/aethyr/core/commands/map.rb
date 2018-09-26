@@ -7,6 +7,15 @@ module MapCommand
     def map(event, player, room)
       player.output(room.area.render_map(player, room.area.position(room)))
     end
+    
+    def map_help(event, player, room)
+      player.output <<'EOF'
+Command: Map
+Syntax: MAP
+
+Displays a map of the area.
+EOF
+    end
   end
 
   class MapHandler < Aethyr::Extend::CommandHandler
@@ -27,12 +36,15 @@ module MapCommand
     end
     
     def help_handle(input, player)
-      <<'EOF'
-Command: Map
-Syntax: MAP
+      e = case input
+      when /^(m|map).*$/i
+        { :action => :map_help }
+      else
+        nil
+      end
 
-Displays a map of the area.
-EOF
+      return nil if e.nil?
+      Event.new(:MapCommand, e)
     end
   end
 

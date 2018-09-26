@@ -221,7 +221,11 @@ module CommandParser
         command = command[0].downcase
       end
       
-      event = Aethyr::Extend::HandlerRegistry.input_handle(input, player)
+      event = unless command.eql? "help"
+          Aethyr::Extend::HandlerRegistry.input_handle(input, player)
+        else
+          Aethyr::Extend::HandlerRegistry.help_handle(input.split(' ')[1..-1].join(' ').strip, player)
+        end
 
       if event.nil?
         event = if @generic_commands.include? command

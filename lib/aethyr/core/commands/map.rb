@@ -37,7 +37,7 @@ EOF
     
     def help_handle(input, player)
       e = case input
-      when /^(m|map).*$/i
+      when /^(m|map)$/i
         { :action => :map_help }
       else
         nil

@@ -120,7 +120,7 @@ EOF
     
     def help_handle(input, player)
       e = case input
-      when /^(bug|typo|idea).*$/i
+      when /^(bug|typo|idea)$/i
         { :action => :issue_help }
       else
         nil

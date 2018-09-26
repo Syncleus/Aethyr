@@ -301,25 +301,17 @@ module CommandParser
             { :action => :get, :object => $2.strip }
           when /^give\s+((\w+\s*)*)\s+to\s+(\w+)/i
             { :action => :give, :item => $2.strip, :to => $3 }
-          when /^(i|inv|inventory)$/i
-            { :action => :show_inventory }
-          when /^more/i
-            { :action => :more }
           when /^open\s+(\w+)$/i
             { :action => :open, :object => $1 }
           when /^(close|shut)\s+(\w+)$/i
             { :action => :close, :object => $2  }
           when /^drop\s+((\w+\s*)*)$/i
             { :action => :drop, :object => $1.strip }
-          when /^quit$/i
-            { :action => :quit }
           when /^put((\s+(\d+)\s+)|\s+)(\w+)\s+in\s+(\w+)$/i
             { :action => :put,
               :item => $4,
               :count => $3.to_i,
               :container => $5 }
-          when /^help(.*)$/i
-            { :action => :help, :object => $1 }
           when /^(health)$/i
             { :action => :health }
           when /^(satiety|hunger)$/i

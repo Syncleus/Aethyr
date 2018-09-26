@@ -4,11 +4,6 @@ require 'aethyr/core/issues'
 module Generic
   class << self
 
-    #Shows the inventory of the player.
-    def show_inventory(event, player, room)
-      player.output(player.show_inventory)
-    end
-
     #Gets (or takes) an object and puts it in the player's inventory.
     def get(event, player, room)
 
@@ -396,11 +391,6 @@ module Generic
       player.output output
     end
 
-    #Display more paginated text.
-    def more(event, player, room)
-      player.more
-    end
-
     #Delete your player.
     def deleteme(event, player, room)
       if event[:password]
@@ -569,10 +559,6 @@ module Generic
       event[:to_target] = "#{player.name} reaches out a hand and gingerly touches you."
       event[:to_other] = "#{player.name} reaches out #{player.pronoun(:possessive)} hand and touches #{object.name}."
       room.out_event event
-    end
-
-    def quit(event, player, room)
-      $manager.drop_player player
     end
 
     private

@@ -2,6 +2,8 @@ require 'set'
 require 'aethyr/core/event'
 require 'aethyr/core/registry'
 require 'aethyr/core/commands/look'
+require 'aethyr/core/util/direction'
+include Aethyr::Direction
 
 #CommandParser parses commands into commands for the event handler.
 module CommandParser
@@ -278,14 +280,6 @@ module CommandParser
             { :action => :lock, :object => $1 }
           when /^unlock\s+(.*)$/i
             { :action => :unlock, :object => $1 }
-          when /^give\s+((\w+\s*)*)\s+to\s+(\w+)/i
-            { :action => :give, :item => $2.strip, :to => $3 }
-          when /^open\s+(\w+)$/i
-            { :action => :open, :object => $1 }
-          when /^(close|shut)\s+(\w+)$/i
-            { :action => :close, :object => $2  }
-          when /^drop\s+((\w+\s*)*)$/i
-            { :action => :drop, :object => $1.strip }
           when /^put((\s+(\d+)\s+)|\s+)(\w+)\s+in\s+(\w+)$/i
             { :action => :put,
               :item => $4,

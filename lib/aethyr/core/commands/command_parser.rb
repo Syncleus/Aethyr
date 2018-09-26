@@ -248,8 +248,6 @@ module CommandParser
             parse_communication input
           elsif @news.include? command
             parse_news input
-          elsif skill_commands(player).include? command
-            parse_skill(input, player)
           elsif @mobile.include? command and player.is_a? Mobile
             parse_mobile command  ### implement me
           elsif input =~ /^alarm\s+([0-9]+)$/i
@@ -271,21 +269,6 @@ module CommandParser
     alias :create_event :parse
 
     private
-    
-    def skill_commands(player)
-      commands = Set.new ["skills"]
-      commands
-    end
-    
-    def parse_skill(input, player)
-      e = case input
-          when /^(s|skills)$/i
-            { :action => :skills }
-          else
-            nil
-          end
-      Event.new(:Skills, e) if e
-    end
 
     def parse_generic(input)
       e = case input

@@ -59,8 +59,8 @@ class Player < LivingObject
     @reply_to = nil
     @prompt_shown = false
     info.stats.satiety = 120
-    map_skill = Skills::Map.new(self.game_object_id)
-    kick_skill = Skills::Kick.new(self.game_object_id)
+    map_skill = Aethyr::Extensions::Skills::Map.new(self.game_object_id)
+    kick_skill = Aethyr::Extensions::Skills::Kick.new(self.game_object_id)
     info.skills = { map_skill.id => map_skill, kick_skill.id => kick_skill}
     info.explored_rooms = Set.new [room]
     map_skill.add_xp 750

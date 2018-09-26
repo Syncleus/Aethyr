@@ -100,7 +100,7 @@ EOF
     
     def help_handle(input, player)
       e = case input
-      when /^(l|look).*$/i
+      when /^(l|look)$/i
         { :action => :look_help }
       else
         nil

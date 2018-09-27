@@ -3,7 +3,9 @@ require 'aethyr/core/components/event_handler'
 require 'aethyr/core/components/storage'
 require 'aethyr/core/errors'
 require 'aethyr/core/objects/info/calendar'
+require 'aethyr/core/registry'
 require 'set'
+require 'wisper'
 
 #The Manager class uses the observer model to recieve commands from objects, which
 #it then passes along to the EventHandler.
@@ -12,6 +14,7 @@ require 'set'
 #
 #The server's Manager is a global named $manager.
 class Manager
+  include Wisper::Publisher
   attr_reader :soft_restart, :uptime, :calendar
 
   #Creates a new Manager (only need one, though!)
@@ -19,6 +22,7 @@ class Manager
   #The objects parameter is not for general use, but when you want to use
   #a Manager object in an external script.
   def initialize(objects = nil)
+    Aethyr::Extend::HandlerRegistry.handle(self)
     @soft_restart = false
     @storage = StorageMachine.new
     @uptime = Time.new.to_i
@@ -181,6 +185,8 @@ class Manager
   def add_object(game_object, position = nil)
 
     @game_objects << game_object unless @game_objects.loaded? game_object.goid
+    
+    broadcast(:object_added, { :publisher => self, :game_object => game_object, :position => position})
 
     unless game_object.room.nil?
       room = @game_objects[game_object.room]

@@ -5,19 +5,25 @@ module Aethyr
     module HandleHelp
       attr_reader :commands
       
-      def initialize(commands, help_text = nil, *args)
-        super(*args)
+      def initialize(player, commands, *args)
+        super(player, *args)
         
         @commands = commands
-        @help_text = help_text
       end
       
-      def help_handle(input, player)
-          return "This command has no associated help text." if help_text.nil?
-          @help_text
+      def player_input(data)
+        super(data)
+        case data[:input]
+        when /^(help|help topics)$/i
+          if self.can_help?
+            self.commands.each do |command|
+              self.player.output command
+            end
+          end
+        end
       end
       
-      def can_help?(player)
+      def can_help?
         true
       end
     end
@@ -25,42 +31,9 @@ module Aethyr
     class HelpHandler
       include Aethyr::Extend::HandleHelp
       
-      def initialize(commands, help_text = nil, *args)
+      def initialize(player, commands, *args)
         super
       end
     end
   end
-end
-
-module HelpCommand
-  class << self
-    #Display help.
-    def help(event, player, room)
-        player.output('Help topics available:', true)
-        topics = Aethyr::Extend::HandlerRegistry.help_topics(player)
-        player.output(topics.join(' ').upcase)
-    end
-  end
-
-  class HelpHandler < Aethyr::Extend::HelpHandler
-    def initialize
-      super(["help"])
-    end
-    
-    def help_handle(input, player)
-      e = case input
-      when /^$/i
-        { :action => :help }
-      when /^topics$/i
-        { :action => :help }
-      else
-        nil
-      end
-
-      return nil if e.nil?
-      Event.new(:HelpCommand, e)
-    end
-  end
-
-  Aethyr::Extend::HandlerRegistry.register_handler(HelpHandler)
 end

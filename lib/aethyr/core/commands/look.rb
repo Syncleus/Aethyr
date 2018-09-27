@@ -1,66 +1,37 @@
 require "aethyr/core/registry"
 require "aethyr/core/commands/command_handler"
 
-module LookCommand
-  class << self
-    #Look
-    def look(event, player, room)
-      if player.blind?
-        player.output "You cannot see while you are blind."
-      else
-        if event[:at]
-          object = room if event[:at] == "here"
-          object = object || player.search_inv(event[:at]) || room.find(event[:at])
-
-          if object.nil?
-            player.output("Look at what, again?")
-            return
+module Aethyr
+  module Core
+    module Commands
+      module Look
+        class LookHandler < Aethyr::Extend::CommandHandler
+          def initialize(player)
+            super(player, ["l", "look"])
           end
 
-          if object.is_a? Exit
-            player.output object.peer
-          elsif object.is_a? Room
-            player.output("You are indoors.", true) if object.info.terrain.indoors
-            player.output("You are underwater.", true) if object.info.terrain.underwater
-            player.output("You are swimming.", true) if object.info.terrain.water
+          def self.object_added(data)
+            return unless data[:game_object].is_a? Player
+            data[:game_object].subscribe(LookHandler.new(data[:game_object]))
+          end
 
-            player.output "You are in a place called #{room.name} in #{room.area ? room.area.name : "an unknown area"}.", true
-            if room.area
-              player.output "The area is generally #{describe_area(room.area)} and this spot is #{describe_area(room)}."
-            elsif room.info.terrain.room_type
-              player.output "Where you are standing is considered to be #{describe_area(room)}."
-            else
-              player.output "You are unsure about anything else concerning the area."
+          def player_input(data)
+            super(data)
+            case data[:input]
+            when /^(l|look)$/i
+              action({})
+            when /^(l|look)\s+(in|inside)\s+(.*)$/i
+              action({ :in => $3 })
+            when /^(l|look)\s+(.*)$/i
+              action({ :at => $2 })
+            when /^help (l|look)$/i
+              action_help({})
             end
-          elsif player == object
-            player.output "You look over yourself and see:\n#{player.instance_variable_get("@long_desc")}", true
-            player.output object.show_inventory
-          else
-            player.output object.long_desc
           end
-        elsif event[:in]
-          object = room.find(event[:in])
-          object = player.inventory.find(event[:in]) if object.nil?
 
-          if object.nil?
-            player.output("Look inside what?")
-          elsif not object.can? :look_inside
-            player.output("You cannot look inside that.")
-          else
-            object.look_inside(event)
-          end
-        else
-          if not room.nil?
-            player.output(room.look(player))
-          else
-            player.output "Nothing to look at."
-          end
-        end
-      end
-    end
-    
-    def look_help(event, player, room)
-      player.output <<'EOF'
+          private
+          def action_help(event)
+            @player.output <<'EOF'
 Command: Look
 Syntax: LOOK
 Syntax: LOOK [object]
@@ -74,42 +45,78 @@ Look IN will look inside of a container (if it is open).
 
 'l' is a shortcut for look.
 EOF
+          end
+
+          def action(event)
+            room = $manager.get_object(@player.container)
+            if @player.blind?
+              @player.output "You cannot see while you are blind."
+            else
+              if event[:at]
+                object = room if event[:at] == "here"
+                object = object || @player.search_inv(event[:at]) || room.find(event[:at])
+
+                if object.nil?
+                  @player.output("Look at what, again?")
+                  return
+                end
+
+                if object.is_a? Exit
+                  @player.output object.peer
+                elsif object.is_a? Room
+                  @player.output("You are indoors.", true) if object.info.terrain.indoors
+                  @player.output("You are underwater.", true) if object.info.terrain.underwater
+                  @player.output("You are swimming.", true) if object.info.terrain.water
+
+                  @player.output "You are in a place called #{room.name} in #{room.area ? room.area.name : "an unknown area"}.", true
+                  if room.area
+                    @player.output "The area is generally #{describe_area(room.area)} and this spot is #{describe_area(room)}."
+                  elsif room.info.terrain.room_type
+                    @player.output "Where you are standing is considered to be #{describe_area(room)}."
+                  else
+                    @player.output "You are unsure about anything else concerning the area."
+                  end
+                elsif @player == object
+                  @player.output "You look over yourself and see:\n#{@player.instance_variable_get("@long_desc")}", true
+                  @player.output object.show_inventory
+                else
+                  @player.output object.long_desc
+                end
+              elsif event[:in]
+                object = room.find(event[:in])
+                object = @player.inventory.find(event[:in]) if object.nil?
+
+                if object.nil?
+                  @player.output("Look inside what?")
+                elsif not object.can? :look_inside
+                  @player.output("You cannot look inside that.")
+                else
+                  object.look_inside(event)
+                end
+              else
+                if not room.nil?
+                  @player.output(room.look(@player))
+                else
+                  @player.output "Nothing to look at."
+                end
+              end
+            end
+          end
+
+          def describe_area(object)
+            if object.is_a? Room
+              result = object.terrain_type.room_text unless object.terrain_type.nil?
+              result = "uncertain" if result.nil?
+            elsif object.is_a? Area
+              result = object.terrain_type.area_text unless object.terrain_type.nil?
+              result = "uncertain" if result.nil?
+            end
+            result
+          end
+        end
+        
+        Aethyr::Extend::HandlerRegistry.register_handler(LookHandler)
+      end
     end
   end
-
-  class LookHandler < Aethyr::Extend::CommandHandler
-    def initialize
-      super(["l", "look"])
-    end
-
-    def input_handle(input, player)
-      e = case input
-      when /^(l|look)$/i
-        { :action => :look }
-      when /^(l|look)\s+(in|inside)\s+(.*)$/i
-        { :action => :look, :in => $3 }
-      when /^(l|look)\s+(.*)$/i
-        { :action => :look, :at => $2 }
-      else
-        nil
-      end
-
-      return nil if e.nil?
-      Event.new(:LookCommand, e)
-    end
-    
-    def help_handle(input, player)
-      e = case input
-      when /^(l|look)$/i
-        { :action => :look_help }
-      else
-        nil
-      end
-
-      return nil if e.nil?
-      Event.new(:LookCommand, e)
-    end
-  end
-
-  Aethyr::Extend::HandlerRegistry.register_handler(LookHandler)
 end

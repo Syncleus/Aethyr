@@ -1,12 +1,14 @@
+require 'observer'
+require 'wisper'
 require 'aethyr/core/util/log'
 require 'aethyr/core/objects/inventory'
 require 'aethyr/core/objects/traits/pronoun'
 require 'aethyr/core/util/guid'
-require 'observer'
 require 'aethyr/core/objects/info/info'
 
 #Base class for all game objects, including players. Should be subclassed to do anything useful.
 class GameObject
+  include Wisper::Publisher
   include Observable
   include Pronoun
 

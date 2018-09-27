@@ -213,6 +213,9 @@ class Player < LivingObject
       return
     end
 
+    clean_input = input.downcase.strip
+    self.output('Help topics available:') if (clean_input.eql? "help") or (clean_input.eql? "help topics")
+    broadcast(:player_input, {:publisher => self, :input => input})
     event = CommandParser.parse(self, input)
 
     @prompt_shown = false

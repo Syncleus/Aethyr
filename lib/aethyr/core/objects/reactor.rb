@@ -1,4 +1,5 @@
 require 'aethyr/core/util/rproc'
+require 'aethyr/core/util/marshaller'
 
 #The Reactor class is the mechanism by which Mobiles can be scripted. A reaction is made up of three parts:
 #* The action(s)/commands to which to react
@@ -48,7 +49,6 @@ require 'aethyr/core/util/rproc'
 #can be any number of lines.
 #
 class Reactor
-
   #This initializes the Reactor, as you might expect
   def initialize(mob)
     @mob = mob

@@ -4,8 +4,8 @@ require 'aethyr/core/components/storage'
 require 'aethyr/core/errors'
 require 'aethyr/core/objects/info/calendar'
 require 'aethyr/core/registry'
+require 'aethyr/core/util/publisher'
 require 'set'
-require 'wisper'
 
 #The Manager class uses the observer model to recieve commands from objects, which
 #it then passes along to the EventHandler.
@@ -13,8 +13,7 @@ require 'wisper'
 #finding them.
 #
 #The server's Manager is a global named $manager.
-class Manager
-  include Wisper::Publisher
+class Manager < Publisher
   attr_reader :soft_restart, :uptime, :calendar
 
   #Creates a new Manager (only need one, though!)

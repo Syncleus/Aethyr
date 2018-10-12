@@ -1,20 +1,3 @@
-class SerializationId
-  attr_reader :guid
-  
-  def initalize
-    @guid = SecureRandom.uuid
-  end
-  
-  def eql? other
-    return false unless other.is_a? SerializationId
-    @guid.eql? other.guid
-  end
-  
-  def hash
-    @guid.hash
-  end
-end
-
 class Marshaller < Module
   class << self
     alias [] new

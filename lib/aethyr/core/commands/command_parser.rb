@@ -6,30 +6,6 @@ include Aethyr::Direction
 
 #CommandParser parses commands into commands for the event handler.
 module CommandParser
-  @generic_commands = Set.new([
-  'date',
-  'delete',
-  'feel',
-  'taste',
-  'smell',
-  'sniff',
-  'lick',
-  'listen',
-  'health',
-  'hunger',
-  'satiety',
-  'shut',
-  'put',
-  'lock',
-  'unlock',
-  'status',
-  'stat',
-  'st',
-  'time',
-  'typo',
-  'who',
-  'write'
-  ])
 
   @communication = Set.new([
   'say',
@@ -39,29 +15,7 @@ module CommandParser
   'reply'
   ])
 
-  @movement = Set.new([ 'go',
-  'east',
-  'e',
-  'west',
-  'w',
-  'south',
-  's',
-  'north',
-  'n',
-  'up',
-  'u',
-  'down',
-  'd',
-  'northeast',
-  'ne',
-  'northwest',
-  'nw',
-  'southeast',
-  'se',
-  'southwest',
-  'sw',
-  'in',
-  'out',
+  @movement = Set.new([
   'sit',
   'stand',
   'pose',
@@ -206,9 +160,7 @@ module CommandParser
         command = command[0].downcase
       end
 
-      event = if @generic_commands.include? command
-          parse_generic input
-        elsif @emotes.include? command
+      event = if @emotes.include? command
           parse_emote input
         elsif @movement.include? command
           parse_movement input
@@ -246,49 +198,6 @@ module CommandParser
     alias :create_event :parse
 
     private
-
-    def parse_generic(input)
-      e = case input
-          when /^delete me please$/i
-            { :action => :deleteme }
-          when /^lock\s+(.*)$/i
-            { :action => :lock, :object => $1 }
-          when /^unlock\s+(.*)$/i
-            { :action => :unlock, :object => $1 }
-          when /^put((\s+(\d+)\s+)|\s+)(\w+)\s+in\s+(\w+)$/i
-            { :action => :put,
-              :item => $4,
-              :count => $3.to_i,
-              :container => $5 }
-          when /^(health)$/i
-            { :action => :health }
-          when /^(satiety|hunger)$/i
-            { :action => :satiety }
-          when /^(st|stat|status)$/i
-            { :action => :status }
-          when /^write\s+(.*)/i
-            { :action => :write, :target => $1.strip}
-          when /^(listen|sniff|smell|taste|lick|feel)(\s+(.+))?$/i
-            if $1.downcase == "sniff"
-              action = :smell
-            elsif $1.downcase == "lick"
-              action = :taste
-            else
-              action = $1.downcase.to_sym
-            end
-            { :action => action, :target => $3}
-          when /^who$/i
-            { :action => :who }
-          when /^time$/i
-            { :action => :time }
-          when /^date$/i
-            { :action => :date }
-          else
-            nil
-          end
-
-      Event.new(:Generic, e) if e
-    end
 
     def parse_communication(input)
       e = case input
@@ -334,8 +243,6 @@ module CommandParser
       when /^gait(\s+(.*))?$/i
         event[:action] = :gait
         event[:phrase] = $2 if $2
-      when /^go\s+(.*)$/i
-        event[:direction] = $1.downcase
       when /^(jump|climb|crawl|enter)\s+(.*)$/i
         event[:action] = :enter
         event[:portal_action] = $1.downcase
@@ -351,9 +258,6 @@ module CommandParser
       when /^(jump|crawl|climb|enter)$/i
         input.downcase!
         return nil  ### TODO: handle portal movement
-      when /^(east|west|northeast|northwest|north|southeast|southwest|south|e|w|nw|ne|sw|se|n|s|up|down|u|d|in|out)(\s+\((.*)\))?$/i
-        event[:direction] = expand_direction $1
-        event[:pre] = $3
       else
         return nil
       end

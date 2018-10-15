@@ -60,10 +60,11 @@ module Aethyr
         loop do
           did_something = false
           # handle the listener
-          ready, _, _ = IO.select([listener])
-          if ready.any?
+          #ready, _, _ = IO.select([listener])
+          socket, addr_info = listener.accept_nonblock(exception: false)
+          if (not socket.nil?) and socket.is_a? Socket
             did_something = true
-            players << handle_client(*listener.accept)
+            players << handle_client(socket, addr_info)
           end
           
           players.each do |player|
@@ -71,6 +72,8 @@ module Aethyr
             did_something = true unless recvd.nil?
             player.receive_data(recvd)
           end
+          
+          sleep 0.1 unless did_something
         end
         
 #        4.times do # Adjust this number for the pool size
@@ -138,63 +141,63 @@ module Aethyr
         puts 'All children have exited. Goodbye!'
       end
       
-      def process_requests(socket)
-        begin
-          # initialize ncurses
-          scr = Ncurses.newterm("vt100", socket, socket)
-          Ncurses.set_term(scr)
-          Ncurses.resizeterm(25, 80)
-          Ncurses.cbreak           # provide unbuffered input
-          Ncurses.noecho           # turn off input echoing
-          Ncurses.nonl             # turn off newline translation
-
-          Ncurses.stdscr.intrflush(false) # turn off flush-on-interrupt
-          Ncurses.stdscr.keypad(true)     # turn on keypad mode
-
-          Ncurses.stdscr.addstr("Press a key to continue") # output string
-          Ncurses.stdscr.getch                             # get a charachter
-
-          scr = Ncurses.stdscr
-
-          #moving
-          scr.clear() # clear screen
-          scr.move(5,5) # move cursor
-          scr.addstr("move(5,5)")
-          scr.refresh() # update screen
-          sleep(2)
-          scr.move(2,2)
-          scr.addstr("move(2,2)")
-          scr.refresh()
-          sleep(2)
-          scr.move(10, 2)
-
-          # two_borders
-          # make a new window as tall as the screen and half as wide, in the left half
-          # of the screen
-          one = Ncurses::WINDOW.new(0, Ncurses.COLS() / 2, 0, 0)
-          # make one for the right half
-          two = Ncurses::WINDOW.new(0, Ncurses.COLS() - (Ncurses.COLS() / 2),
-                  0, Ncurses.COLS() / 2)
-          one.border(*([0]*8))
-          two.border(*([0]*8))
-          one.move(3,3)
-          two.move(2,5)
-          one.addstr("move(3,3)")
-          two.addstr("move(2,5)")
-          two.move(5,3)
-          two.addstr("Press a key to continue")
-          one.noutrefresh() # copy window to virtual screen, don't update real screen
-          two.noutrefresh()
-          Ncurses.doupdate() # update read screen
-          two.getch()
-
-        ensure
-          Ncurses.echo
-          Ncurses.nocbreak
-          Ncurses.nl
-          Ncurses.endwin
-        end
-      end
+#      def process_requests(socket)
+#        begin
+#          # initialize ncurses
+#          scr = Ncurses.newterm("vt100", socket, socket)
+#          Ncurses.set_term(scr)
+#          Ncurses.resizeterm(25, 80)
+#          Ncurses.cbreak           # provide unbuffered input
+#          Ncurses.noecho           # turn off input echoing
+#          Ncurses.nonl             # turn off newline translation
+#
+#          Ncurses.stdscr.intrflush(false) # turn off flush-on-interrupt
+#          Ncurses.stdscr.keypad(true)     # turn on keypad mode
+#
+#          Ncurses.stdscr.addstr("Press a key to continue") # output string
+#          Ncurses.stdscr.getch                             # get a charachter
+#
+#          scr = Ncurses.stdscr
+#
+#          #moving
+#          scr.clear() # clear screen
+#          scr.move(5,5) # move cursor
+#          scr.addstr("move(5,5)")
+#          scr.refresh() # update screen
+#          sleep(2)
+#          scr.move(2,2)
+#          scr.addstr("move(2,2)")
+#          scr.refresh()
+#          sleep(2)
+#          scr.move(10, 2)
+#
+#          # two_borders
+#          # make a new window as tall as the screen and half as wide, in the left half
+#          # of the screen
+#          one = Ncurses::WINDOW.new(0, Ncurses.COLS() / 2, 0, 0)
+#          # make one for the right half
+#          two = Ncurses::WINDOW.new(0, Ncurses.COLS() - (Ncurses.COLS() / 2),
+#                  0, Ncurses.COLS() / 2)
+#          one.border(*([0]*8))
+#          two.border(*([0]*8))
+#          one.move(3,3)
+#          two.move(2,5)
+#          one.addstr("move(3,3)")
+#          two.addstr("move(2,5)")
+#          two.move(5,3)
+#          two.addstr("Press a key to continue")
+#          one.noutrefresh() # copy window to virtual screen, don't update real screen
+#          two.noutrefresh()
+#          Ncurses.doupdate() # update read screen
+#          two.getch()
+#
+#        ensure
+#          Ncurses.echo
+#          Ncurses.nocbreak
+#          Ncurses.nl
+#          Ncurses.endwin
+#        end
+#      end
     end
     
     def self.main        

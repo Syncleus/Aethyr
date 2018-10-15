@@ -100,18 +100,6 @@ class PlayerConnection
     message = compress message if @mccp_to_client
     
     @display.send message
-#    Ncurses.set_term(@screen)
-#    Ncurses.resizeterm(200, 200)
-#    Ncurses.cbreak           # provide unbuffered input
-#    Ncurses.noecho           # turn off input echoing
-#    Ncurses.nonl             # turn off newline translation
-#
-#    Ncurses.stdscr.intrflush(false) # turn off flush-on-interrupt
-#    Ncurses.stdscr.keypad(true) 
-#    Ncurses.scrollok(Ncurses.stdscr, true)
-#    # Ncurses.stdscr.addstr message
-#    Ncurses.printw message
-#    Ncurses.refresh
   end
 
   #Sets colors to defaults

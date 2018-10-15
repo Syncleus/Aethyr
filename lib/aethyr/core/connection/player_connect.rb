@@ -1,7 +1,8 @@
 require 'strscan'
+require 'socket'
+require "ncurses"
 require 'aethyr/core/render/format'
 require 'aethyr/core/connection/telnet_codes'
-require 'socket'
 require 'aethyr/core/errors'
 require 'aethyr/core/connection/login'
 require 'aethyr/core/render/koa_paginator'
@@ -10,16 +11,19 @@ require 'aethyr/core/render/text_util'
 include TextUtil
 
 #This is the network connection to the Player. Handles all input/output.
-module PlayerConnection
+class PlayerConnection
   include Login
   include Editor
 
   #Input buffer
-  attr_reader :in_buffer
+  attr_reader :in_buffer, :socket, :screen
   attr_accessor :color_settings, :use_color, :word_wrap
+  
+  def initialize(socket, screen, addrinfo, *args)
+    super(*args)
+    @socket = socket
+    @screen = screen
 
-  #Set up everything
-  def post_init
     @in_buffer = []
     @paginator = nil
     @color_settings = color_settings || to_default
@@ -34,7 +38,7 @@ module PlayerConnection
     @password_attempts = 0
     @player = nil
     @expect_callback = nil
-    @ip_address = Socket.unpack_sockaddr_in(self.get_peername)[1]
+    @ip_address = Socket.unpack_sockaddr_in(addrinfo)[1]
     @color_stack = []
 
     print File.read(ServerConfig.intro_file) if File.exist? ServerConfig.intro_file
@@ -95,7 +99,19 @@ module PlayerConnection
 
   def send_data message
     message = compress message if @mccp_to_client
-    super message
+    
+    Ncurses.set_term(@screen)
+    Ncurses.resizeterm(200, 200)
+    Ncurses.cbreak           # provide unbuffered input
+    Ncurses.noecho           # turn off input echoing
+    Ncurses.nonl             # turn off newline translation
+
+    Ncurses.stdscr.intrflush(false) # turn off flush-on-interrupt
+    Ncurses.stdscr.keypad(true) 
+    Ncurses.scrollok(Ncurses.stdscr, true)
+    # Ncurses.stdscr.addstr message
+    Ncurses.printw message
+    Ncurses.refresh
   end
 
   #Sets colors to defaults
@@ -210,9 +226,9 @@ module PlayerConnection
 
   #Only use if there is no line height
   def line_wrap message
-    message = wrap(message, @word_wrap).join("\r\n") if @word_wrap
+    message = wrap(message, @word_wrap).join("\n") if @word_wrap
     #message = message.gsub(/((\e\[\d+[\;]{0,1}\d*[\;]{0,1}\d*m|[^\r\n\n\s\Z]){#{@word_wrap}})/, "\\1 ") if @word_wrap
-    message.gsub(/(((\e\[\d+[\;]{0,1}\d*[\;]{0,1}\d*m)|.){1,#{@word_wrap}})(\r\n|\n|\s+|\Z)/, "\\1\r\n")
+    message.gsub(/(((\e\[\d+[\;]{0,1}\d*[\;]{0,1}\d*m)|.){1,#{@word_wrap}})(\r\n|\n|\s+|\Z)/, "\\1\n")
   end
 
   #Next page of paginated output

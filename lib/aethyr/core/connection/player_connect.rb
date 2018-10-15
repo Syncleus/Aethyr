@@ -26,7 +26,7 @@ class PlayerConnection
     @in_buffer = []
     @paginator = nil
     @color_settings = color_settings || to_default
-    @use_color = true
+    @use_color = false
     @mccp_to_client = false
     @mccp_from_client = false
     @word_wrap = 120
@@ -104,7 +104,7 @@ class PlayerConnection
 
   #Sets colors to defaults
   def to_default
-    @use_color = true
+    @use_color = false
     @color_settings = {
       "roomtitle" => "fg:green bold",
       "object" => "fg:blue",
@@ -176,8 +176,10 @@ class PlayerConnection
           message << "\r\n"
         end
       end
-      regular_format = FormatState.new(@color_settings["regular"])
-      message = regular_format.apply + message + regular_format.revert
+      if @use_color
+        regular_format = FormatState.new(@color_settings["regular"])
+        message = regular_format.apply + message + regular_format.revert
+      end
       send_data message
     end
   end
@@ -248,9 +250,12 @@ class PlayerConnection
       #string.gsub!(/<\/([^>]*)>/, @@colors[@color_settings["regular"]])
       #string.gsub!(/(\"(.*?)")/, @color_settings["quote"] + '\1' + @color_settings["regular"])
     else
-      string.gsub!(/<(#{colors})>/i, "")
+      string.gsub!(/<([^>]*)>/i, "")
+      #string.gsub!(/<(#{colors})>/i, "")
       string.gsub!(/<\/([^>]*)>/, "")
     end
+    
+    string
   end
   
   def color_encode(code)

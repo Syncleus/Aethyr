@@ -28,6 +28,18 @@ class Display
   end
   
   def send (message, window_type: :main)
+    message = message.tr("\r", '')
+    lines = message.split("\n");
+    return if lines.empty?
+    if lines.length > 1
+      lines.each do |line|
+        send line, window_type: window_type
+      end
+      return
+    end
+    message = lines[0]
+    
+    #binding.irb
     window = nil
     case window_type
     when :main
@@ -37,7 +49,7 @@ class Display
     
     set_term
 
-    window.printw message
+    window.printw message + "\n"
     window.noutrefresh()
     Ncurses.doupdate()
   end

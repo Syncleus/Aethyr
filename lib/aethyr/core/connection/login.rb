@@ -9,6 +9,7 @@ module Login
 
   #Get input from io connection and process it
   def receive_data(data)
+    return if data.nil?
     data = preprocess_input(data)
     return if data == ''
 

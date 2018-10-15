@@ -31,6 +31,7 @@ require 'aethyr/core/util/config'
 require 'aethyr/core/util/log'
 require 'aethyr/core/components/manager'
 require 'aethyr/core/connection/player_connect'
+require 'aethyr/core/render/display'
 
 module Aethyr
     #The Server is what starts everything up. In fact, that is pretty much all it does. To use, call Server.new.
@@ -66,13 +67,9 @@ module Aethyr
           end
           
           players.each do |player|
-            ready, _, _ = IO.select([player.socket])
-            if ready.any?
-              did_something = true
-              Ncurses.set_term(player.screen)
-              Ncurses.resizeterm(25, 80)
-              player.receive_data(Ncurses.stdscr.getch.to_s)
-            end
+            recvd = player.display.recv
+            did_something = true unless recvd.nil?
+            player.receive_data(recvd)
           end
         end
         
@@ -122,8 +119,8 @@ module Aethyr
       
       def handle_client(socket, addrinfo)
         begin
-          screen = Ncurses.newterm("vt100", socket, socket)
-          player = PlayerConnection.new(socket, screen, addrinfo)
+          display = Display.new(socket)
+          player = PlayerConnection.new(display, addrinfo)
           puts "Connected: #{addrinfo.inspect}\n"
           return player
         rescue Errno::ECONNRESET, Errno::EPIPE

@@ -1,3 +1,4 @@
+require "ncursesw"
 require 'aethyr/core/connection/telnet_codes'
 
 class Display
@@ -30,7 +31,6 @@ class Display
     @window_input = Ncurses::WINDOW.new(3, 0, 22, 0)
     Ncurses.scrollok(@window_input, false)
     @window_input.clear
-    
     update
   end
   
@@ -70,7 +70,7 @@ class Display
     
     set_term
 
-    window.printw message + "\n"
+    window.addstr message + "\n"
     update
   end
   
@@ -108,7 +108,6 @@ class Display
       update
       
       ch = window.getch
-#      puts "char: #{ch} as #{ch.chr(Encoding::UTF_8)}"
       case ch
       when Ncurses::KEY_LEFT
         cursor_pos = [0, cursor_pos-1].max

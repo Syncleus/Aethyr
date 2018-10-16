@@ -1,6 +1,5 @@
 require 'strscan'
 require 'socket'
-require "ncurses"
 require 'aethyr/core/render/format'
 require 'aethyr/core/connection/telnet_codes'
 require 'aethyr/core/errors'
@@ -251,7 +250,6 @@ class PlayerConnection
       #string.gsub!(/(\"(.*?)")/, @color_settings["quote"] + '\1' + @color_settings["regular"])
     else
       string.gsub!(/<([^>]*)>/i, "")
-      #string.gsub!(/<(#{colors})>/i, "")
       string.gsub!(/<\/([^>]*)>/, "")
     end
     

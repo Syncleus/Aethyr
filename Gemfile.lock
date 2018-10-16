@@ -5,7 +5,7 @@ PATH
       concurrent-ruby (~> 1.0)
       eventmachine (~> 1.2)
       methadone (~> 1.9)
-      ncurses-ruby (~> 1.2)
+      ncursesw (~> 1.4)
       require_all (~> 2.0)
       wisper (~> 2.0)
 
@@ -50,7 +50,7 @@ GEM
       bundler
     multi_json (1.13.1)
     multi_test (0.1.2)
-    ncurses-ruby (1.2.4)
+    ncursesw (1.4.10)
     rake (11.3.0)
     rdoc (4.3.0)
     require_all (2.0.0)

@@ -26,7 +26,6 @@ require 'rubygems'
 require 'eventmachine'
 require 'concurrent'
 require 'socket'
-require "ncurses"
 require 'aethyr/core/util/config'
 require 'aethyr/core/util/log'
 require 'aethyr/core/components/manager'

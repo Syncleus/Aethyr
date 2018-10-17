@@ -64,7 +64,6 @@ module Login
     @state = :server_menu
     output "Please select an option or enter character name to login:"
     ["1. Login", "2. Create New Character", "3. Quit"].each do |x| output(x) end
-    output IAC + GA
   end
 
   #Handles menu input for main menu
@@ -93,7 +92,6 @@ module Login
       @login_name = name
       self.print "Password: "
       @state = :login_password
-      echo_off
     else
       self.puts "Sorry, no such character."
       show_server_menu
@@ -102,7 +100,6 @@ module Login
 
   #Checks password AND tries to load character.
   def login_password(password)
-    echo_on
     password.strip!
 
     begin

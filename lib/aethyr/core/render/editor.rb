@@ -35,7 +35,7 @@ module Editor
 
   #Show the editor prompt.
   def editor_prompt
-    self.print "<editor>#{@editor_line + 1}]</> #{IAC + GA}"
+    self.print "<editor>#{@editor_line + 1}]</>"
   end
 
   #Handle input.

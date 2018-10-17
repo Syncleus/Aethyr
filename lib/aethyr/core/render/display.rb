@@ -5,16 +5,20 @@ class Display
   PREAMBLE = [IAC + DO + OPT_LINEMODE, 
               IAC + SB + OPT_LINEMODE + OPT_ECHO + OPT_BINARY + IAC + SE,
               IAC + WILL + OPT_ECHO]
+            
+  HEIGHT = 50
+  WIDTH = 80
+  
   def initialize socket
     @socket = socket
     PREAMBLE.each do |line|
-      socket.puts line
+      @socket.puts line
     end
     
-    @screen = Ncurses.newterm("vt100", socket, socket)
+    @screen = Ncurses.newterm("vt100", @socket, @socket)
     
     Ncurses.set_term(@screen)
-    Ncurses.resizeterm(25, 80)
+    Ncurses.resizeterm(50, 80)
     Ncurses.cbreak           # provide unbuffered input
     Ncurses.noecho           # turn off input echoing
     Ncurses.nonl             # turn off newline translation
@@ -24,11 +28,11 @@ class Display
     
     Ncurses.scrollok(Ncurses.stdscr, true)
     
-    @window_main = Ncurses::WINDOW.new(22, 0, 0, 0)
+    @window_main = Ncurses::WINDOW.new(47, 0, 0, 0)
     Ncurses.scrollok(@window_main, true)
     @window_main.clear
     
-    @window_input = Ncurses::WINDOW.new(3, 0, 22, 0)
+    @window_input = Ncurses::WINDOW.new(3, 0, 47, 0)
     Ncurses.scrollok(@window_input, false)
     @window_input.clear
     update
@@ -47,6 +51,10 @@ class Display
 
     puts "read returned: #{recvd}"
     recvd + "\n"
+  end
+  
+  def send_raw message
+    @socket.puts message
   end
   
   def send (message, window_type: :main)
@@ -83,6 +91,7 @@ class Display
   end
   
   private
+  
   def update
     #@window_main.border(*([0]*8))
     @window_input.border(*([0]*8))

@@ -41,8 +41,6 @@ class PlayerConnection
 
     print File.read(ServerConfig.intro_file) if File.exist? ServerConfig.intro_file
 
-    echo_on
-
     ask_mssp if ServerConfig[:mssp]
 
     ask_mccp if ServerConfig[:mccp]
@@ -334,27 +332,18 @@ CONF
     close_connection_after_writing
   end
 
-  #Ask the client to stop echoing user input.
-  #This is typically used for hiding passwords.
-  def echo_off
-    send_data IAC + WILL + OPT_ECHO
-  end
-
-  #Ask the client to start echoing user input.
-  #Usually you would want echoing on.
-  def echo_on
-    send_data IAC + WONT + OPT_ECHO
-  end
-
   def ask_mccp
-    send_data IAC + WILL + OPT_COMPRESS2
+    log "asking mccp"
+    @display.send_raw IAC + WILL + OPT_COMPRESS2
   end
 
   def ask_mssp
-    send_data IAC + WILL + OPT_MSSP
+    log "asking mssp"
+    @display.send_raw IAC + WILL + OPT_MSSP
   end
 
   def send_mssp
+    log "sending mssp"
     mssp_options = nil
     options = IAC + SB + OPT_MSSP
 
@@ -378,7 +367,7 @@ CONF
     options << (MSSP_VAR + "PORT" + MSSP_VAL + ServerConfig.port.to_s)
     options << (MSSP_VAR + "MCCP" + MSSP_VAL + (ServerConfig[:mccp] ? "1" : "0"))
     options << (IAC + SE)
-    send_data options
+    @display.send_raw options
   end
 
   #Use zlib to compress message (for MCCP)

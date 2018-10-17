@@ -78,7 +78,6 @@ class Player < LivingObject
   #Displays more paginated text to player.
   def more
     @player.more
-    self.output(prompt, true)
   end
 
   def deaf?
@@ -140,56 +139,20 @@ class Player < LivingObject
   end
 
   #Outputs a message to the Player. Used for all communication to Player.
-  def output(message, suppress_prompt = false)
+  def output(message)
     return if message.nil?
     begin
       if message.is_a? Array
         message = message.join("\r\n")
       end
-      if @prompt_shown
-        message = "\n" << message
-      end
 
       @player.say(message) unless (@player.nil? or @player.closed?)
-      @player.print(prompt) unless (@player.nil? or @player.closed? or suppress_prompt)
-      unless suppress_prompt
-        @prompt_shown = true
-      else
-        @prompt_shown = false
-      end
     rescue Exception => e
       log "Unable to send message to #{@name}"
       log e.inspect
       log(e.backtrace.join("\n"), Logger::Normal, true)
       quit
     end
-  end
-
-  #Displays the prompt.
-  def prompt
-    health = info.stats.health
-    max_health = info.stats.max_health
-    h_color = case
-      when health >= max_health * 0.75
-        h_color = "okayhealth"
-      when health >= max_health * 0.5
-        h_color = "poorhealth"
-      when health >= max_health * 0.3
-        h_color = "badhealth"
-      else
-        h_color = "almostdead"
-      end
-
-    position = case
-      when self.prone?
-        "_"
-      when @balance
-        "|"
-      else
-        "\\"
-      end
-
-    "H:#{info.stats.health}#{position}> #{IAC + GA}"
   end
 
   #Just outputs a message to the player that we don't know what
@@ -204,7 +167,6 @@ class Player < LivingObject
   #(if any) to the Manager.
   def handle_input(input)
     if input.nil? or input.chomp.strip == ""
-      @player.print(prompt) unless @player.closed?
       return
     end
 
@@ -217,8 +179,6 @@ class Player < LivingObject
     self.output('Help topics available:') if (clean_input.eql? "help") or (clean_input.eql? "help topics")
     broadcast(:player_input, {:publisher => self, :input => input})
     event = CommandParser.parse(self, input)
-
-    @prompt_shown = false
 
     if event.nil?
       if input

@@ -71,7 +71,7 @@ module Login
     data.strip!
     case data
     when "1"
-      self.print "Character name: "
+      self.print "Character name: ", false, false
       @state = :login_name
     when "2"
       ask_new_name
@@ -90,10 +90,10 @@ module Login
     name.strip!
     if name =~ /^[a-zA-Z]+$/ and $manager.player_exist? name
       @login_name = name
-      self.print "Password: "
+      self.print "Password: ", false, false
       @state = :login_password
     else
-      self.puts "Sorry, no such character."
+      self.output "Sorry, no such character."
       show_server_menu
     end
   end
@@ -105,26 +105,26 @@ module Login
     begin
       player = $manager.load_player(@login_name, password)
     rescue MUDError::UnknownCharacter
-      puts "That character does not appear to exist."
+      output "That character does not appear to exist."
       show_server_menu
       return
     rescue MUDError::BadPassword
-      puts "Incorrect password."
+      output "Incorrect password."
       @password_attempts += 1
       if @password_attempts > 3
-        puts "Too many incorrect passwords."
+        output "Too many incorrect passwords."
         close
       end
       login_name(@login_name)
       return
     rescue MUDError::CharacterAlreadyLoaded
-      puts "Character is already logged in."
+      output "Character is already logged in."
       show_server_menu
       return
     end
 
     if player.nil?
-      puts "An error occurred when loading this character: #{@login_name.inspect}"
+      output "An error occurred when loading this character: #{@login_name.inspect}"
       show_server_menu
       return
     end
@@ -156,7 +156,7 @@ module Login
 
   #Asks for name of new character.
   def ask_new_name
-    print "Desired character name:"
+    print "Desired character name:", false, false
     @state = :new_name
   end
 
@@ -170,15 +170,15 @@ module Login
 
     data.capitalize!
     if $manager.player_exist? data
-      puts "A character with that name already exists, please choose another."
+      output "A character with that name already exists, please choose another."
       ask_new_name
       return
     elsif data.length > 20 or data.length < 3
-      puts "Please choose a name less than 20 letters long but longer than 2 letters."
+      output "Please choose a name less than 20 letters long but longer than 2 letters."
       ask_new_name
       return
     elsif data !~ /^[A-Z][a-z]+$/
-      puts "Only letters a to z, please."
+      output "Only letters a to z, please."
       ask_new_name
       return
     end
@@ -189,7 +189,7 @@ module Login
 
   #Asks for sex of new character
   def ask_sex
-    print 'Sex (M or F):'
+    print 'Sex (M or F):', false, false
     @state = :new_sex
   end
 
@@ -208,8 +208,8 @@ module Login
 
   #Asks password for new character.
   def ask_password
-    echo_off
-    print 'Enter password (6 - 20 characters): '
+    @display.echo_off
+    print 'Enter password (6 - 20 characters): ', false, false
     @state = :new_password
   end
 
@@ -220,14 +220,14 @@ module Login
       ask_password
       return
     end
-    echo_on
+    @display.echo_on
     @new_password = data
     ask_color
   end
 
   #Asks color
   def ask_color
-    print 'Use color (y/n): '
+    print 'Use color (y/n): ', false, false
     @state = :new_color
   end
 

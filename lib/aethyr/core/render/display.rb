@@ -7,7 +7,7 @@ class Display
               IAC + WILL + OPT_ECHO]
             
   HEIGHT = 50
-  WIDTH = 80
+  WIDTH = 82
   
   def initialize socket
     @socket = socket
@@ -15,10 +15,11 @@ class Display
       @socket.puts line
     end
     
+    @selected = :input
     @screen = Ncurses.newterm("vt100", @socket, @socket)
     
     Ncurses.set_term(@screen)
-    Ncurses.resizeterm(50, 80)
+    Ncurses.resizeterm(HEIGHT, WIDTH)
     Ncurses.cbreak           # provide unbuffered input
     Ncurses.noecho           # turn off input echoing
     Ncurses.nonl             # turn off newline translation
@@ -27,20 +28,35 @@ class Display
     Ncurses.stdscr.keypad(true)     # turn on keypad mode
     
     Ncurses.scrollok(Ncurses.stdscr, true)
+    Ncurses.stdscr.clear
     
-    @window_main = Ncurses::WINDOW.new(47, 0, 0, 0)
+    @window_main = Ncurses::WINDOW.new(HEIGHT - 3, 0, 0, 0)
     Ncurses.scrollok(@window_main, true)
     @window_main.clear
+    @window_main.move(@window_main.getmaxy - 2,1)
     
-    @window_input = Ncurses::WINDOW.new(3, 0, 47, 0)
+    @window_input = Ncurses::WINDOW.new(3, 0, HEIGHT - 3, 0)
     Ncurses.scrollok(@window_input, false)
     @window_input.clear
+    @echo = true
     update
   end
   
   def read_rdy?
     ready, _, _ = IO.select([@socket])
     ready.any?
+  end
+  
+  def echo?
+    @echo
+  end
+  
+  def echo_on
+    @echo = true
+  end
+  
+  def echo_off
+    @echo = false
   end
   
   def recv
@@ -78,7 +94,9 @@ class Display
     
     set_term
 
-    window.addstr message + "\n"
+    window.scroll
+    window.mvaddstr(@window_main.getmaxy - 2, 1, "#{message}\n")
+    #window.addstr message + "\n"
     update
   end
   
@@ -93,8 +111,13 @@ class Display
   private
   
   def update
-    #@window_main.border(*([0]*8))
-    @window_input.border(*([0]*8))
+    if @selected.eql? :main
+      @window_main.border(*([0]*8)) 
+      @window_input.border(*([32]*8))
+    elsif @selected.eql? :input
+      @window_main.border(*([32]*8)) 
+      @window_input.border(*([0]*8))
+    end
     
     @window_main.noutrefresh()
     @window_input.noutrefresh()
@@ -117,19 +140,22 @@ class Display
       update
       
       ch = window.getch
+      puts ch if echo?
       case ch
       when Ncurses::KEY_LEFT
         cursor_pos = [0, cursor_pos-1].max
       when Ncurses::KEY_RIGHT
+        cursor_pos = [max_len, cursor_pos + 1].min
         # similar, implement yourself !
 #      when Ncurses::KEY_ENTER, ?\n, ?\r
 #        return string, cursor_pos, ch # Which return key has been used?
-      when 13
+      when 13 # return
         window.clear
+        @window_main.addstr("≫≫≫≫≫ #{string}\n")
         update
         return string#, cursor_pos, ch # Which return key has been used?
       #when Ncurses::KEY_BACKSPACE
-      when 127
+      when 127 # backspace
         string = string[0...([0, cursor_pos-1].max)] + string[cursor_pos..-1]
         cursor_pos = [0, cursor_pos-1].max
         window.mvaddstr(y, x+string.length, " ")
@@ -140,6 +166,19 @@ class Display
           string = string + ch.chr
           cursor_pos += 1
         end
+      when 9 # tab
+        puts @selected
+        case @selected
+        when :input
+          @selected = :main
+        when :main
+          @selected = :input
+        else
+          @selected = :main
+        end
+        update
+      else
+        log "Unidentified key press: #{ch}"
       end
     end    	
   end

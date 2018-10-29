@@ -39,7 +39,7 @@ class PlayerConnection
     @ip_address = Socket.unpack_sockaddr_in(addrinfo)[1]
     @color_stack = []
 
-    print File.read(ServerConfig.intro_file) if File.exist? ServerConfig.intro_file
+    print(File.read(ServerConfig.intro_file), false) if File.exist? ServerConfig.intro_file
 
     ask_mssp if ServerConfig[:mssp]
 
@@ -139,15 +139,15 @@ class PlayerConnection
 
   #Sends message followed by a newline. Also capitalizes
   #the first letter in the message.
-  def puts message
+  def send_puts message
     message = message.to_s
     first = message.index(/[a-zA-Z]/)
     message[first,1] = message[first,1] unless first.nil?
     self.print(message, true, true)
   end
 
-  alias :output :puts
-  alias :say :puts
+  alias :output :send_puts
+  alias :say :send_puts
 
   #Output an array of messages
   def put_list *messages

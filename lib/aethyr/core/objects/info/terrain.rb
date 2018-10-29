@@ -12,5 +12,7 @@ module Terrain
 
   GRASSLAND = Terrain.new("grasslands", "part of the grasslands", "waving grasslands")
   UNDERGROUND = Terrain.new("underground", "an underground cavern", "underground caverns")
+  CITY = Terrain.new("city", "a city", "city streets")
+  TOWN = Terrain.new("town", "a town", "small town roads")
   TUNDRA = Terrain.new("tundra", "a snowy plain", "icy plains")
 end

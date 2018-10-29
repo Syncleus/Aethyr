@@ -139,14 +139,14 @@ class Player < LivingObject
   end
 
   #Outputs a message to the Player. Used for all communication to Player.
-  def output(message)
+  def output(message, message_type: :main)
     return if message.nil?
     begin
       if message.is_a? Array
         message = message.join("\r\n")
       end
 
-      @player.say(message) unless (@player.nil? or @player.closed?)
+      @player.say(message, message_type: message_type) unless (@player.nil? or @player.closed?)
     rescue Exception => e
       log "Unable to send message to #{@name}"
       log e.inspect

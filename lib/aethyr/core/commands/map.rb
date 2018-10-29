@@ -37,7 +37,7 @@ EOF
           
           def action(event)
             room = $manager.get_object(@player.container)
-            player.output(room.area.render_map(player, room.area.position(room)))
+            player.output(room.area.render_map(player, room.area.position(room)), message_type: :map)
           end
         end
 

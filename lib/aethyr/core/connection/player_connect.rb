@@ -93,10 +93,10 @@ class PlayerConnection
     end
   end
 
-  def send_data message
+  def send_data( message, message_type: :main)
     message = compress message if @mccp_to_client
     
-    @display.send message
+    @display.send( message, message_type: message_type)
   end
 
   #Sets colors to defaults
@@ -139,11 +139,11 @@ class PlayerConnection
 
   #Sends message followed by a newline. Also capitalizes
   #the first letter in the message.
-  def send_puts message
+  def send_puts( message, message_type: :main)
     message = message.to_s
     first = message.index(/[a-zA-Z]/)
     message[first,1] = message[first,1] unless first.nil?
-    self.print(message, true, true)
+    self.print(message, true, true, message_type: message_type)
   end
 
   alias :output :send_puts
@@ -159,7 +159,7 @@ class PlayerConnection
   end
 
   #Send message without newline
-  def print(message, parse = true, newline = false)
+  def print(message, parse = true, newline = false, message_type: :main)
     unless closed?
       if parse
         colorize message
@@ -177,7 +177,7 @@ class PlayerConnection
         regular_format = FormatState.new(@color_settings["regular"])
         message = regular_format.apply + message + regular_format.revert
       end
-      send_data message
+      send_data( message, message_type: message_type)
     end
   end
 

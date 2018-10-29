@@ -95,7 +95,8 @@ EOF
                 end
               else
                 if not room.nil?
-                  @player.output(room.look(@player))
+                  look_text = room.look(@player)
+                  @player.output(look_text, message_type: :look)
                 else
                   @player.output "Nothing to look at."
                 end

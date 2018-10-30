@@ -112,7 +112,7 @@ def reset_storage
   city_area.info.terrain.type =  Terrain::CITY
   town_square_room = $manager.create_object(Room, city_area, [0,0], nil, :@name => "Ófærr City Square", :@short_desc => "You see a sad excuse for the heart of the city of Ófærr. The street is covered in mud and dirt and lined with trash. The fountain has long since stopped working.")
   ServerConfig[:start_room] = town_square_room.goid
-  church_entrance_room = $manager.create_object(Room, city_area, [-1,0], nil, :@name => "Ófærr City Square", :@short_desc => "You see a sad excuse for the heart of the city of Ófærr. The street is covered in mud and dirt and lined with trash. The fountain has long since stopped working.")
+  church_entrance_room = $manager.create_object(Room, city_area, [-1,0], nil, :@name => "Church of Light Entrance", :@short_desc => "Before you stands an ancient disregarded church. It is too dark to see inside however from the look of the collapsed roof and rotting wood door way it probably isnt safe to enter.")
   $manager.create_object(Exit, town_square_room, nil, church_entrance_room.goid, :@alt_names => ["west"])
   $manager.create_object(Exit, church_entrance_room, nil, town_square_room.goid, :@alt_names => ["east"])
   

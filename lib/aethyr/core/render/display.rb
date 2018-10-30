@@ -39,31 +39,37 @@ class Display
   def layout( layout_type: :full)
     case layout_type
     when :basic
-      @window_main = Ncurses::WINDOW.new(@height - 3, 0, 0, 0)
+      @window_main_border = Ncurses::WINDOW.new(@height - 3, 0, 0, 0)
+      @window_main = @window_main_border.derwin(@window_main_border.getmaxy - 2, @window_main_border.getmaxx - 2, 1, 1)
       Ncurses.scrollok(@window_main, true)
       @window_main.clear
-      @window_main.move(@window_main.getmaxy - 2,1)
+      #@window_main.move(@window_main.getmaxy - 2,1)
 
-      @window_input = Ncurses::WINDOW.new(3, 0, @height - 3, 0)
+      @window_input_border = Ncurses::WINDOW.new(3, 0, @height - 3, 0)
+      @window_input = @window_input_border.derwin(@window_input_border.getmaxy - 2, @window_input_border.getmaxx - 2, 1, 1)
       Ncurses.scrollok(@window_input, false)
       @window_input.clear
     when :full
-      @window_map = Ncurses::WINDOW.new(@height - 30, 0, 0, 0)
+      @window_map_border = Ncurses::WINDOW.new(@height - 29, 0, 0, 0)
+      @window_map = @window_map_border.derwin(@window_map_border.getmaxy - 2, @window_map_border.getmaxx - 2, 1, 1)
       Ncurses.scrollok(@window_map, true)
       @window_map.clear
       @window_map.move(@window_map.getmaxy - 2,1)
       
-      @window_look = Ncurses::WINDOW.new(26, 82, @height - 29, 0)
+      @window_look_border = Ncurses::WINDOW.new(26, 82, @height - 29, 0)
+      @window_look = @window_look_border.derwin(@window_look_border.getmaxy - 2, @window_look_border.getmaxx - 2, 1, 1)
       Ncurses.scrollok(@window_look, true)
       @window_look.clear
       @window_look.move(@window_look.getmaxy - 2,1)
       
-      @window_main = Ncurses::WINDOW.new(26, 0, @height - 29, 82)
+      @window_main_border = Ncurses::WINDOW.new(26, 0, @height - 29, 82)
+      @window_main = @window_main_border.derwin(@window_main_border.getmaxy - 2, @window_main_border.getmaxx - 2, 1, 1)
       Ncurses.scrollok(@window_main, true)
       @window_main.clear
-      @window_main.move(@window_main.getmaxy - 2,1)
+      #@window_main.move(@window_main.getmaxy - 2,1)
 
-      @window_input = Ncurses::WINDOW.new(3, 0, @height - 3, 0)
+      @window_input_border = Ncurses::WINDOW.new(3, 0, @height - 3, 0)
+      @window_input = @window_input_border.derwin(@window_input_border.getmaxy - 2, @window_input_border.getmaxx - 2, 1, 1)
       Ncurses.scrollok(@window_input, false)
       @window_input.clear
     end
@@ -93,7 +99,7 @@ class Display
     return nil unless read_rdy?
     
     set_term
-    recvd = read_line(@window_input.getmaxy - 2, 1)
+    recvd = read_line(0, 0)
 
     puts "read returned: #{recvd}"
     recvd + "\n"
@@ -157,19 +163,23 @@ class Display
   private
   
   def update
-    @window_main.border(*([32]*8)) unless @window_main.nil?
-    @window_input.border(*([32]*8)) unless @window_input.nil?
-    @window_map.border(*([32]*8)) unless @window_map.nil?
-    @window_look.border(*([32]*8)) unless @window_look.nil?
+    @window_main_border.border(*([32]*8)) unless @window_main_border.nil?
+    @window_input_border.border(*([32]*8)) unless @window_input_border.nil?
+    @window_map_border.border(*([32]*8)) unless @window_map_border.nil?
+    @window_look_border.border(*([32]*8)) unless @window_look_border.nil?
     
-    @window_main.border(*([0]*8)) if @selected.eql? :main
-    @window_input.border(*([0]*8)) if @selected.eql? :input
-    @window_map.border(*([0]*8)) if @selected.eql? :map
-    @window_look.border(*([0]*8)) if @selected.eql? :look
+    @window_main_border.border(*([0]*8)) if @selected.eql? :main
+    @window_input_border.border(*([0]*8)) if @selected.eql? :input
+    @window_map_border.border(*([0]*8)) if @selected.eql? :map
+    @window_look_border.border(*([0]*8)) if @selected.eql? :look
     
+    @window_main_border.noutrefresh()
     @window_main.noutrefresh()
+    @window_input_border.noutrefresh()
     @window_input.noutrefresh()
+    @window_map_border.noutrefresh()
     @window_map.noutrefresh()
+    @window_look_border.noutrefresh()
     @window_look.noutrefresh()
     Ncurses.doupdate()
   end
@@ -185,12 +195,12 @@ class Display
                 string     = "",
                 cursor_pos = 0)
     loop do
-      window.mvaddstr(y,x,string)
-      window.move(y,x+cursor_pos)
+      window.mvaddstr(y,x,string) if echo?
+      window.move(y,x+cursor_pos) if echo?
       update
       
       ch = window.getch
-      puts ch if echo?
+      puts ch
       case ch
       when Ncurses::KEY_LEFT
         cursor_pos = [0, cursor_pos-1].max
@@ -201,14 +211,16 @@ class Display
 #        return string, cursor_pos, ch # Which return key has been used?
       when 13 # return
         window.clear
-        @window_main.addstr("≫≫≫≫≫ #{string}\n")
+        @window_main.addstr("≫≫≫≫≫ #{string}\n") if echo?
+        @selected = :input
         update
         return string#, cursor_pos, ch # Which return key has been used?
       #when Ncurses::KEY_BACKSPACE
       when 127 # backspace
         string = string[0...([0, cursor_pos-1].max)] + string[cursor_pos..-1]
         cursor_pos = [0, cursor_pos-1].max
-        window.mvaddstr(y, x+string.length, " ")
+        window.mvaddstr(y, x+string.length, " ") if echo?
+        @selected = :input
       # when etc...
       when 32..255 # remaining printables
         if (cursor_pos < max_len)
@@ -216,6 +228,7 @@ class Display
           string = string + ch.chr
           cursor_pos += 1
         end
+        @selected = :input
       when 9 # tab
         case @selected
         when :input

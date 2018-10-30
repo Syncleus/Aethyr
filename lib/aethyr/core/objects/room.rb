@@ -36,7 +36,8 @@ class Room < Container
     object.container = @game_object_id
 
     if object.is_a? Player or object.is_a? Mobile
-      object.output(self.look(object)) unless object.blind?
+      object.output(self.look(object), message_type: :look) unless object.blind?
+      object.output(self.area.render_map(object, self.area.position(self)), message_type: :map) if object.is_a? Player
     end
   end
 

@@ -124,7 +124,7 @@ def reset_storage
   hole.add_flag PlusFire.new(hole)
   hole.add_flag PlusWater.new(hole)
   $manager.create_object(Exit, church_entrance_room, nil, hole.goid, :@alt_names => ["church"])
-  slime = $manager.create_object(Mobile, hole, nil, nil, :@generic => "A blue slime", :@short_desc => "A <mob>blue slime</mob> stands here being useless", :@alt_names => ["slime"])
+  slime = $manager.create_object(Mobile, hole, nil, nil, :@generic => "blue slime", :@short_desc => "A <mob>blue slime</mob> stands here being useless", :@alt_names => ["slime"])
 
   
   man = $manager.create_object(Mobile, hole, nil, nil, :@generic => "tall man", :@short_desc => "A <mob>tall man</mob> with a <raw fg:orange_4>v<raw fg:red>e</raw fg:red>ry</raw fg:orange_4> long beard stands here placidly.", :@alt_names => ["man"], :@show_in_look => "A <mob>tall man</mob> with a <raw fg:orange_4>v<raw fg:red>e</raw fg:red>ry</raw fg:orange_4> long beard stands here regarding you placidly.", :@sex => "m")

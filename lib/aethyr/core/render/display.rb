@@ -19,7 +19,7 @@ class Display
     end
     
     @selected = :input
-    @screen = Ncurses.newterm("vt100", @socket, @socket)
+    @screen = Ncurses.newterm("xterm-256color", @socket, @socket)
     
     Ncurses.set_term(@screen)
     Ncurses.resizeterm(@height, @width)
@@ -33,7 +33,21 @@ class Display
     Ncurses.scrollok(Ncurses.stdscr, true)
     Ncurses.stdscr.clear
     
+    init_colors
     layout
+  end
+  
+  def init_colors
+    Ncurses.start_color
+    Ncurses.COLORS.times do |fg|
+      Ncurses.COLORS.times do |bg|
+        Ncurses.init_pair(fg + bg * Ncurses.COLORS, bg, fg)
+      end
+    end
+  end
+  
+  def activate_color(window, fg, bg)
+    window.attron(fg + bg * Ncurses.COLORS)
   end
   
   def layout( layout_type: :full)
@@ -148,7 +162,8 @@ class Display
 
     #window.scroll
     #window.mvaddstr(window.getmaxy - 2, 1, "#{message}\n")
-    window.addstr "#{message}\n"
+    activate_color(window, 2, 0)
+    window.addstr("#{message}\n")
     update
   end
   

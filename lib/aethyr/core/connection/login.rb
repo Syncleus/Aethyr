@@ -69,8 +69,7 @@ module Login
 
   #Show login menu
   def show_resolution_prompt
-    output "Please select your desired resolution as <character width>x<character height>,"
-    output " or enter for 80x40: "
+    output "Please select your desired resolution as [character width]x[character height], or enter for 80x40: "
     @state = :resolution
   end
 

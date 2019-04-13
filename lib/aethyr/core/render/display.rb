@@ -39,6 +39,7 @@ class Display
 
   def init_colors
     Ncurses.start_color
+    puts "There are #{Ncurses.COLORS} colors on this client"
     Ncurses.COLORS.times do |fg|
       Ncurses.COLORS.times do |bg|
         Ncurses.init_pair(fg + bg * Ncurses.COLORS, fg, bg)

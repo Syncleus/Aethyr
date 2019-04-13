@@ -22,5 +22,5 @@
 #require 'aethyr/core/commands/weapon_combat'
 
 require 'require_all'
-require_all 'lib/aethyr/core/commands'
-require_all 'lib/aethyr/extensions/commands'
+require_all 'lib/aethyr/core/commands/'
+require_all 'lib/aethyr/extensions/commands/'

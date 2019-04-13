@@ -6,7 +6,7 @@ class Display
               IAC + SB + OPT_LINEMODE + OPT_ECHO + OPT_BINARY + IAC + SE,
               IAC + WILL + OPT_ECHO]
 
-  DEFAULT_HEIGHT = 40
+  DEFAULT_HEIGHT = 43
   DEFAULT_WIDTH = 80
 
   def initialize socket

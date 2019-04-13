@@ -6,12 +6,13 @@ class Display
               IAC + SB + OPT_LINEMODE + OPT_ECHO + OPT_BINARY + IAC + SE,
               IAC + WILL + OPT_ECHO]
 
-  DEFAULT_HEIGHT = 115
-  DEFAULT_WIDTH = 164
+  DEFAULT_HEIGHT = 40
+  DEFAULT_WIDTH = 80
 
   def initialize socket
     @height = DEFAULT_HEIGHT
     @width = DEFAULT_WIDTH
+    @layout_type = :basic
 
     @socket = socket
     PREAMBLE.each do |line|
@@ -56,19 +57,20 @@ class Display
     end
   end
 
-  def layout( layout_type: :full)
-    case layout_type
+  def layout
+    case @layout_type
     when :basic
       @window_main_border = Ncurses::WINDOW.new(@height - 3, 0, 0, 0)
       @window_main = @window_main_border.derwin(@window_main_border.getmaxy - 2, @window_main_border.getmaxx - 2, 1, 1)
       Ncurses.scrollok(@window_main, true)
       @window_main.clear
-      #@window_main.move(@window_main.getmaxy - 2,1)
+      @window_main.move(@window_main.getmaxy - 2,1)
 
       @window_input_border = Ncurses::WINDOW.new(3, 0, @height - 3, 0)
       @window_input = @window_input_border.derwin(@window_input_border.getmaxy - 2, @window_input_border.getmaxx - 2, 1, 1)
       Ncurses.scrollok(@window_input, false)
       @window_input.clear
+      @window_input.move(@window_input.getmaxy - 2,1)
     when :full
       @window_map_border = Ncurses::WINDOW.new(@height - 39, 0, 0, 0)
       @window_map = @window_map_border.derwin(@window_map_border.getmaxy - 2, @window_map_border.getmaxx - 2, 1, 1)
@@ -97,6 +99,17 @@ class Display
 
     @echo = true
     update
+  end
+
+  def resolution
+    [@width, @height]
+  end
+
+  def resolution=(resolution)
+    @width = resolution[0]
+    @height = resolution[1]
+    Ncurses.resizeterm(@height, @width)
+    layout
   end
 
   def read_rdy?
@@ -185,13 +198,14 @@ class Display
   private
 
   def update
-    activate_color(@window_main_border, 8, 0)
+
+    activate_color(@window_main_border, 8, 0) unless @window_main_border.nil?
     @window_main_border.border(*([0]*8)) unless @window_main_border.nil?
-    activate_color(@window_input_border, 8, 0)
+    activate_color(@window_input_border, 8, 0) unless @window_input_border.nil?
     @window_input_border.border(*([0]*8)) unless @window_input_border.nil?
-    activate_color(@window_map_border, 8, 0)
+    activate_color(@window_map_border, 8, 0) unless @window_map_border.nil?
     @window_map_border.border(*([0]*8)) unless @window_map_border.nil?
-    activate_color(@window_look_border, 8, 0)
+    activate_color(@window_look_border, 8, 0) unless @window_look_border.nil?
     @window_look_border.border(*([0]*8)) unless @window_look_border.nil?
 
     activate_color(@window_main_border, 15, 0) if @selected.eql? :main
@@ -203,14 +217,14 @@ class Display
     activate_color(@window_look_border, 15, 0) if @selected.eql? :look
     @window_look_border.border(*([0]*8)) if @selected.eql? :look
 
-    @window_main_border.noutrefresh()
-    @window_main.noutrefresh()
-    @window_input_border.noutrefresh()
-    @window_input.noutrefresh()
-    @window_map_border.noutrefresh()
-    @window_map.noutrefresh()
-    @window_look_border.noutrefresh()
-    @window_look.noutrefresh()
+    @window_main_border.noutrefresh() unless @window_main_border.nil?
+    @window_main.noutrefresh() unless @window_main.nil?
+    @window_input_border.noutrefresh() unless @window_input_border.nil?
+    @window_input.noutrefresh() unless @window_input.nil?
+    @window_map_border.noutrefresh() unless @window_map_border.nil?
+    @window_map.noutrefresh() unless @window_map.nil?
+    @window_look_border.noutrefresh() unless @window_look_border.nil?
+    @window_look.noutrefresh() unless @window_look.nil?
     Ncurses.doupdate()
   end
 

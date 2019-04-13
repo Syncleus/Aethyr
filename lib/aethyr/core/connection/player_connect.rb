@@ -17,7 +17,7 @@ class PlayerConnection
   #Input buffer
   attr_reader :in_buffer, :display
   attr_accessor :color_settings, :use_color, :word_wrap
-  
+
   def initialize(display, addrinfo, *args)
     super(*args)
     @display = display
@@ -30,7 +30,7 @@ class PlayerConnection
     @mccp_from_client = false
     @word_wrap = 120
     @closed = false
-    @state = :server_menu
+    @state = :initial
     @login_name = nil
     @login_password = nil
     @password_attempts = 0
@@ -45,7 +45,7 @@ class PlayerConnection
 
     ask_mccp if ServerConfig[:mccp]
 
-    show_server_menu
+    show_initial
 
     log "Connection from #{@ip_address}."
   end
@@ -95,7 +95,7 @@ class PlayerConnection
 
   def send_data( message, message_type: :main)
     message = compress message if @mccp_to_client
-    
+
     @display.send( message, message_type: message_type)
   end
 
@@ -239,7 +239,7 @@ class PlayerConnection
     if @use_color
       string.gsub!(/<([\/]{0,1})(#{colors})>/i) do |setting|
         if ($1.nil?) || ($1.length <= 0)
-          color_encode($2) 
+          color_encode($2)
         else
           color_decode($2)
         end
@@ -250,10 +250,10 @@ class PlayerConnection
       string.gsub!(/<([^>]*)>/i, "")
       string.gsub!(/<\/([^>]*)>/, "")
     end
-    
+
     string
   end
-  
+
   def color_encode(code)
     parent = @color_stack[-1]
     code = code.downcase
@@ -266,7 +266,7 @@ class PlayerConnection
     @color_stack << result
     result.apply
   end
-  
+
   def color_decode(code)
     @color_stack.pop.revert
   end

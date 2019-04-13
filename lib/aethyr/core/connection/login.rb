@@ -38,6 +38,10 @@ module Login
         @player.handle_input d
       else
         case @state
+        when :initial
+          show_resolution_prompt
+        when :resolution
+          do_resolution d
         when :server_menu
           do_server_menu d
         when :login_name
@@ -56,6 +60,28 @@ module Login
           log "wut"
         end
       end
+    end
+  end
+
+  def show_initial
+    show_resolution_prompt
+  end
+
+  #Show login menu
+  def show_resolution_prompt
+    output "Please select your desired resolution as <character width>x<character height>,"
+    output " or enter for 80x40: "
+    @state = :resolution
+  end
+
+  def do_resolution(data)
+    data.strip!
+    case data
+    when  /([0-9]{2,4})x([0-9]{2,4})/
+      display.resolution = [$1.to_i, $2.to_i]
+      show_server_menu
+    else
+      @state = :initial
     end
   end
 

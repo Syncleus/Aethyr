@@ -6,13 +6,13 @@ Copyright:      2018, Jeffrey Phillips Freeman
 License:        Apache v2
 
     Copyright 2017 - 2018, Jeffrey Phillips Freeman
-    
+
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-    
+
         http://www.apache.org/licenses/LICENSE-2.0
-    
+
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,22 +39,22 @@ module Aethyr
       #Creates the Manager, starts the EventMachine, and closes everything down when the time comes.
       def initialize(address, port)
         $manager = Manager.new
-        
+
         updateTask = Concurrent::TimerTask.new(execution_interval: ServerConfig.update_rate, timeout_interval: 10) do
           $manager.update_all
         end
         saveTask = Concurrent::TimerTask.new(execution_interval: ServerConfig.save_rate, timeout_interval: 30) do
           log "Automatic state save."; $manager.save_all
         end
-        
+
         updateTask.execute
         saveTask.execute
-        
+
         listener = server_socket('0.0.0.0', 8888)
-        
+
         File.open("logs/server.log", "a") { |f| f.puts "#{Time.now} Server started." }
         log "Server up and running on #{address}:#{port}", 0
-        
+
         players = Set.new()
         loop do
           did_something = false
@@ -65,16 +65,16 @@ module Aethyr
             did_something = true
             players << handle_client(socket, addr_info)
           end
-          
+
           players.each do |player|
             recvd = player.display.recv
             did_something = true unless recvd.nil?
             player.receive_data(recvd)
           end
-          
+
           sleep 0.1 unless did_something
         end
-        
+
 #        4.times do # Adjust this number for the pool size
 #          next unless fork.nil? # Parent only calls fork
 #          loop do # Child does this work
@@ -85,7 +85,7 @@ module Aethyr
 
         clean_up_children
         return 0 # Return code
-        
+
 #        EventMachine.run do
 #          EventMachine.add_periodic_timer(ServerConfig.update_rate) { $manager.update_all }
 #          if ServerConfig.save_rate and ServerConfig.save_rate > 0
@@ -108,7 +108,7 @@ module Aethyr
         $manager.save_all
         log "Objects saved.", Logger::Normal, true
       end
-      
+
       private
       def server_socket(addr, port)
         socket = Socket.new(:INET, :SOCK_STREAM)
@@ -118,7 +118,7 @@ module Aethyr
         puts 'Waiting for connections...'
         socket
       end
-      
+
       def handle_client(socket, addrinfo)
         begin
           display = Display.new(socket)
@@ -129,7 +129,7 @@ module Aethyr
           puts "       Reset: #{addrinfo.inspect}\n"
         end
       end
-      
+
       def clean_up_children
         loop do
           Process.wait # Gather processes as they exit
@@ -139,7 +139,7 @@ module Aethyr
       rescue SystemCallError
         puts 'All children have exited. Goodbye!'
       end
-      
+
 #      def process_requests(socket)
 #        begin
 #          # initialize ncurses
@@ -198,16 +198,16 @@ module Aethyr
 #        end
 #      end
     end
-    
-    def self.main        
+
+    def self.main
           if ARGV[0]
             server_restarts = ARGV[0].to_i
           else
             server_restarts = 0
           end
-        
+
           log "Server restart ##{server_restarts}"
-        
+
           begin
             #result = RubyProf.profile do
             Server.new(ServerConfig.address, ServerConfig.port)
@@ -223,13 +223,13 @@ module Aethyr
               else
                 File.open("logs/server.log", "a+") { |f| f.puts "#{Time.now} Server restart on error or interrupt." }
               end
-        
+
               log "SERVER RESTARTING - Attempting to restart in 10 seconds...press ^C to stop...", Logger::Important
               sleep ServerConfig.restart_delay
               log "RESTARTING SERVER", Logger::Important, true
-        
+
               program_name = ENV["_"] || "ruby"
-        
+
               if $manager and $manager.soft_restart
                 exec("#{program_name} server.rb")
               else

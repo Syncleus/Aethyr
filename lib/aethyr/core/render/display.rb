@@ -10,6 +10,7 @@ class Display
   DEFAULT_WIDTH = 80
 
   def initialize socket
+    @waiting_for_user = true
     @height = DEFAULT_HEIGHT
     @width = DEFAULT_WIDTH
     @layout_type = :basic
@@ -129,7 +130,7 @@ class Display
     @echo = false
   end
 
-  def recv
+  def recv(waiting_for_resolution: false)
     return nil unless read_rdy?
 
     set_term
@@ -234,16 +235,21 @@ class Display
 
 
   def read_line(y, x,
-                window     = @window_input,
-                max_len    = (window.getmaxx - x - 1),
-                string     = "",
-                cursor_pos = 0)
+                window: @window_input,
+                max_len: (window.getmaxx - x - 1),
+                string: "",
+                cursor_pos: 0)
     loop do
       window.mvaddstr(y,x,string) if echo?
       window.move(y,x+cursor_pos) if echo?
       update
 
       ch = window.getch
+      if @waiting_for_user && (not (ch >= 48 && ch <= 57))
+        log "discarded non-number before resolution aquired: #{ch}"
+        next
+      end
+      @waiting_for_user = false
       puts ch
       case ch
       when Ncurses::KEY_LEFT

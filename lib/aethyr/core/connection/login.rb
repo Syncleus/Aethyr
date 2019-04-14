@@ -64,7 +64,7 @@ module Login
   end
 
   def show_initial
-    show_resolution_prompt
+    show_server_menu
   end
 
   #Show login menu

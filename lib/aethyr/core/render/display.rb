@@ -1,21 +1,29 @@
 require "ncursesw"
+require 'stringio'
 require 'aethyr/core/connection/telnet_codes'
+require 'aethyr/core/connection/telnet'
 
 class Display
   PREAMBLE = [IAC + DO + OPT_LINEMODE,
               IAC + SB + OPT_LINEMODE + OPT_ECHO + OPT_BINARY + IAC + SE,
-              IAC + WILL + OPT_ECHO]
+              IAC + WILL + OPT_ECHO,
+              IAC + DO + OPT_NAWS]
 
   DEFAULT_HEIGHT = 43
   DEFAULT_WIDTH = 80
 
   def initialize socket
-    @waiting_for_user = true
     @height = DEFAULT_HEIGHT
     @width = DEFAULT_WIDTH
     @layout_type = :basic
 
-    @socket = socket
+    @socket = socket #StringIO.new
+    @scanner = TelnetScanner.new(socket, self)
+
+    # @socket.define_singleton_method(:to_i) do
+    #   return nil
+    # end
+
     PREAMBLE.each do |line|
       @socket.puts line
     end
@@ -110,6 +118,7 @@ class Display
     @width = resolution[0]
     @height = resolution[1]
     Ncurses.resizeterm(@height, @width)
+    @layout_type = :full if @height > 100 and @width > 100
     layout
   end
 
@@ -130,7 +139,7 @@ class Display
     @echo = false
   end
 
-  def recv(waiting_for_resolution: false)
+  def recv
     return nil unless read_rdy?
 
     set_term
@@ -244,12 +253,8 @@ class Display
       window.move(y,x+cursor_pos) if echo?
       update
 
+      next if not @scanner.process_iac
       ch = window.getch
-      if @waiting_for_user && (not (ch >= 48 && ch <= 57))
-        log "discarded non-number before resolution aquired: #{ch}"
-        next
-      end
-      @waiting_for_user = false
       puts ch
       case ch
       when Ncurses::KEY_LEFT

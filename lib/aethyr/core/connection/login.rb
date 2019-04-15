@@ -78,11 +78,13 @@ module Login
     log "resolution getting done: #{data}"
     case data
     when  /([nNyY]{1})/
-      display.init_colors if not $1.downcase.eql? "n"
+      display.init_colors if $1.downcase.eql? "y"
       show_server_menu
-    else
+    when  ""
       display.init_colors
       show_server_menu
+    else
+      show_resolution_prompt
     end
   end
 

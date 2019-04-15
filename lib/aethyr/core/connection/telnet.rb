@@ -2,10 +2,20 @@ require 'socket'
 require 'aethyr/core/connection/telnet_codes'
 
 class TelnetScanner
+  PREAMBLE = [IAC + DO + OPT_LINEMODE,
+              IAC + SB + OPT_LINEMODE + OPT_ECHO + OPT_BINARY + IAC + SE,
+              IAC + WILL + OPT_ECHO,
+              IAC + DO + OPT_NAWS]
 
   def initialize(socket, display)
     @socket = socket
     @display = display
+  end
+
+  def send_preamble
+    PREAMBLE.each do |line|
+      @socket.puts line
+    end
   end
 
   def supports_naws(does_it)

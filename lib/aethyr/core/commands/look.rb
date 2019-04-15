@@ -115,7 +115,7 @@ EOF
             result
           end
         end
-        
+
         Aethyr::Extend::HandlerRegistry.register_handler(LookHandler)
       end
     end

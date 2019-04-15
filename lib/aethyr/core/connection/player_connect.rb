@@ -41,10 +41,6 @@ class PlayerConnection
 
     print(File.read(ServerConfig.intro_file), false) if File.exist? ServerConfig.intro_file
 
-    ask_mssp if ServerConfig[:mssp]
-
-    ask_mccp if ServerConfig[:mccp]
-
     show_initial
 
     log "Connection from #{@ip_address}."
@@ -330,16 +326,6 @@ CONF
   #Close the io connection
   def close
     close_connection_after_writing
-  end
-
-  def ask_mccp
-    log "asking mccp"
-    @display.send_raw IAC + WILL + OPT_COMPRESS2
-  end
-
-  def ask_mssp
-    log "asking mssp"
-    @display.send_raw IAC + WILL + OPT_MSSP
   end
 
   def send_mssp

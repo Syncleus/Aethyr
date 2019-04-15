@@ -64,23 +64,25 @@ module Login
   end
 
   def show_initial
-    show_server_menu
+    show_resolution_prompt
   end
 
   #Show login menu
   def show_resolution_prompt
-    output "Please select your desired resolution as [character width]x[character height], for example 80x43: "
+    output "Would you like color (Y/n)? "
     @state = :resolution
   end
 
   def do_resolution(data)
     data.strip!
+    log "resolution getting done: #{data}"
     case data
-    when  /([0-9]{2,4})x([0-9]{2,4})/
-      display.resolution = [$1.to_i, $2.to_i]
+    when  /([nNyY]{1})/
+      display.init_colors if not $1.downcase.eql? "n"
       show_server_menu
     else
-      @state = :initial
+      display.init_colors
+      show_server_menu
     end
   end
 

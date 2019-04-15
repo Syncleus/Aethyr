@@ -10,6 +10,7 @@ class Display
   def initialize socket
     @height = DEFAULT_HEIGHT
     @width = DEFAULT_WIDTH
+    @color_enabled = false
     @layout_type = :basic
 
     @socket = socket #StringIO.new
@@ -31,18 +32,19 @@ class Display
     Ncurses.scrollok(Ncurses.stdscr, true)
     Ncurses.stdscr.clear
 
-    init_colors
     layout
   end
 
   def init_colors
     Ncurses.start_color
+    @color_enabled = true
     puts "There are #{Ncurses.COLORS} colors on this client"
     Ncurses.COLORS.times do |fg|
       Ncurses.COLORS.times do |bg|
         Ncurses.init_pair(fg + bg * Ncurses.COLORS, fg, bg)
       end
     end
+    update
   end
 
   def activate_color(window, fg, bg)
@@ -196,22 +198,30 @@ class Display
 
   def update
 
-    activate_color(@window_main_border, 8, 0) unless @window_main_border.nil?
-    @window_main_border.border(*([0]*8)) unless @window_main_border.nil?
-    activate_color(@window_input_border, 8, 0) unless @window_input_border.nil?
-    @window_input_border.border(*([0]*8)) unless @window_input_border.nil?
-    activate_color(@window_map_border, 8, 0) unless @window_map_border.nil?
-    @window_map_border.border(*([0]*8)) unless @window_map_border.nil?
-    activate_color(@window_look_border, 8, 0) unless @window_look_border.nil?
-    @window_look_border.border(*([0]*8)) unless @window_look_border.nil?
+    if @color_enable
+      activate_color(@window_main_border, 8, 0) unless @window_main_border.nil?
+      activate_color(@window_input_border, 8, 0) unless @window_input_border.nil?
+      activate_color(@window_map_border, 8, 0) unless @window_map_border.nil?
+      activate_color(@window_look_border, 8, 0) unless @window_look_border.nil?
+    end
 
-    activate_color(@window_main_border, 15, 0) if @selected.eql? :main
+    default_border = 0 if @color_enable
+    default_border = 32 unless @color_enable
+    @window_main_border.border(*([default_border]*8)) unless @window_main_border.nil?
+    @window_input_border.border(*([default_border]*8)) unless @window_input_border.nil?
+    @window_map_border.border(*([default_border]*8)) unless @window_map_border.nil?
+    @window_look_border.border(*([default_border]*8)) unless @window_look_border.nil?
+
+    if @color_enable
+      activate_color(@window_main_border, 15, 0) if @selected.eql? :main
+      activate_color(@window_input_border, 15, 0) if @selected.eql? :input
+      activate_color(@window_map_border, 15, 0) if @selected.eql? :map
+      activate_color(@window_look_border, 15, 0) if @selected.eql? :look
+    end
+
     @window_main_border.border(*([0]*8)) if @selected.eql? :main
-    activate_color(@window_input_border, 15, 0) if @selected.eql? :input
     @window_input_border.border(*([0]*8)) if @selected.eql? :input
-    activate_color(@window_map_border, 15, 0) if @selected.eql? :map
     @window_map_border.border(*([0]*8)) if @selected.eql? :map
-    activate_color(@window_look_border, 15, 0) if @selected.eql? :look
     @window_look_border.border(*([0]*8)) if @selected.eql? :look
 
     @window_main_border.noutrefresh() unless @window_main_border.nil?

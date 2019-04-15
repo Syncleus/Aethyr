@@ -40,8 +40,8 @@ class Player < LivingObject
 
   }
 
-  attr_reader :admin
-  attr_accessor :color_settings, :use_color, :reply_to, :page_height
+  attr_reader :admin, :color_settings
+  attr_accessor :use_color, :reply_to, :page_height
 
   #Create a new player object with the given socket connection. You must also pass in a game_object_id and a room, although if you pass in nil for game_object_id it will auto-generate one for you.
   def initialize(connection, game_object_id, room, *args)
@@ -64,6 +64,11 @@ class Player < LivingObject
     info.skills = { map_skill.id => map_skill, kick_skill.id => kick_skill}
     info.explored_rooms = Set.new [room]
     map_skill.add_xp 750
+  end
+
+  def color_settings= new_color_settings
+    @color_settings = new_color_settings
+    @player.display.color_settings = @color_settings
   end
 
   #Searches inventory and equipment for item.

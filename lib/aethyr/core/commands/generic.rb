@@ -78,7 +78,7 @@ module Aethyr
           def action_health(event)
             @player.output "You are #{@player.health}."
           end
-          
+
           def action_help_health(event)
             @player.output <<'EOF'
 Command: Health
@@ -108,7 +108,7 @@ EOF
           def action_satiety(event)
             @player.output "You are #{@player.satiety}."
           end
-          
+
           def action_help_satiety(event)
             @player.output <<'EOF'
 Command: Hunger (or Satiety)
@@ -139,11 +139,11 @@ EOF
 
           #Display status.
           def action_status(event)
-            @player.output("You are #{@player.health}.", true)
-            @player.output("You are feeling #{@player.satiety}.", true)
+            @player.output("You are #{@player.health}.")
+            @player.output("You are feeling #{@player.satiety}.")
             @player.output "You are currently #{@player.pose || 'standing up'}."
           end
-          
+
           def action_help_status(event)
             @player.output <<'EOF'
 Command: Status
@@ -187,7 +187,7 @@ EOF
               return
             end
           end
-          
+
           def action_help_fill(event)
             @player.output <<'EOF'
 Command: Fill
@@ -207,7 +207,7 @@ EOF
           def action_date(event)
             @player.output $manager.date
           end
-          
+
           def action_help_date_time(event)
             @player.output <<'EOF'
 Date and Time
@@ -231,7 +231,7 @@ EOF
 
             @player.output output
           end
-          
+
           def action_help_who(event)
             @player.output <<'EOF'
 Command: Who
@@ -262,7 +262,7 @@ EOF
               end
             end
           end
-          
+
           def action_help_deleteme(event)
             @player.output <<'EOF'
 Deleting Your Character
@@ -297,7 +297,7 @@ EOF
               @player.output "You finish your writing."
             end
           end
-          
+
           def action_help_write(event)
             @player.output <<'EOF'
 Command: Write
@@ -331,7 +331,7 @@ EOF
             event[:to_other] = "#{@player.name} hesitantly sticks out #{@player.pronoun(:possessive)} tongue and licks #{object.name}."
             room.out_event event
           end
-          
+
           def action_help_taste(event)
             @player.output <<'EOF'
 Command: Taste
@@ -385,7 +385,7 @@ EOF
             event[:to_other] = "#{@player.name} thrusts #{@player.pronoun(:possessive)} nose at #{object.name} and sniffs."
             room.out_event event
           end
-          
+
           def action_help_smell(event)
             @player.output <<'EOF'
 Command: Smell
@@ -431,7 +431,7 @@ EOF
             event[:to_other] = "#{@player.name} bends #{@player.pronoun(:possessive)} head towards #{object.name} and listens."
             room.out_event event
           end
-          
+
           def action_help_listen(event)
             @player.output <<'EOF'
 Command: Listen
@@ -465,7 +465,7 @@ EOF
             event[:to_other] = "#{@player.name} reaches out #{@player.pronoun(:possessive)} hand and touches #{object.name}."
             room.out_event event
           end
-          
+
           def action_help_feel(event)
             @player.output <<'EOF'
 Command: Feel
@@ -476,7 +476,7 @@ Feel the specified target.
 EOF
           end
         end
-        
+
         Aethyr::Extend::HandlerRegistry.register_handler(GenericHandler)
       end
     end

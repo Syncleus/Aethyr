@@ -10,7 +10,6 @@ module Login
   #Get input from io connection and process it
   def receive_data(data)
     return if data.nil?
-    data = preprocess_input(data)
     return if data == ''
 
     if data[-1,1] != "\n"
@@ -158,11 +157,8 @@ module Login
       return
     end
 
-    if player.color_settings.nil?
-      @use_color = false
-    else
-      @color_settings = player.color_settings
-    end
+
+    @display.color_settings = player.color_settings if not player.color_settings.nil?
 
     @word_wrap = player.word_wrap
     player.instance_variable_set(:@player, self)

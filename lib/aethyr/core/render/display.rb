@@ -4,14 +4,19 @@ require 'aethyr/core/connection/telnet_codes'
 require 'aethyr/core/connection/telnet'
 
 class Display
+  attr_accessor :color_settings, :use_color
+
   DEFAULT_HEIGHT = 43
   DEFAULT_WIDTH = 80
 
-  def initialize socket
+  def initialize(socket, new_color_settings = nil)
     @height = DEFAULT_HEIGHT
     @width = DEFAULT_WIDTH
-    @color_enabled = false
+    @use_color = false
     @layout_type = :basic
+
+    @color_stack = []
+    @color_settings = new_color_settings || to_default_colors
 
     @socket = socket #StringIO.new
     @scanner = TelnetScanner.new(socket, self)
@@ -37,8 +42,9 @@ class Display
 
   def init_colors
     Ncurses.start_color
-    @color_enabled = true
+    @use_color = true
     puts "There are #{Ncurses.COLORS} colors on this client"
+    Ncurses.assume_default_colors(Color::Foreground.attribute(:white), Color::Background.attribute(:black));
     Ncurses.COLORS.times do |fg|
       Ncurses.COLORS.times do |bg|
         Ncurses.init_pair(fg + bg * Ncurses.COLORS, fg, bg)
@@ -48,11 +54,12 @@ class Display
   end
 
   def activate_color(window, fg, bg)
+    return if not @use_color
     #window.attron(fg + bg * Ncurses.COLORS)
     if Ncurses.respond_to?(:color_set)
       window.color_set(fg + bg * Ncurses.COLORS, nil)
     else
-      @window.attrset(Ncurses.COLOR_PAIR(fg + bg * Ncurses.COLORS))
+      window.attrset(Ncurses.COLOR_PAIR(fg + bg * Ncurses.COLORS))
     end
   end
 
@@ -142,7 +149,7 @@ class Display
     @socket.puts message
   end
 
-  def send (message, message_type: :main, internal_clear: true)
+  def send (message, message_type: :main, internal_clear: true, add_newline: true)
     window = nil
     case message_type
     when :main
@@ -177,13 +184,110 @@ class Display
     end
     message = lines[0]
 
+    message += "\n" if add_newline
+    colored_send(window, message)
+  end
+
+  def colored_send(window, message)
     set_term
 
-    #window.scroll
-    #window.mvaddstr(window.getmaxy - 2, 1, "#{message}\n")
-    activate_color(window, 15, 0)
-    window.addstr("#{message}\n")
+    regular_format = nil
+    if @use_color
+      regular_format = FormatState.new(@color_settings["regular"], self.method(:activate_color))
+      regular_format.apply(window)
+    end
+
+    colors = @color_settings.keys.dup
+    colors << "raw[^>]*"
+    colors = colors.join("|")
+
+    message.split(/(<[\/]{0,1}[^>]*>)/i).each do |part|
+      if part.start_with? "<"
+        if @use_color
+          part.match(/<([\/]{0,1})([^>]*)>/i) do
+            if ($1.nil?) || ($1.length <= 0)
+              color_encode(window, $2)
+            else
+              color_decode(window, $2)
+            end
+          end
+        end
+      else
+        window.addstr("#{part}")
+      end
+    end
+
+    if @use_color
+      regular_format.revert(window)
+    end
+
     update
+  end
+
+  #Send message without newline
+  def print(message, parse = true, newline = false, message_type: :main)
+    if parse
+      message.gsub!(/\t/, '     ')
+      message = paginate(message)
+    end
+    if newline and message[-1..-1] != "\n"
+      if message[-2..-2] == "\r"
+        message << "\n"
+      else
+        message << "\r\n"
+      end
+    end
+    send( message, message_type: message_type)
+  end
+
+  def paginate message
+    if @player.nil?
+      return line_wrap(message)
+    elsif not @player.page_height
+      return line_wrap(message)
+    #elsif not @word_wrap
+      #return message.gsub(/([^\r]?)\n/, '\1' + "\r\n")
+    end
+
+    ph = @player.page_height
+
+    out = []
+    #message = message.gsub(/((\e\[\d+[\;]{0,1}\d*[\;]{0,1}\d*m|[^\r\n\n\s\Z]){#@word_wrap})/, "\\1 ") if @word_wrap
+    message = wrap(message, @word_wrap).join("\r\n") if @word_wrap
+    message.scan(/((((\e\[\d+[\;]{0,1}\d*[\;]{0,1}\d*m)|.){1,#{@word_wrap}})(\r\n|\n|\s+|\Z))|(\r\n|\n)/) do |m|
+      if $2
+        out << $2
+      else
+        out << ""
+      end
+    end
+
+    if out.length < ph
+      return out.join("\r\n")
+    end
+
+    @paginator = KPaginator.new(self, out)
+    @paginator.more
+  end
+
+  #Only use if there is no line height
+  def line_wrap message
+    message = wrap(message, @word_wrap).join("\n") if @word_wrap
+    #message = message.gsub(/((\e\[\d+[\;]{0,1}\d*[\;]{0,1}\d*m|[^\r\n\n\s\Z]){#{@word_wrap}})/, "\\1 ") if @word_wrap
+    message.gsub(/(((\e\[\d+[\;]{0,1}\d*[\;]{0,1}\d*m)|.){1,#{@word_wrap}})(\r\n|\n|\s+|\Z)/, "\\1\n")
+  end
+
+  #Next page of paginated output
+  def more
+    if @paginator and @paginator.more?
+      self.print(@paginator.more, false)
+      if not @paginator.more?
+        @paginator = nil
+      end
+    else
+      @paginator = nil
+      self.puts "There is no more."
+    end
   end
 
   def close
@@ -194,15 +298,123 @@ class Display
     Ncurses.endwin
   end
 
+  #Sets colors to defaults
+  def to_default_colors
+    @color_settings = {
+      "roomtitle" => "fg:green bold",
+      "object" => "fg:blue",
+      "player" => "fg:cyan",
+      "mob" => "fg:yellow bold",
+      "merchant" => "fg:yellow dim",
+      "me" => "fg:white bold",
+      "exit" => "fg:green",
+      "say" => "fg:white bold",
+      "tell" => "fg:cyan bold",
+      "important" => "fg:red bold",
+      "editor" => "fg:cyan",
+      "news" => "fg:cyan bold",
+      "identifier" => "fg:magenta bold",
+      "water" => "fg:blue",
+      "waterlow" => "fg:blue dim",
+      "waterhigh" => "fg:blue bold",
+      "earth" => "fg:yellow",
+      "earthlow" => "fg:yellow dim",
+      "earthhigh" => "fg:yellow bold",
+      "air" => "fg:white",
+      "airlow" => "fg:white dim",
+      "airhigh" => "fg:white bold",
+      "fire" => "fg:red",
+      "firelow" => "fg:red dim",
+      "firehigh" => "fg:red bold",
+      "regular" => "fg:white bg:black"
+    }
+  end
+
+  def color_encode(window, code)
+    parent = @color_stack[-1]
+    code = code.downcase
+    unless code.start_with? "raw "
+      result = FormatState.new(@color_settings[code], self.method(:activate_color), parent)
+    else
+      /raw (?<code>.*)/ =~ code
+      result = FormatState.new(code, self.method(:activate_color), parent)
+    end
+    @color_stack << result
+    result.apply(window)
+  end
+
+  def color_decode(window, code)
+    @color_stack.pop.revert(window)
+  end
+
+  #Sets the foreground color for a given setting.
+  def set_fg_color(code, color)
+    code.downcase! unless code.nil?
+    color.downcase! unless color.nil?
+
+    if not @color_settings.has_key? code
+      "No such setting: #{code}"
+    else
+      if not @use_color
+        @color_settings.keys.each do |setting|
+          @color_settings[setting] = ""
+        end
+        @use_color = true
+      end
+
+      @color_settings[code] = color
+      "Set #{code} to <#{code}>#{color}</#{code}>."
+    end
+  end
+
+  #Returns list of color settings to show the player
+  def show_color_config
+  <<-CONF
+Colors are currently: #{@use_color ? "Enabled" : "Disabled"}
+Text                Setting          Color
+-----------------------------------------------
+Room Title          roomtitle        <roomtitle>#{@color_settings['roomtitle']}</roomtitle>
+Object              object           <object>#{@color_settings['object']}</object>
+Player              player           <player>#{@color_settings['player']}</player>
+Mob                 mob              <mob>#{@color_settings['mob']}</mob>
+Merchant            merchant         <merchant>#{@color_settings['merchant']}</merchant>
+Me                  me               <me>#{@color_settings['me']}</me>
+Exit                exit             <exit>#{@color_settings['exit']}</exit>
+Say                 say              <say>#{@color_settings['say']}</say>
+Tell                tell             <tell>#{@color_settings['tell']}</tell>
+Important           important        <important>#{@color_settings['important']}</important>
+Editor              editor           <editor>#{@color_settings['editor']}</editor>
+News                news             <news>#{@color_settings['news']}</news>
+Identifier          identifier       <identifier>#{@color_settings['identifier']}</identifier>
+Fire                fire             <fire>#{@color_settings['fire']}</fire>
+Fire when low       firelow          <firelow>#{@color_settings['firelow']}</firelow>
+Fire when high      firehigh         <firehigh>#{@color_settings['firehigh']}</firehigh>
+Air                 air              <air>#{@color_settings['air']}</air>
+Air when low        airlow           <airlow>#{@color_settings['airlow']}</airlow>
+Air when high       airhigh          <airhigh>#{@color_settings['airhigh']}</airhigh>
+Water               water            <water>#{@color_settings['water']}</water>
+Water when low      waterlow         <waterlow>#{@color_settings['waterlow']}</waterlow>
+Water when high     waterhigh        <waterhigh>#{@color_settings['waterhigh']}</waterhigh>
+Earth               earth            <earth>#{@color_settings['earth']}</earth>
+Earth when low      earthlow         <earthlow>#{@color_settings['earthlow']}</earthlow>
+Earth when high     earthhigh        <earthhigh>#{@color_settings['earthhigh']}</earthhigh>
+Regular             regular          #{@color_settings['regular']}
+CONF
+  end
+
   private
 
   def update
 
-    if @color_enable
-      activate_color(@window_main_border, 8, 0) unless @window_main_border.nil?
-      activate_color(@window_input_border, 8, 0) unless @window_input_border.nil?
-      activate_color(@window_map_border, 8, 0) unless @window_map_border.nil?
-      activate_color(@window_look_border, 8, 0) unless @window_look_border.nil?
+    white_fg = Color::Foreground.attribute(:white)
+    gray_fg = Color::Foreground.attribute(:gray)
+    black_bg = Color::Background.attribute(:black)
+
+    if @use_color
+      activate_color(@window_main_border, gray_fg, black_bg) unless @window_main_border.nil?
+      activate_color(@window_input_border, gray_fg, black_bg) unless @window_input_border.nil?
+      activate_color(@window_map_border, gray_fg, black_bg) unless @window_map_border.nil?
+      activate_color(@window_look_border, gray_fg, black_bg) unless @window_look_border.nil?
     end
 
     default_border = 0 if @color_enable
@@ -212,11 +424,11 @@ class Display
     @window_map_border.border(*([default_border]*8)) unless @window_map_border.nil?
     @window_look_border.border(*([default_border]*8)) unless @window_look_border.nil?
 
-    if @color_enable
-      activate_color(@window_main_border, 15, 0) if @selected.eql? :main
-      activate_color(@window_input_border, 15, 0) if @selected.eql? :input
-      activate_color(@window_map_border, 15, 0) if @selected.eql? :map
-      activate_color(@window_look_border, 15, 0) if @selected.eql? :look
+    if @use_color
+      activate_color(@window_main_border, white_fg, black_bg) if @selected.eql? :main
+      activate_color(@window_input_border, white_fg, black_bg) if @selected.eql? :input
+      activate_color(@window_map_border, white_fg, black_bg) if @selected.eql? :map
+      activate_color(@window_look_border, white_fg, black_bg) if @selected.eql? :look
     end
 
     @window_main_border.border(*([0]*8)) if @selected.eql? :main

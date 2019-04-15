@@ -30,7 +30,7 @@ class TelnetScanner
       elsif iac_state == :none
           return true
       elsif iac_state != :none
-        @socket.recv(1)
+        @socket.recv(1) if iac_state != IAC || ch != IAC
         case iac_state
 
         when :IAC
@@ -40,6 +40,13 @@ class TelnetScanner
             iac_state = :IAC_SB
           elsif ch == WONT
             iac_state = :IAC_WONT
+          elsif ch == DONT
+            iac_state = :IAC_DONT
+          elsif ch == DO
+            iac_state = :IAC_DO
+          elsif ch == IAC
+            iac_state = :none
+            return true
           else
             iac_state = :none
           end
@@ -62,6 +69,12 @@ class TelnetScanner
           else
             iac_state = :IAC_SB_SOMETHING
           end
+
+        when :IAC_DO
+          iac_state = :none
+
+        when :IAC_DONT
+          iac_state = :none
 
         when :IAC_SB_NAWS
           lwidth = ch.ord

@@ -20,10 +20,6 @@ class Display
     @socket = socket #StringIO.new
     @scanner = TelnetScanner.new(socket, self)
 
-    # @socket.define_singleton_method(:to_i) do
-    #   return nil
-    # end
-
     PREAMBLE.each do |line|
       @socket.puts line
     end
@@ -118,7 +114,6 @@ class Display
     @width = resolution[0]
     @height = resolution[1]
     Ncurses.resizeterm(@height, @width)
-    @layout_type = :full if @height > 100 and @width > 100
     layout
   end
 

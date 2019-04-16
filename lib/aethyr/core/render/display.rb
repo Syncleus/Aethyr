@@ -108,7 +108,7 @@ class Display
       @window_main.move(@window_main.getmaxy - 2,1)
       @buffer[:main] = [] if @buffer[:main].nil?
       @buffer[:main].each do | message|
-        render(message, :main)
+        render(message, @window_main)
       end
 
       Ncurses.delwin(@window_input_border) unless @window_input_border.nil?
@@ -165,7 +165,7 @@ class Display
     @socket.puts message
   end
 
-  def send (message, message_type: :main, internal_clear: true, add_newline: true)
+  def send (message, message_type: :main, internal_clear: false, add_newline: true)
     window = nil
 
     unless @buffer[message_type].nil?

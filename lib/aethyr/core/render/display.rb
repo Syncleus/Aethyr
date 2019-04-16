@@ -8,12 +8,14 @@ class Display
 
   DEFAULT_HEIGHT = 43
   DEFAULT_WIDTH = 80
+  BUFFER_SIZE = 10000
 
   def initialize(socket, new_color_settings = nil)
     @height = DEFAULT_HEIGHT
     @width = DEFAULT_WIDTH
     @use_color = false
     @layout_type = :basic
+    @buffer = Hash.new
 
     @color_stack = []
     @color_settings = new_color_settings || to_default_colors
@@ -66,36 +68,50 @@ class Display
   def layout
     case @layout_type
     when :basic
+      Ncurses.delwin(@window_main_border) unless @window_main_border.nil?
       @window_main_border = Ncurses::WINDOW.new(@height - 3, 0, 0, 0)
       @window_main = @window_main_border.derwin(@window_main_border.getmaxy - 2, @window_main_border.getmaxx - 2, 1, 1)
       Ncurses.scrollok(@window_main, true)
       @window_main.clear
       @window_main.move(@window_main.getmaxy - 2,1)
+      @buffer[:main] = [] if @buffer[:main].nil?
+      @buffer[:main].each do | message|
+        render(message, @window_main)
+      end
 
+      Ncurses.delwin(@window_input_border) unless @window_input_border.nil?
       @window_input_border = Ncurses::WINDOW.new(3, 0, @height - 3, 0)
       @window_input = @window_input_border.derwin(@window_input_border.getmaxy - 2, @window_input_border.getmaxx - 2, 1, 1)
       Ncurses.scrollok(@window_input, false)
       @window_input.clear
       @window_input.move(@window_input.getmaxy - 2,1)
     when :full
+      Ncurses.delwin(@window_map_border) unless @window_map_border.nil?
       @window_map_border = Ncurses::WINDOW.new(@height - 39, 0, 0, 0)
       @window_map = @window_map_border.derwin(@window_map_border.getmaxy - 2, @window_map_border.getmaxx - 2, 1, 1)
       Ncurses.scrollok(@window_map, true)
       @window_map.clear
       @window_map.move(@window_map.getmaxy - 2,1)
 
+      Ncurses.delwin(@window_look_border) unless @window_look_border.nil?
       @window_look_border = Ncurses::WINDOW.new(36, 82, @height - 39, 0)
       @window_look = @window_look_border.derwin(@window_look_border.getmaxy - 2, @window_look_border.getmaxx - 2, 1, 1)
       Ncurses.scrollok(@window_look, true)
       @window_look.clear
       @window_look.move(@window_look.getmaxy - 2,1)
 
+      Ncurses.delwin(@window_main_border) unless @window_main_border.nil?
       @window_main_border = Ncurses::WINDOW.new(36, 0, @height - 39, 82)
       @window_main = @window_main_border.derwin(@window_main_border.getmaxy - 2, @window_main_border.getmaxx - 2, 1, 1)
       Ncurses.scrollok(@window_main, true)
       @window_main.clear
       @window_main.move(@window_main.getmaxy - 2,1)
+      @buffer[:main] = [] if @buffer[:main].nil?
+      @buffer[:main].each do | message|
+        render(message, :main)
+      end
 
+      Ncurses.delwin(@window_input_border) unless @window_input_border.nil?
       @window_input_border = Ncurses::WINDOW.new(3, 0, @height - 3, 0)
       @window_input = @window_input_border.derwin(@window_input_border.getmaxy - 2, @window_input_border.getmaxx - 2, 1, 1)
       Ncurses.scrollok(@window_input, false)
@@ -151,6 +167,12 @@ class Display
 
   def send (message, message_type: :main, internal_clear: true, add_newline: true)
     window = nil
+
+    unless @buffer[message_type].nil?
+      @buffer[message_type] << message.dup
+      @buffer[message_type].drop(@buffer[message_type].length - BUFFER_SIZE) if @buffer[message_type].length > BUFFER_SIZE
+    end
+
     case message_type
     when :main
       window = @window_main
@@ -173,12 +195,17 @@ class Display
 
     window.clear if internal_clear and not message_type.eql? :main
 
+    render(message, window, add_newline: add_newline)
+  end
+
+  def render(message, window = @window_main, add_newline: true)
+
     message = message.tr("\r", '')
     lines = message.split("\n");
     return if lines.empty?
     if lines.length > 1
       lines.each do |line|
-        send line, message_type: message_type, internal_clear: false
+        render line, window, add_newline: add_newline
       end
       return
     end

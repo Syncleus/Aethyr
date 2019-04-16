@@ -461,14 +461,14 @@ CONF
   def update
 
     white_fg = Color::Foreground.attribute(:white)
-    gray_fg = Color::Foreground.attribute(:gray)
+    grey_fg = Color::Foreground.attribute(:grey)
     black_bg = Color::Background.attribute(:black)
 
     if @use_color
-      activate_color(@window_main_border, gray_fg, black_bg) unless @window_main_border.nil?
-      activate_color(@window_input_border, gray_fg, black_bg) unless @window_input_border.nil?
-      activate_color(@window_map_border, gray_fg, black_bg) unless @window_map_border.nil?
-      activate_color(@window_look_border, gray_fg, black_bg) unless @window_look_border.nil?
+      activate_color(@window_main_border, grey_fg, black_bg) unless @window_main_border.nil?
+      activate_color(@window_input_border, grey_fg, black_bg) unless @window_input_border.nil?
+      activate_color(@window_map_border, grey_fg, black_bg) unless @window_map_border.nil?
+      activate_color(@window_look_border, grey_fg, black_bg) unless @window_look_border.nil?
     end
 
     default_border = 0 if @color_enable

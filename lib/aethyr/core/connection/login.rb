@@ -8,13 +8,14 @@ require 'aethyr/core/errors'
 module Login
 
   #Get input from io connection and process it
-  def receive_data(data)
-    return if data.nil?
-    return if data == ''
+  def receive_data
+    data = @display.recv
+    return false if data.nil?
+    return false if data == ''
 
     if data[-1,1] != "\n"
       @in_buffer << data
-      return
+      return true
     elsif not @in_buffer.empty?
       data = @in_buffer.join + data
       @in_buffer.clear
@@ -60,6 +61,7 @@ module Login
         end
       end
     end
+    return true
   end
 
   def show_initial

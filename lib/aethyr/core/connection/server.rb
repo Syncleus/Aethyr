@@ -67,9 +67,7 @@ module Aethyr
           end
 
           players.each do |player|
-            recvd = player.display.recv
-            did_something = true unless recvd.nil?
-            player.receive_data(recvd)
+            did_something = true if player.receive_data
           end
 
           sleep 0.1 unless did_something

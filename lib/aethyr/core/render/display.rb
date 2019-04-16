@@ -266,7 +266,7 @@ class Display
         message << "\r\n"
       end
     end
-    send( message, message_type: message_type)
+    send( message, message_type: message_type, add_newline: newline)
   end
 
   def paginate message

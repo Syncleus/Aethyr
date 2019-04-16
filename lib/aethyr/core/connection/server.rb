@@ -44,7 +44,8 @@ module Aethyr
           $manager.update_all
         end
         saveTask = Concurrent::TimerTask.new(execution_interval: ServerConfig.save_rate, timeout_interval: 30) do
-          log "Automatic state save."; $manager.save_all
+          log "Automatic state save."
+          $manager.save_all
         end
 
         updateTask.execute

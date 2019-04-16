@@ -2,6 +2,7 @@ require "ncursesw"
 require 'stringio'
 require 'aethyr/core/connection/telnet_codes'
 require 'aethyr/core/connection/telnet'
+require 'aethyr/core/components/manager'
 
 class Display
   attr_accessor :color_settings, :use_color
@@ -131,6 +132,7 @@ class Display
     @width = resolution[0]
     @height = resolution[1]
     Ncurses.resizeterm(@height, @width)
+    @layout_type = :full if @height > 100 && @width > 165
     layout
   end
 
@@ -427,6 +429,31 @@ Earth when low      earthlow         <earthlow>#{@color_settings['earthlow']}</e
 Earth when high     earthhigh        <earthhigh>#{@color_settings['earthhigh']}</earthhigh>
 Regular             regular          #{@color_settings['regular']}
 CONF
+  end
+
+  def refresh_watch_windows(player)
+    unless @window_look.nil?
+      if player.blind?
+        send( "You cannot see while you are blind.", message_type: :look, internal_clear: true)
+      else
+        room = $manager.get_object(player.container)
+        if not room.nil?
+          look_text = room.look(player)
+          send(look_text, message_type: :look, internal_clear: true)
+        else
+          send("Nothing to look at.", message_type: :look, internal_clear: true)
+        end
+      end
+    end
+
+    unless @window_map.nil?
+      room = $manager.get_object(player.container)
+      if not room.nil?
+        send(room.area.render_map(player, room.area.position(room)), message_type: :map, internal_clear: true)
+      else
+        send("No map of current area.", message_type: :map, internal_clear: true)
+      end
+    end
   end
 
   private

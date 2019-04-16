@@ -249,6 +249,10 @@ class Player < LivingObject
     super
   end
 
+  def update_display
+    @player.display.refresh_watch_windows(self)
+  end
+
   def run
     super
     if info.stats.health < info.stats.max_health - 10
@@ -256,5 +260,6 @@ class Player < LivingObject
     elsif info.stats.health < info.stats.max_health
       info.stats.health = info.stats.max_health
     end
+    update_display
   end
 end

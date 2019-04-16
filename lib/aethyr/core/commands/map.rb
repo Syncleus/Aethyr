@@ -9,7 +9,7 @@ module Aethyr
           def initialize(player)
             super(player, ["m", "map"])
           end
-          
+
           def self.object_added(data)
             return unless data[:game_object].is_a? Player
             data[:game_object].subscribe(MapHandler.new(data[:game_object]))
@@ -24,7 +24,7 @@ module Aethyr
               action_help({})
             end
           end
-          
+
           private
           def action_help(event)
             player.output <<'EOF'
@@ -34,10 +34,10 @@ Syntax: MAP
 Displays a map of the area.
 EOF
           end
-          
+
           def action(event)
             room = $manager.get_object(@player.container)
-            player.output(room.area.render_map(player, room.area.position(room)), message_type: :map)
+            player.output(room.area.render_map(player, room.area.position(room)))
           end
         end
 

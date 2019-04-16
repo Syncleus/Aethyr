@@ -89,7 +89,7 @@ module Settings
 
     #Show color configuration.
     def showcolors(event, player, room)
-      player.output player.io.show_color_config
+      player.output player.io.display.show_color_config
     end
 
     def setpassword(event, player, room)

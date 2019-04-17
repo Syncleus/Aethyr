@@ -33,6 +33,7 @@ class Display
     Ncurses.cbreak           # provide unbuffered input
     Ncurses.noecho           # turn off input echoing
     Ncurses.nonl             # turn off newline translation
+    Ncurses.curs_set(2) #high visibility cursor
 
     Ncurses.stdscr.intrflush(false) # turn off flush-on-interrupt
     Ncurses.stdscr.keypad(true)     # turn on keypad mode
@@ -493,12 +494,12 @@ CONF
 
     @window_main_border.noutrefresh() unless @window_main_border.nil?
     @window_main.noutrefresh() unless @window_main.nil?
-    @window_input_border.noutrefresh() unless @window_input_border.nil?
-    @window_input.noutrefresh() unless @window_input.nil?
     @window_map_border.noutrefresh() unless @window_map_border.nil?
     @window_map.noutrefresh() unless @window_map.nil?
     @window_look_border.noutrefresh() unless @window_look_border.nil?
     @window_look.noutrefresh() unless @window_look.nil?
+    @window_input_border.refresh() unless @window_input_border.nil?
+    @window_input.refresh() unless @window_input.nil?
     Ncurses.doupdate()
   end
 
@@ -512,7 +513,9 @@ CONF
                 max_len: (window.getmaxx - x - 1),
                 string: "",
                 cursor_pos: 0)
+    escape = nil
     loop do
+      window.clear
       window.mvaddstr(y,x,string) if echo?
       window.move(y,x+cursor_pos) if echo?
       update
@@ -520,60 +523,84 @@ CONF
       next if not @scanner.process_iac
       ch = window.getch
       puts ch
-      case ch
-      when Ncurses::KEY_LEFT
-        cursor_pos = [0, cursor_pos-1].max
-      when Ncurses::KEY_RIGHT
-        cursor_pos = [max_len, cursor_pos + 1].min
-        # similar, implement yourself !
-#      when Ncurses::KEY_ENTER, ?\n, ?\r
-#        return string, cursor_pos, ch # Which return key has been used?
-      when 13 # return
-        window.clear
-        @window_main.addstr("≫≫≫≫≫ #{string}\n") if echo?
-        @selected = :input
-        update
-        return string#, cursor_pos, ch # Which return key has been used?
-      #when Ncurses::KEY_BACKSPACE
-      when 127 # backspace
-        string = string[0...([0, cursor_pos-1].max)] + string[cursor_pos..-1]
-        cursor_pos = [0, cursor_pos-1].max
-        window.mvaddstr(y, x+string.length, " ") if echo?
-        @selected = :input
-      # when etc...
-      when 32..255 # remaining printables
-        if (cursor_pos < max_len)
-          #string[cursor_pos,0] = ch
-          string = string + ch.chr
-          cursor_pos += 1
+
+      unless escape.nil?
+        case escape
+        when :esc_pre
+          escape = :esc if ch == 91
+        when :esc
+          case ch
+          when 68
+            ch = Ncurses::KEY_LEFT
+            escape = nil
+          when 67
+            ch = Ncurses::KEY_RIGHT
+            escape = nil
+          end
         end
-        @selected = :input
-      when 9 # tab
-        case @selected
-        when :input
-          @selected = :main
-        when :main
-          if not @window_map.nil?
-            @selected = :map
-          elsif not @window_look.nil?
-            @selected = :look
-          else
-            @selected = :input
-          end
-        when :map
-          if not @window_look.nil?
-            @selected = :look
-          else
-            @selected = :input
-          end
-        when :look
+      end
+
+      if escape.nil?
+        case ch
+        when 27
+          escape = :esc_pre
+        when Ncurses::KEY_LEFT
+          cursor_pos = [0, cursor_pos-1].max
+        when Ncurses::KEY_RIGHT
+          cursor_pos = [max_len, cursor_pos + 1].min
+          # similar, implement yourself !
+  #      when Ncurses::KEY_ENTER, ?\n, ?\r
+  #        return string, cursor_pos, ch # Which return key has been used?
+        when 13 # return
+          window.clear
+          @window_main.addstr("≫≫≫≫≫ #{string}\n") if echo?
           @selected = :input
+          update
+          return string#, cursor_pos, ch # Which return key has been used?
+        #when Ncurses::KEY_BACKSPACE
+        when 127, "\b".ord, Ncurses::KEY_BACKSPACE  # backspace
+          #string = string[0...([0, cursor_pos-1].max)] + string[cursor_pos..-1]
+          if cursor_pos >= 1
+            string.slice!(cursor_pos - 1)
+            cursor_pos = cursor_pos-1
+          end
+#          window.mvaddstr(y, x+string.length, " ") if echo?
+          @selected = :input
+        # when etc...
+        when 32..255 # remaining printables
+          if (cursor_pos < max_len)
+            #string[cursor_pos,0] = ch
+            string.insert(cursor_pos, ch.chr)
+            cursor_pos += 1
+          end
+          @selected = :input
+        when 9 # tab
+          case @selected
+          when :input
+            @selected = :main
+          when :main
+            if not @window_map.nil?
+              @selected = :map
+            elsif not @window_look.nil?
+              @selected = :look
+            else
+              @selected = :input
+            end
+          when :map
+            if not @window_look.nil?
+              @selected = :look
+            else
+              @selected = :input
+            end
+          when :look
+            @selected = :input
+          else
+            @selected = :input
+          end
+          update
         else
-          @selected = :input
+          log "Unidentified key press: #{ch}"
         end
-        update
-      else
-        log "Unidentified key press: #{ch}"
       end
     end
   end

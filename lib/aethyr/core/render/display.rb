@@ -536,7 +536,11 @@ CONF
           when 67
             ch = Ncurses::KEY_RIGHT
             escape = nil
+          else
+            escape = nil
           end
+        else
+          escape = nil
         end
       end
 

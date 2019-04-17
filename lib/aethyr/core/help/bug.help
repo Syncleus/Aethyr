@@ -1,11 +1,11 @@
 Command: Bug
 Command: Idea
 Command: Typo
-Syntax: [BUG|IDEA|TYPO] <issue>
-Syntax: [BUG|IDEA|TYPO] <id number>
+Syntax: [BUG|IDEA|TYPO] [issue]
+Syntax: [BUG|IDEA|TYPO] [id number]
 Syntax: [BUG|IDEA|TYPO] LIST
-Syntax: [BUG|IDEA|TYPO] STATUS <id_number> <status>
-Syntax: [BUG|IDEA|TYPO] [SHOW|ADD|DEL] <id_number>
+Syntax: [BUG|IDEA|TYPO] STATUS [id_number] [status]
+Syntax: [BUG|IDEA|TYPO] [SHOW|ADD|DEL] [id_number]
 
 These commands allow players and administrators to report and manipulate feedback about the game. The commands are essentially identical, but should be used to report different things. For the rest of this description, BUG is used.
 

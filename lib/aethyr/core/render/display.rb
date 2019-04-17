@@ -362,6 +362,7 @@ class Display
   def color_encode(window, code)
     parent = @color_stack[-1]
     code = code.downcase
+    code = "regular" if code.nil? || code.empty? || @color_settings[code].nil?
     unless code.start_with? "raw "
       result = FormatState.new(@color_settings[code], self.method(:activate_color), parent)
     else

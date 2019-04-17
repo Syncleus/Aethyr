@@ -551,7 +551,7 @@ CONF
         when Ncurses::KEY_LEFT
           cursor_pos = [0, cursor_pos-1].max
         when Ncurses::KEY_RIGHT
-          cursor_pos = [max_len, cursor_pos + 1].min
+          cursor_pos = [max_len, cursor_pos + 1, string.length].min
           # similar, implement yourself !
   #      when Ncurses::KEY_ENTER, ?\n, ?\r
   #        return string, cursor_pos, ch # Which return key has been used?

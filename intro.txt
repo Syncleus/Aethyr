@@ -1,44 +1,44 @@
-                        /\
-                        ||
-                        ||
-                        ||
-                        ||                                               ~-----~
-                        ||                                            /===--  --
-                        ||                   ;'                 /==~- --   -
-                        ||                (/ ('              /=----         ~~_
-                        ||             ' / ;'             /=----               \
-     '                ~==_=~          '('             ~-~~      ~~~~        ~~~-
-     \\                (c_\_        .i.             /~--    ~~~--   -~     (
-      `\               (}| /       / : \           / ~~------~     ~~\   (
-      \ '               ||/ \      |===|          /~/             ~~~ \ \(
-      ``~\              ~~\  )~.~_ >._.< _~-~     |`_          ~~-~     )\
-       '-~                 {  /  ) \___/ (   \   |` ` _       ~~         '
-       \ -~\                -<__/  -   -  L~ -;   \\    \ _ _/
-       `` ~~=\                  {    :    }\ ,\    ||   _ :(
-        \  ~~=\__                \ _/ \_ /  )  } _//   ( `|'
-        ``    , ~\--~=\           \     /  / _/ / '    (   '
-         \`    } ~ ~~ -~=\   _~_  / \ / \ )^ ( // :_  / '
-         |    ,          _~-'   '~~__-_  / - |/     \ (
-          \  ,_--_     _/              \_'---', -~ .   \
-           )/      /\ / /\   ,~,         \__ _}     \_  "~_
-           ,      { ( _ )'} ~ - \_    ~\  (-:-)       "\   ~
-                  /'' ''  )~ \~_ ~\   )->  \ :|    _,       "
-                 (\  _/)''} | \~_ ~  /~(   | :)   /          }
-                <``  >;,,/  )= \~__ {{{ '  \ =(  ,   ,       ;
-               {o_o }_/     |v  '~__  _    )-v|  "  :       ,"
-               {/"\_)       {_/'  \~__ ~\_ \\_} '  {        /~\
-               ,/!          '_/    '~__ _-~ \_' :  '      ,"  ~
-              (''`                  /,'~___~    | /     ,"  \ ~'
-             '/, )                 (-)  '~____~";     ,"     , }
-           /,')                    / \         /  ,~-"       '~'
-       (  ''/                     / ( '       /  /          '~'
-    ~ ~  ,, /) ,                 (/( \)      ( -)          /~'
-  (  ~~ )`  ~}                   '  \)'     _/ /           ~'
- { |) /`,--.(  }'                    '     (  /          /~'
-(` ~ ( c|~~| `}   )                        '/:\         ,'
- ~ )/``) )) '|),                          (/ | \)                 -sjm
-  (` (-~(( `~`'  )                        ' (/ '
-   `~'    )'`')                              '
-     ` ``
+                        <earthhigh>/\</earthhigh>
+                        <earthhigh>||</earthhigh>
+                        <earthhigh>||</earthhigh>
+                        <earthhigh>||</earthhigh>
+                        <earthhigh>||</earthhigh>                                               <water>~-----~</water>
+                        <earthhigh>||</earthhigh>                                            <water>/===--  --</water>
+                        <earthhigh>||</earthhigh>                   <identifier>;'</identifier>                 <water>/==~- --   -</water>
+                        <earthhigh>||</earthhigh>                <identifier>(/ ('</identifier>              <water>/=----         ~~_</water>
+                        <earthhigh>||</earthhigh>             <identifier>' / ;'</identifier>             <water>/=----               \</water>
+     <water>'                <airlow>~==_=~</airlow>          <identifier>'('</identifier>             ~-~~      ~~~~        ~~~-</water>
+     <water>\\                <regular>(c<airlow>_</airlow>\_        .i.</regular>             /~--    ~~~--   -~     (</water>
+      <water>`\               <regular>(}<airlow>|</airlow> /       / : \</regular>           / ~~------~     ~~\   (</water>
+      <water>\ '               <regular><airlow>||</airlow>/ \      |<mob>===</mob>|</regular>          /~/             ~~~ \ \(</water>
+      <water>``~\              <regular><airlow>~~</airlow>\  )~.~_ \._./ _~-~</regular>     |`_          ~~-~     )\</water>
+       <water>'-~                 <regular>{  /  ) \___/ (   \</regular>   |` ` _       ~~         '</water>
+       <water>\ -~\                <regular>-<__/  -   -  L~ -;</regular>   \\    \ _ _/</water>
+       <water>`` ~~=\                  <regular>{    :    }\ ,\</regular>    ||   _ :(</water>
+        <water>\  ~~=\__                <regular>\ _/ \_ /  )  }</regular> _//   ( `|'</water>
+        <water>``    , ~\--~=\           <regular>\     /  / _/</regular> / '    (   '</water>
+         <water>\`    } ~ ~~ -~=\   _~_  <regular>/ \ / \ )^ (</regular> // :_  / '</water>
+         <water>|    ,          _~-'   '~~__<regular>-_  / - |</regular>/     \ (</water>
+          <water>\  ,_--_     _/              <regular>\_'---',</regular> -~ .   \</water>
+           <water>)/      /\ / /\   ,~,         <regular>\__ _}</regular>     \_  "~_</water>
+           <water>,      { ( _ )'} ~ - \_    ~\  <regular>(-:-)</regular>       "\   ~</water>
+                  <water>/'' ''  )~ \~_ ~\   )->  <regular>\ :|</regular>    _,       "</water>
+                 <water><roomtitle>(\</roomtitle>  _<roomtitle>/)</roomtitle>''} | \~_ ~  /~(   <regular>| :)</regular>   /          }</water>
+                <water>/``  /;,,/  )= \~__ {{{ '  <regular>\ =(</regular>  ,   ,       ;</water>
+               <water>{<roomtitle>o</roomtitle>_<roomtitle>o</roomtitle> }_/     |v  '~__  _    <regular>)-v|</regular>  "  :       ,"</water>
+               <water>{/"\_)       {_/'  \~__ ~\_ <regular>\\_}</regular> '  {        /~\</water>
+               <important>,/!</important>          <water>'_/    '~__ _-~ <regular>\_'</regular> :  '      ,"  ~</water>
+              <important>(''`</important>                  <water>/,'~___~    | /     ,"  \ ~'</water>
+             <important>'/, )</important>                 <water>(-)  '~____~";     ,"     , }</water>
+           <important>/,')</important>                    <water>/ \         /  ,~-"       '~'</water>
+       <important>(  ''/</important>                     <water>/ ( '       /  /          '~'</water>
+    <important>~ ~  ,, /) ,</important>                 <water>(/( \)      ( -)          /~'</water>
+  <important>(  ~~ )`  ~}</important>                   <news>'</news>  <water>\)</water><news>'</news>     <water>_/ /           ~'</water>
+ <important>{ |) /`,--.(  }'</important>                    <news>'</news>     <water>(  /          /~'</water>
+<important>(` ~ ( c|~~| `}   )</important>                        <water>'/:\</water>         <news>,</news><water>'</water>
+ <important>~ )/``) )) '|),</important>                          <water>(/ | \)</water>
+  <important>(` (-~(( `~`'  )</important>                        <news>'</news> <water>(/</water> <news>'</news>
+   <important>`~'    )'`')</important>                              <news>'</news>
+     <important>` ``</important>
 
                          Welcome to the Aethyr

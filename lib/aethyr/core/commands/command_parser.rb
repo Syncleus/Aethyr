@@ -7,14 +7,6 @@ include Aethyr::Direction
 #CommandParser parses commands into commands for the event handler.
 module CommandParser
 
-  @communication = Set.new([
-  'say',
-  'sayto',
-  'whisper',
-  'tell',
-  'reply'
-  ])
-
   @movement = Set.new([
   'sit',
   'stand',
@@ -174,8 +166,6 @@ module CommandParser
           parse_weapon_combat input
         elsif @martial_combat.include? command
           parse_martial_combat input
-        elsif @communication.include? command
-          parse_communication input
         elsif @news.include? command
           parse_news input
         elsif @mobile.include? command and player.is_a? Mobile
@@ -198,25 +188,6 @@ module CommandParser
     alias :create_event :parse
 
     private
-
-    def parse_communication(input)
-      e = case input
-          when /^say\s+(\((.*?)\)\s*)?(.*)$/i
-            { :action => :say, :phrase => $3, :pre => $2 }
-          when /^sayto\s+(\w+)\s+(\((.*?)\)\s*)?(.*)$/i
-            { :action => :say, :target => $1, :phrase => $4, :pre => $3 }
-          when /^whisper\s+(\w+)\s+(\((.*?)\)\s*)?(.*)$/i
-            { :action => :whisper, :to => $1, :phrase => $4, :pre => $3 }
-          when /^tell\s+(\w+)\s+(.*)$/i
-            { :action => :tell, :target => $1, :message => $2 }
-          when /^reply\s+(.*)$/i
-            { :action => :reply, :message => $1 }
-          else
-            nil
-          end
-
-      Event.new(:Communication, e) if e
-    end
 
     def parse_emote(input)
       event = Event.new(:Emote)

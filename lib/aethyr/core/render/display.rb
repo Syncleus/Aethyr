@@ -186,6 +186,28 @@ class Display
     @socket.puts message
   end
 
+  def split_message(message, cols = 80)
+    new_message = message.gsub(/\t/, '     ')
+    new_message.tr!("\r", '')
+
+    last_was_text = false
+    buffer_lines = []
+    new_message.split(/(\n)/) do |line|
+      next if line.nil? || line.length == 0
+      if line.length == 1 && line.start_with?("\n")
+        if last_was_text
+          last_was_text = false
+        else
+          buffer_lines << ""
+        end
+      else
+        buffer_lines.concat(word_wrap(line, cols))
+        last_was_text = true
+      end
+    end
+    return buffer_lines
+  end
+
   def parse_buffer(channel = :main, cols = 80)
     @buffer_lines[channel] = nil
     buffer = @buffer[channel]
@@ -194,23 +216,7 @@ class Display
     @buffer_lines[channel]  = buffer_lines
 
     buffer.each do |message|
-      new_message = message.gsub(/\t/, '     ')
-      new_message.tr!("\r", '')
-
-      last_was_text = false
-      new_message.split(/(\n)/) do |line|
-        next if line.nil? || line.length == 0
-        if line.length == 1 && line.start_with?("\n")
-          if last_was_text
-            last_was_text = false
-          else
-            buffer_lines << ""
-          end
-        else
-          buffer_lines.concat(word_wrap(line))
-          last_was_text = true
-        end
-      end
+      buffer_lines.concat(split_message(message, cols))
     end
   end
 
@@ -234,8 +240,9 @@ class Display
 
         if next_line_length + new_line_length >= cols
           if new_line_length == 0
-            lines << next_line
+            lines << new_line + next_line
             next_line = ""
+            new_line = ""
             next_line_length = 0
           else
             lines << new_line
@@ -320,15 +327,15 @@ class Display
   def render(message, window = @window_main, add_newline: true)
 
     message = message.tr("\r", '')
-    lines = message.split("\n");
-    return if lines.empty?
-    if lines.length > 1
-      lines.each do |line|
-        render line, window, add_newline: add_newline
-      end
-      return
-    end
-    message = lines[0]
+    # lines = message.split("\n");
+    # return if lines.empty?
+    # if lines.length > 1
+    #   lines.each do |line|
+    #     render line, window, add_newline: add_newline
+    #   end
+    #   return
+    # end
+    # message = lines[0]
 
     message += "\n" if add_newline
     colored_send(window, message)
@@ -542,7 +549,7 @@ CONF
         if not room.nil?
           look_text = room.look(player)
           cleared = false
-          word_wrap(look_text, 79).each do |msg|
+          split_message(look_text, 79).each do |msg|
             send(msg, message_type: :look, internal_clear: !cleared, add_newline: true)
             cleared = true
           end

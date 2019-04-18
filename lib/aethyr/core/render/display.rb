@@ -83,6 +83,7 @@ class Display
       @window_main.clear
       @window_main.move(@window_main.getmaxy - 2,1)
       @buffer[:main] = [] if @buffer[:main].nil?
+      @buffer_pos = 0
       parse_buffer
       buffer_from = [@buffer_lines[:main].length * -1, -1 * (@height - 3 + @buffer_pos + 1)].max
       buffer_to = [@buffer_lines[:main].length * -1, (@buffer_pos + 1) * -1].max
@@ -123,6 +124,7 @@ class Display
       @window_main.clear
       @window_main.move(@window_main.getmaxy - 2,1)
       @buffer[:main] = [] if @buffer[:main].nil?
+      @buffer_pos = 0
       parse_buffer
       buffer_from = [@buffer_lines[:main].length * -1, -1 * (33 + @buffer_pos + 1)].max
       buffer_to = [@buffer_lines[:main].length * -1, (@buffer_pos + 1) * -1].max
@@ -711,6 +713,8 @@ CONF
           window.clear
           send("≫≫≫≫≫ #{string}") if echo?
           @selected = :input
+          @buffer_pos = 0
+          render_buffer(channel: :main)
           update
           return string#, cursor_pos, ch # Which return key has been used?
         #when Ncurses::KEY_BACKSPACE

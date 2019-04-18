@@ -106,14 +106,14 @@ class Display
       @window_map.move(@window_map.getmaxy - 2,1)
 
       Ncurses.delwin(@window_look_border) unless @window_look_border.nil?
-      @window_look_border = Ncurses::WINDOW.new(@height/2 - 3, 82, @height/2, 0)
+      @window_look_border = Ncurses::WINDOW.new(@height/2 - 3, 83, @height/2, 0)
       @window_look = @window_look_border.derwin(@window_look_border.getmaxy - 2, @window_look_border.getmaxx - 2, 1, 1)
       Ncurses.scrollok(@window_look, true)
       @window_look.clear
       @window_look.move(@window_look.getmaxy - 2,1)
 
       Ncurses.delwin(@window_main_border) unless @window_main_border.nil?
-      @window_main_border = Ncurses::WINDOW.new(@height/2 - 3, 0, @height/2, 82)
+      @window_main_border = Ncurses::WINDOW.new(@height/2 - 3, 0, @height/2, 83)
       @window_main_border_height = @window_main_border.getmaxy - 2
       @window_main_border_width = @window_main_border.getmaxx - 2
       @window_main = @window_main_border.derwin(@window_main_border.getmaxy - 2, @window_main_border.getmaxx - 2, 1, 1)
@@ -186,7 +186,7 @@ class Display
     @socket.puts message
   end
 
-  def split_message(message, cols = 80)
+  def split_message(message, cols = @window_main_width)
     new_message = message.gsub(/\t/, '     ')
     new_message.tr!("\r", '')
 
@@ -208,7 +208,7 @@ class Display
     return buffer_lines
   end
 
-  def parse_buffer(channel = :main, cols = 80)
+  def parse_buffer(channel = :main, cols = @window_main_width)
     @buffer_lines[channel] = nil
     buffer = @buffer[channel]
     raise "channel #{channel} has no buffer" if buffer.nil?

@@ -114,7 +114,7 @@ class PlayerConnection
 
   #Send message without newline
   def print(message, parse = true, newline = false, message_type: :main)
-    @display.print(message, parse, newline, message_type: message_type) unless closed?
+    @display.send(message, parse, add_newline: newline, message_type: message_type) unless closed?
   end
 
   #Close the io connection

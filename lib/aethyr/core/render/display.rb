@@ -40,7 +40,7 @@ class Display
     Ncurses.stdscr.intrflush(false) # turn off flush-on-interrupt
     Ncurses.stdscr.keypad(true)     # turn on keypad mode
 
-    Ncurses.scrollok(Ncurses.stdscr, true)
+    #Ncurses.scrollok(Ncurses.stdscr, true)
     Ncurses.stdscr.clear
 
     layout
@@ -74,7 +74,11 @@ class Display
     when :basic
       Ncurses.delwin(@window_main_border) unless @window_main_border.nil?
       @window_main_border = Ncurses::WINDOW.new(@height - 3, 0, 0, 0)
+      @window_main_border_height = @window_main_border.getmaxy - 2
+      @window_main_border_width = @window_main_border.getmaxx - 2
       @window_main = @window_main_border.derwin(@window_main_border.getmaxy - 2, @window_main_border.getmaxx - 2, 1, 1)
+      @window_main_height = @window_main.getmaxy - 2
+      @window_main_width = @window_main.getmaxx - 2
       Ncurses.scrollok(@window_main, true)
       @window_main.clear
       @window_main.move(@window_main.getmaxy - 2,1)
@@ -110,13 +114,17 @@ class Display
 
       Ncurses.delwin(@window_main_border) unless @window_main_border.nil?
       @window_main_border = Ncurses::WINDOW.new(36, 0, @height - 39, 82)
+      @window_main_border_height = @window_main_border.getmaxy - 2
+      @window_main_border_width = @window_main_border.getmaxx - 2
       @window_main = @window_main_border.derwin(@window_main_border.getmaxy - 2, @window_main_border.getmaxx - 2, 1, 1)
+      @window_main_height = @window_main.getmaxy - 2
+      @window_main_width = @window_main.getmaxx - 2
       Ncurses.scrollok(@window_main, true)
       @window_main.clear
       @window_main.move(@window_main.getmaxy - 2,1)
       @buffer[:main] = [] if @buffer[:main].nil?
       parse_buffer
-      buffer_from = [@buffer_lines[:main].length * -1, -1 * (@height - 3 + @buffer_pos + 1)].max
+      buffer_from = [@buffer_lines[:main].length * -1, -1 * (33 + @buffer_pos + 1)].max
       buffer_to = [@buffer_lines[:main].length * -1, (@buffer_pos + 1) * -1].max
       log "rendering #{buffer_from} #{buffer_to}"
       @buffer_lines[:main][buffer_from..buffer_to].each do | message|
@@ -188,37 +196,6 @@ class Display
     buffer.each do |message|
       new_message = message.gsub(/\t/, '     ')
       new_message.tr!("\r", '')
-      # split displays some weird behavior and thus need to be fixed.
-      # one or more newlines at the end of the message will just be dropped
-      # (no empty strings affrf). Moreover any time more than one newline would
-      # occur in a row would be treated as a single new line.
-
-      #to solve this perform the split, take the first element, this is your
-      # first line, if it is empty then its just an empty line.
-      # now remove the first element of the split and whatever content it has
-      # also remove that content from the begining of the string that you just
-      # split.
-      # The next character in the string will either be end of string or a
-      # newline. If its a newline drop it as this was accounted for.
-      # for each additional newline that is next add another blank line to the
-      # lines. Once the next character is not a new line repeat the loop as above.
-      #
-      # split_message = new_message.split("\n")
-      # if (split_message.nil? or split_message.length == 0) && (new_message.nil? == false && new_message.start_with? "\n")
-      #   for new_message.length.times do
-      #     buffer_lines << ""
-      #   end
-      # else
-      #   for split_message.each do |line|
-      #     buffer_lines << line
-      #     new_message.drop(0, line.length)
-      #     new_message.slice!(0, 1) if new_message.start_with? "\n"
-      #     while new_message.start_with? "\n" do
-      #       new_message.slice!(0, 1)
-      #       buffer_lines << ""
-      #     end
-      #   end
-      # end
 
       last_was_text = false
       new_message.split(/(\n)/) do |line|
@@ -237,7 +214,7 @@ class Display
     end
   end
 
-  def word_wrap(line, cols = 80)
+  def word_wrap(line, cols = @window_main_width)
     lines = []
     new_line = ""
     new_length = 0;
@@ -251,7 +228,7 @@ class Display
         new_length += 1
       end
 
-      if new_length > 80
+      if new_length > cols
         lines << new_line
         new_line = ""
         new_length = 0
@@ -263,27 +240,12 @@ class Display
     return lines
   end
 
-  #Send message without newline
-  def print(message, parse = true, newline = false, message_type: :main)
-    if parse
-      message.gsub!(/\t/, '     ')
-      message = paginate(message)
-    end
-    if newline and message[-1..-1] != "\n"
-      if message[-2..-2] == "\r"
-        message << "\n"
-      else
-        message << "\r\n"
-      end
-    end
-    send( message, message_type: message_type, add_newline: newline)
-  end
-
-  def send (message, message_type: :main, internal_clear: false, add_newline: true)
+  def send (message, word_wrap = true, message_type: :main, internal_clear: false, add_newline: true)
     window = nil
 
     unless @buffer[message_type].nil?
       @buffer[message_type] << message.dup
+      @buffer[message_type] << "" if add_newline
       @buffer[message_type].drop(@buffer[message_type].length - BUFFER_SIZE) if @buffer[message_type].length > BUFFER_SIZE
     end
 
@@ -310,20 +272,22 @@ class Display
     window.clear if internal_clear and not message_type.eql? :main
 
     if message_type == :main && @buffer[:main].nil? == false
-      render_buffer(@window_main)
+      render_buffer(channel: :main)
     else
       render(message, window, add_newline: add_newline)
     end
   end
 
-  def render_buffer(window = @window_main)
+  def render_buffer(channel: :main)
+    raise "only handle main channel for now" if channel != :main
     parse_buffer
-    window.clear
-    buffer_from = [@buffer_lines[:main].length * -1, -1 * (@height - 3 + @buffer_pos + 1)].max
+    #window.clear
+    buffer_from = [@buffer_lines[:main].length * -1, -1 * (@window_main_height + @buffer_pos + 1)].max
     buffer_to = [@buffer_lines[:main].length * -1, (@buffer_pos + 1) * -1].max
-    log "rendering #{@buffer_pos} #{buffer_from} #{buffer_to}"
+    log "rendering pos #{@buffer_pos} #{buffer_from} to #{buffer_to} height #{@height}"
+    @window_main.move(0,0)
     @buffer_lines[:main][buffer_from..buffer_to].each do | message|
-      render(message, window)
+      colored_send(@window_main, message + "\n")
     end
   end
 
@@ -670,7 +634,7 @@ CONF
           case ch
           when 126 #page up
             @buffer_pos += 1 if @buffer_pos < BUFFER_SIZE && @buffer_pos < @buffer_lines[:main].length - 33
-            render_buffer(@window_main)
+            render_buffer(channel: :main)
             escape = nil
             next
           else
@@ -682,7 +646,7 @@ CONF
           case ch
           when 126 #page down
             @buffer_pos -= 1 if @buffer_pos > 0
-            render_buffer(@window_main)
+            render_buffer(channel: :main)
             escape = nil
             next
           else

@@ -99,21 +99,21 @@ class Display
       @window_input.move(@window_input.getmaxy - 2,1)
     when :full
       Ncurses.delwin(@window_map_border) unless @window_map_border.nil?
-      @window_map_border = Ncurses::WINDOW.new(@height - 39, 0, 0, 0)
+      @window_map_border = Ncurses::WINDOW.new(@height/2, 0, 0, 0)
       @window_map = @window_map_border.derwin(@window_map_border.getmaxy - 2, @window_map_border.getmaxx - 2, 1, 1)
       Ncurses.scrollok(@window_map, true)
       @window_map.clear
       @window_map.move(@window_map.getmaxy - 2,1)
 
       Ncurses.delwin(@window_look_border) unless @window_look_border.nil?
-      @window_look_border = Ncurses::WINDOW.new(36, 82, @height - 39, 0)
+      @window_look_border = Ncurses::WINDOW.new(@height/2 - 3, 82, @height/2, 0)
       @window_look = @window_look_border.derwin(@window_look_border.getmaxy - 2, @window_look_border.getmaxx - 2, 1, 1)
       Ncurses.scrollok(@window_look, true)
       @window_look.clear
       @window_look.move(@window_look.getmaxy - 2,1)
 
       Ncurses.delwin(@window_main_border) unless @window_main_border.nil?
-      @window_main_border = Ncurses::WINDOW.new(36, 0, @height - 39, 82)
+      @window_main_border = Ncurses::WINDOW.new(@height/2 - 3, 0, @height/2, 82)
       @window_main_border_height = @window_main_border.getmaxy - 2
       @window_main_border_width = @window_main_border.getmaxx - 2
       @window_main = @window_main_border.derwin(@window_main_border.getmaxy - 2, @window_main_border.getmaxx - 2, 1, 1)

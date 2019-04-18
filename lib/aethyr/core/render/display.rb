@@ -217,26 +217,52 @@ class Display
   def word_wrap(line, cols = @window_main_width)
     lines = []
     new_line = ""
-    new_length = 0;
+    new_line_length = 0
+    next_line = ""
+    next_line_length = 0
     inside_tag = false
     line.each_char do |c|
-      if c == "<"
-        inside_tag = true
-      elsif c == ">"
-        inside_tag = false
-      elsif inside_tag == false
-        new_length += 1
-      end
+      if c =~ /\S/
+        next_line += c
+        if c == "<"
+          inside_tag = true
+        elsif c == ">"
+          inside_tag = false
+        elsif inside_tag == false
+          next_line_length += 1
+        end
 
-      if new_length > cols
-        lines << new_line
-        new_line = ""
-        new_length = 0
+        if next_line_length + new_line_length >= cols
+          if new_line_length == 0
+            lines << next_line
+            next_line = ""
+            next_line_length = 0
+          else
+            lines << new_line
+            new_line = ""
+            new_line_length = 0
+          end
+        end
+      elsif next_line.length == 0
+        new_line += c
+        new_line_length += 1 unless inside_tag
+      else
+        if next_line_length + new_line_length >= cols
+          lines << (new_line + next_line + c)
+          new_line = ""
+          new_line_length = 0
+          next_line = ""
+          next_line_length = 0
+        else
+          new_line += next_line + c
+          new_line_length += next_line_length
+          new_line_length += 1 unless inside_tag
+          next_line = ""
+          next_line_length = 0
+        end
       end
-
-      new_line += c
     end
-    lines << new_line if new_line.length > 0
+    lines << new_line + next_line if new_line.length > 0 || next_line.length > 0
     return lines
   end
 
@@ -515,7 +541,11 @@ CONF
         room = $manager.get_object(player.container)
         if not room.nil?
           look_text = room.look(player)
-          send(look_text, message_type: :look, internal_clear: true)
+          cleared = false
+          word_wrap(look_text, 79).each do |msg|
+            send(msg, message_type: :look, internal_clear: !cleared, add_newline: true)
+            cleared = true
+          end
         else
           send("Nothing to look at.", message_type: :look, internal_clear: true)
         end

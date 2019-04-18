@@ -16,7 +16,7 @@ module Aethyr
         case data[:input]
         when /^(help|help topics)$/i
           if self.can_help?
-            self.player.output( commands.join(" ") + " ", true)
+            self.player.output( commands, false)
           end
         end
       end

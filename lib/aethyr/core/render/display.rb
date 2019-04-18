@@ -672,7 +672,7 @@ CONF
   #        return string, cursor_pos, ch # Which return key has been used?
         when 13 # return
           window.clear
-          @window_main.addstr("≫≫≫≫≫ #{string}\n") if echo?
+          send("≫≫≫≫≫ #{string}") if echo?
           @selected = :input
           update
           return string#, cursor_pos, ch # Which return key has been used?

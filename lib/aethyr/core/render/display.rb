@@ -17,6 +17,8 @@ class Display
     @use_color = false
     @layout_type = :basic
     @buffer = Hash.new
+    @buffer_lines = Hash.new
+    @buffer_pos = 0
 
     @color_stack = []
     @color_settings = new_color_settings || to_default_colors
@@ -77,7 +79,11 @@ class Display
       @window_main.clear
       @window_main.move(@window_main.getmaxy - 2,1)
       @buffer[:main] = [] if @buffer[:main].nil?
-      @buffer[:main].each do | message|
+      parse_buffer
+      buffer_from = [@buffer_lines[:main].length * -1, -1 * (@height - 3 + @buffer_pos + 1)].max
+      buffer_to = [@buffer_lines[:main].length * -1, (@buffer_pos + 1) * -1].max
+      log "rendering #{buffer_from} #{buffer_to}"
+      @buffer_lines[:main][buffer_from..buffer_to].each do | message|
         render(message, @window_main)
       end
 
@@ -109,7 +115,11 @@ class Display
       @window_main.clear
       @window_main.move(@window_main.getmaxy - 2,1)
       @buffer[:main] = [] if @buffer[:main].nil?
-      @buffer[:main].each do | message|
+      parse_buffer
+      buffer_from = [@buffer_lines[:main].length * -1, -1 * (@height - 3 + @buffer_pos + 1)].max
+      buffer_to = [@buffer_lines[:main].length * -1, (@buffer_pos + 1) * -1].max
+      log "rendering #{buffer_from} #{buffer_to}"
+      @buffer_lines[:main][buffer_from..buffer_to].each do | message|
         render(message, @window_main)
       end
 
@@ -168,6 +178,107 @@ class Display
     @socket.puts message
   end
 
+  def parse_buffer(channel = :main, cols = 80)
+    @buffer_lines[channel] = nil
+    buffer = @buffer[channel]
+    raise "channel #{channel} has no buffer" if buffer.nil?
+    buffer_lines = []
+    @buffer_lines[channel]  = buffer_lines
+
+    buffer.each do |message|
+      new_message = message.gsub(/\t/, '     ')
+      new_message.tr!("\r", '')
+      # split displays some weird behavior and thus need to be fixed.
+      # one or more newlines at the end of the message will just be dropped
+      # (no empty strings affrf). Moreover any time more than one newline would
+      # occur in a row would be treated as a single new line.
+
+      #to solve this perform the split, take the first element, this is your
+      # first line, if it is empty then its just an empty line.
+      # now remove the first element of the split and whatever content it has
+      # also remove that content from the begining of the string that you just
+      # split.
+      # The next character in the string will either be end of string or a
+      # newline. If its a newline drop it as this was accounted for.
+      # for each additional newline that is next add another blank line to the
+      # lines. Once the next character is not a new line repeat the loop as above.
+      #
+      # split_message = new_message.split("\n")
+      # if (split_message.nil? or split_message.length == 0) && (new_message.nil? == false && new_message.start_with? "\n")
+      #   for new_message.length.times do
+      #     buffer_lines << ""
+      #   end
+      # else
+      #   for split_message.each do |line|
+      #     buffer_lines << line
+      #     new_message.drop(0, line.length)
+      #     new_message.slice!(0, 1) if new_message.start_with? "\n"
+      #     while new_message.start_with? "\n" do
+      #       new_message.slice!(0, 1)
+      #       buffer_lines << ""
+      #     end
+      #   end
+      # end
+
+      last_was_text = false
+      new_message.split(/(\n)/) do |line|
+        next if line.nil? || line.length == 0
+        if line.length == 1 && line.start_with?("\n")
+          if last_was_text
+            last_was_text = false
+          else
+            buffer_lines << ""
+          end
+        else
+          buffer_lines.concat(word_wrap(line))
+          last_was_text = true
+        end
+      end
+    end
+  end
+
+  def word_wrap(line, cols = 80)
+    lines = []
+    new_line = ""
+    new_length = 0;
+    inside_tag = false
+    line.each_char do |c|
+      if c == "<"
+        inside_tag = true
+      elsif c == ">"
+        inside_tag = false
+      elsif inside_tag == false
+        new_length += 1
+      end
+
+      if new_length > 80
+        lines << new_line
+        new_line = ""
+        new_length = 0
+      end
+
+      new_line += c
+    end
+    lines << new_line if new_line.length > 0
+    return lines
+  end
+
+  #Send message without newline
+  def print(message, parse = true, newline = false, message_type: :main)
+    if parse
+      message.gsub!(/\t/, '     ')
+      message = paginate(message)
+    end
+    if newline and message[-1..-1] != "\n"
+      if message[-2..-2] == "\r"
+        message << "\n"
+      else
+        message << "\r\n"
+      end
+    end
+    send( message, message_type: message_type, add_newline: newline)
+  end
+
   def send (message, message_type: :main, internal_clear: false, add_newline: true)
     window = nil
 
@@ -198,7 +309,22 @@ class Display
 
     window.clear if internal_clear and not message_type.eql? :main
 
-    render(message, window, add_newline: add_newline)
+    if message_type == :main && @buffer[:main].nil? == false
+      render_buffer(@window_main)
+    else
+      render(message, window, add_newline: add_newline)
+    end
+  end
+
+  def render_buffer(window = @window_main)
+    parse_buffer
+    window.clear
+    buffer_from = [@buffer_lines[:main].length * -1, -1 * (@height - 3 + @buffer_pos + 1)].max
+    buffer_to = [@buffer_lines[:main].length * -1, (@buffer_pos + 1) * -1].max
+    log "rendering #{@buffer_pos} #{buffer_from} #{buffer_to}"
+    @buffer_lines[:main][buffer_from..buffer_to].each do | message|
+      render(message, window)
+    end
   end
 
   def render(message, window = @window_main, add_newline: true)
@@ -252,22 +378,6 @@ class Display
     end
 
     update
-  end
-
-  #Send message without newline
-  def print(message, parse = true, newline = false, message_type: :main)
-    if parse
-      message.gsub!(/\t/, '     ')
-      message = paginate(message)
-    end
-    if newline and message[-1..-1] != "\n"
-      if message[-2..-2] == "\r"
-        message << "\n"
-      else
-        message << "\r\n"
-      end
-    end
-    send( message, message_type: message_type, add_newline: newline)
   end
 
   def paginate message
@@ -526,28 +636,69 @@ CONF
 
       unless escape.nil?
         case escape
-        when :esc_pre
-          escape = :esc if ch == 91
-        when :esc
+
+        when [27]
           case ch
+          when 91
+            escape = [27, 91]
+          end
+
+        when [27, 91]
+          case ch
+          when 53 #scroll up
+            escape = [27, 91, 53]
+          when 54 #scroll down
+            escape = [27, 91, 54]
           when 68
             ch = Ncurses::KEY_LEFT
             escape = nil
           when 67
             ch = Ncurses::KEY_RIGHT
             escape = nil
+          when 65
+            ch = Ncurses::KEY_UP
+            escape = nil
+          when 66
+            ch = Ncurses::KEY_DOWN
+            escape = nil
           else
             escape = nil
+            next
+          end
+
+        when [27, 91, 53]
+          case ch
+          when 126 #page up
+            @buffer_pos += 1 if @buffer_pos < BUFFER_SIZE && @buffer_pos < @buffer_lines[:main].length - 33
+            render_buffer(@window_main)
+            escape = nil
+            next
+          else
+            escape = nil
+            next
+          end
+
+        when [27, 91, 54]
+          case ch
+          when 126 #page down
+            @buffer_pos -= 1 if @buffer_pos > 0
+            render_buffer(@window_main)
+            escape = nil
+            next
+          else
+            escape = nil
+            next
           end
         else
           escape = nil
+          next
         end
       end
 
       if escape.nil?
         case ch
         when 27
-          escape = :esc_pre
+          escape = [27]
         when Ncurses::KEY_LEFT
           cursor_pos = [0, cursor_pos-1].max
         when Ncurses::KEY_RIGHT

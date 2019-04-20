@@ -287,6 +287,11 @@ end
 
 
 
+
+
+
+
+
 class Display
   attr_accessor :color_settings, :use_color
 
@@ -319,11 +324,12 @@ class Display
 
     Ncurses.stdscr.clear
 
-    @windows = Hash.new
-    @windows[:main] = Window.new(@color_settings, buffered: true)
-    @windows[:input] = Window.new(@color_settings)
-    @windows[:map] = Window.new(@color_settings)
-    @windows[:look] = Window.new(@color_settings)
+    @windows = {
+      :main => Window.new(@color_settings, buffered: true),
+      :input => Window.new(@color_settings),
+      :map => Window.new(@color_settings),
+      :look => Window.new(@color_settings)
+    }
     self.selected = :input
     layout
   end

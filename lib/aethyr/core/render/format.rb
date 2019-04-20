@@ -744,7 +744,7 @@ class FormatState
   end
 
   def apply(window)
-    @activate_color.call(window, self.fg, self.bg)
+    @activate_color.call(self.fg, self.bg)
 
     if blink?
       window.attron(Ncurses::A_BLINK)
@@ -786,7 +786,7 @@ class FormatState
   def revert(window)
     return @parent.apply(window) unless @parent.nil?
 
-    @activate_color.call(window, Color::Foreground.attribute(:white), Color::Background.attribute(:black))
+    @activate_color.call(Color::Foreground.attribute(:white), Color::Background.attribute(:black))
     window.attrset(Ncurses::A_NORMAL)
   end
 end

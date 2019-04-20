@@ -83,7 +83,7 @@ module Settings
         player.io.to_default
         player.output "Colors set to defaults."
       else
-        player.output player.io.set_fg_color(event[:option], event[:color])
+        player.output player.io.set_color(event[:option], event[:color])
       end
     end
 

@@ -4,191 +4,124 @@ require 'aethyr/core/connection/telnet_codes'
 require 'aethyr/core/connection/telnet'
 require 'aethyr/core/components/manager'
 
-class Display
-  attr_accessor :color_settings, :use_color
+class Window
+  attr_reader :window_border, :window_text, :buffer, :buffer_lines, :text_height, :text_width, :x, :y, :height, :width, :buffered, :use_color, :buffer_size, :color_settings, :buffer_pos
+  attr_accessor :selected
 
-  DEFAULT_HEIGHT = 43
-  DEFAULT_WIDTH = 80
-  BUFFER_SIZE = 10000
-
-  def initialize(socket, new_color_settings = nil)
-    @height = DEFAULT_HEIGHT
-    @width = DEFAULT_WIDTH
+  def initialize( color_settings, buffered: false, buffer_size: 10000 )
+    @buffer = [] if buffered
+    @buffer_lines = [] if buffered
+    @buffer_pos = 0 if buffered
+    @buffer_size = buffer_size if buffered
+    @buffered = buffered
+    @selected = false
     @use_color = false
-    @layout_type = :basic
-    @buffer = Hash.new
-    @buffer_lines = Hash.new
-    @buffer_pos = 0
-
+    @color_settings = color_settings
     @color_stack = []
-    @color_settings = new_color_settings || to_default_colors
-
-    @socket = socket #StringIO.new
-    @scanner = TelnetScanner.new(socket, self)
-    @scanner.send_preamble
-
-    @selected = :input
-    @screen = Ncurses.newterm("xterm-256color", @socket, @socket)
-
-    Ncurses.set_term(@screen)
-    Ncurses.resizeterm(@height, @width)
-    Ncurses.cbreak           # provide unbuffered input
-    Ncurses.noecho           # turn off input echoing
-    Ncurses.nonl             # turn off newline translation
-    Ncurses.curs_set(2) #high visibility cursor
-
-    Ncurses.stdscr.intrflush(false) # turn off flush-on-interrupt
-    Ncurses.stdscr.keypad(true)     # turn on keypad mode
-
-    #Ncurses.scrollok(Ncurses.stdscr, true)
-    Ncurses.stdscr.clear
-
-    layout
+    @exists = false
   end
 
-  def init_colors
-    Ncurses.start_color
+  def exists?
+    return @exists
+  end
+
+  def create(width: 0, height: 0, x: 0, y: 0)
+    raise "width out of range" unless width >= 0
+    raise "height out of range" unless height >= 0
+    raise "x out of range" unless x >= 0
+    raise "y out of range" unless y >= 0
+    @height = height
+    @width = width
+    @x = x
+    @y = y
+
+    destroy
+    @exists = true
+    @window_border = Ncurses::WINDOW.new(@height, @width, @y, @x)
+    @window_border_height = @window_border.getmaxy - 2
+    @window_border_width = @window_border.getmaxx - 2
+    @window_text = @window_border.derwin(@window_border_height, @window_border_width, 1, 1)
+    @text_height = @window_text.getmaxy - 2
+    @text_width = @window_text.getmaxx - 2
+    Ncurses.scrollok(@window_text, true)
+    @window_text.clear
+    @window_text.move(@text_height, 1)
+
+    if buffered
+      @buffer_pos = 0 if @buffered
+      parse_buffer
+      buffer_from = [@buffer_lines.length * -1, -1 * (@height + @buffer_pos + 1)].max
+      buffer_to = [@buffer_lines.length * -1, (@buffer_pos + 1) * -1].max
+
+      @buffer_lines[buffer_from..buffer_to].each do | message|
+        render(message)
+      end
+    end
+  end
+
+  def destroy
+    @exists = false
+    Ncurses.delwin(@window_border) unless @window_border.nil?
+    @window_border = nil
+    @window_text = nil
+    @selected = false
+  end
+
+  def update
+    white_fg = Color::Foreground.attribute(:white)
+    grey_fg = Color::Foreground.attribute(:grey)
+    black_bg = Color::Background.attribute(:black)
+
+    if @use_color
+      activate_color_window(@window_border, grey_fg, black_bg) unless @window_border.nil?
+    end
+
+    default_border = 32
+    @window_border.border(*([default_border]*8)) unless @window_border.nil?
+
+    if @use_color
+      activate_color_window(@window_border, white_fg, black_bg) if @selected && @window_border.nil? == false
+    end
+
+    @window_border.border(*([0]*8)) if @selected && @window_border.nil? == false
+
+    @window_border.noutrefresh() unless @window_border.nil?
+    @window_text.noutrefresh() unless @window_text.nil?
+  end
+
+  def enable_color
     @use_color = true
-    puts "There are #{Ncurses.COLORS} colors on this client"
-    Ncurses.assume_default_colors(Color::Foreground.attribute(:white), Color::Background.attribute(:black));
-    Ncurses.COLORS.times do |fg|
-      Ncurses.COLORS.times do |bg|
-        Ncurses.init_pair(fg + bg * Ncurses.COLORS, fg, bg)
-      end
-    end
-    update
   end
 
-  def activate_color(window, fg, bg)
-    return if not @use_color
-    #window.attron(fg + bg * Ncurses.COLORS)
-    if Ncurses.respond_to?(:color_set)
-      window.color_set(fg + bg * Ncurses.COLORS, nil)
+  def activate_color(fg, bg)
+    activate_color_window(@window_text, fg, bg)
+  end
+
+  def clear
+    @window_text.clear
+  end
+
+  def send (message, word_wrap = true, add_newline: true)
+    unless @buffer.nil?
+      @buffer << message.dup
+      @buffer << "" if add_newline
+      @buffer.drop(@buffer.length - @buffer_size) if @buffer.length > @buffer_size
+    end
+
+    message = message.tr("\r", '')
+    if buffered
+      render_buffer
     else
-      window.attrset(Ncurses.COLOR_PAIR(fg + bg * Ncurses.COLORS))
+      render(message, add_newline: add_newline)
     end
   end
 
-  def layout
-    case @layout_type
-    when :basic
-      Ncurses.delwin(@window_main_border) unless @window_main_border.nil?
-      @window_main_border = Ncurses::WINDOW.new(@height - 3, 0, 0, 0)
-      @window_main_border_height = @window_main_border.getmaxy - 2
-      @window_main_border_width = @window_main_border.getmaxx - 2
-      @window_main = @window_main_border.derwin(@window_main_border.getmaxy - 2, @window_main_border.getmaxx - 2, 1, 1)
-      @window_main_height = @window_main.getmaxy - 2
-      @window_main_width = @window_main.getmaxx - 2
-      Ncurses.scrollok(@window_main, true)
-      @window_main.clear
-      @window_main.move(@window_main.getmaxy - 2,1)
-      @buffer[:main] = [] if @buffer[:main].nil?
-      @buffer_pos = 0
-      parse_buffer
-      buffer_from = [@buffer_lines[:main].length * -1, -1 * (@height - 3 + @buffer_pos + 1)].max
-      buffer_to = [@buffer_lines[:main].length * -1, (@buffer_pos + 1) * -1].max
-      log "rendering #{buffer_from} #{buffer_to}"
-      @buffer_lines[:main][buffer_from..buffer_to].each do | message|
-        render(message, @window_main)
-      end
-
-      Ncurses.delwin(@window_input_border) unless @window_input_border.nil?
-      @window_input_border = Ncurses::WINDOW.new(3, 0, @height - 3, 0)
-      @window_input = @window_input_border.derwin(@window_input_border.getmaxy - 2, @window_input_border.getmaxx - 2, 1, 1)
-      Ncurses.scrollok(@window_input, false)
-      @window_input.clear
-      @window_input.move(@window_input.getmaxy - 2,1)
-    when :full
-      Ncurses.delwin(@window_map_border) unless @window_map_border.nil?
-      @window_map_border = Ncurses::WINDOW.new(@height/2, 0, 0, 0)
-      @window_map = @window_map_border.derwin(@window_map_border.getmaxy - 2, @window_map_border.getmaxx - 2, 1, 1)
-      Ncurses.scrollok(@window_map, true)
-      @window_map.clear
-      @window_map.move(@window_map.getmaxy - 2,1)
-
-      Ncurses.delwin(@window_look_border) unless @window_look_border.nil?
-      @window_look_border = Ncurses::WINDOW.new(@height/2 - 3, 83, @height/2, 0)
-      @window_look = @window_look_border.derwin(@window_look_border.getmaxy - 2, @window_look_border.getmaxx - 2, 1, 1)
-      Ncurses.scrollok(@window_look, true)
-      @window_look.clear
-      @window_look.move(@window_look.getmaxy - 2,1)
-
-      Ncurses.delwin(@window_main_border) unless @window_main_border.nil?
-      @window_main_border = Ncurses::WINDOW.new(@height/2 - 3, 0, @height/2, 83)
-      @window_main_border_height = @window_main_border.getmaxy - 2
-      @window_main_border_width = @window_main_border.getmaxx - 2
-      @window_main = @window_main_border.derwin(@window_main_border.getmaxy - 2, @window_main_border.getmaxx - 2, 1, 1)
-      @window_main_height = @window_main.getmaxy - 2
-      @window_main_width = @window_main.getmaxx - 2
-      Ncurses.scrollok(@window_main, true)
-      @window_main.clear
-      @window_main.move(@window_main.getmaxy - 2,1)
-      @buffer[:main] = [] if @buffer[:main].nil?
-      @buffer_pos = 0
-      parse_buffer
-      buffer_from = [@buffer_lines[:main].length * -1, -1 * (33 + @buffer_pos + 1)].max
-      buffer_to = [@buffer_lines[:main].length * -1, (@buffer_pos + 1) * -1].max
-      log "rendering #{buffer_from} #{buffer_to}"
-      @buffer_lines[:main][buffer_from..buffer_to].each do | message|
-        render(message, @window_main)
-      end
-
-      Ncurses.delwin(@window_input_border) unless @window_input_border.nil?
-      @window_input_border = Ncurses::WINDOW.new(3, 0, @height - 3, 0)
-      @window_input = @window_input_border.derwin(@window_input_border.getmaxy - 2, @window_input_border.getmaxx - 2, 1, 1)
-      Ncurses.scrollok(@window_input, false)
-      @window_input.clear
-      @window_input.move(@window_input.getmaxy - 2,1)
-    end
-
-    @echo = true
-    update
+  def buffer_pos= new_pos
+    @buffer_pos = new_pos if new_pos <= @buffer_size && new_pos <= @buffer_lines.length - @text_height && new_pos >= 0
+    render_buffer
   end
 
-  def resolution
-    [@width, @height]
-  end
-
-  def resolution=(resolution)
-    @width = resolution[0]
-    @height = resolution[1]
-    Ncurses.resizeterm(@height, @width)
-    @layout_type = :full if @height > 100 && @width > 165
-    layout
-  end
-
-  def read_rdy?
-    ready, _, _ = IO.select([@socket])
-    ready.any?
-  end
-
-  def echo?
-    @echo
-  end
-
-  def echo_on
-    @echo = true
-  end
-
-  def echo_off
-    @echo = false
-  end
-
-  def recv
-    return nil unless read_rdy?
-
-    set_term
-    recvd = read_line(0, 0)
-
-    puts "read returned: #{recvd}"
-    recvd + "\n"
-  end
-
-  def send_raw message
-    @socket.puts message
-  end
-
-  def split_message(message, cols = @window_main_width)
+  def self.split_message(message, cols = @text_width)
     new_message = message.gsub(/\t/, '     ')
     new_message.tr!("\r", '')
 
@@ -210,19 +143,7 @@ class Display
     return buffer_lines
   end
 
-  def parse_buffer(channel = :main, cols = @window_main_width)
-    @buffer_lines[channel] = nil
-    buffer = @buffer[channel]
-    raise "channel #{channel} has no buffer" if buffer.nil?
-    buffer_lines = []
-    @buffer_lines[channel]  = buffer_lines
-
-    buffer.each do |message|
-      buffer_lines.concat(split_message(message, cols))
-    end
-  end
-
-  def word_wrap(line, cols = @window_main_width)
+  def self.word_wrap(line, cols = @text_width)
     lines = []
     new_line = ""
     new_line_length = 0
@@ -275,81 +196,38 @@ class Display
     return lines
   end
 
-  def send (message, word_wrap = true, message_type: :main, internal_clear: false, add_newline: true)
-    window = nil
-
-    unless @buffer[message_type].nil?
-      @buffer[message_type] << message.dup
-      @buffer[message_type] << "" if add_newline
-      @buffer[message_type].drop(@buffer[message_type].length - BUFFER_SIZE) if @buffer[message_type].length > BUFFER_SIZE
-    end
-
-    case message_type
-    when :main
-      window = @window_main
-    when :look
-      unless @window_look.nil?
-        window = @window_look
-        #window.clear
-      else
-        window = @window_main
-      end
-    when :map
-      unless @window_map.nil?
-        window = @window_map
-        #window.clear
-      else
-        window = @window_main
-      end
-    end
-    raise "window_type not recognized" if window.nil?
-
-    window.clear if internal_clear and not message_type.eql? :main
-
-    if message_type == :main && @buffer[:main].nil? == false
-      render_buffer(channel: :main)
+  private
+  def activate_color_window(window, fg, bg)
+    return if not @use_color
+    #window.attron(fg + bg * Ncurses.COLORS)
+    if Ncurses.respond_to?(:color_set)
+      window.color_set(fg + bg * Ncurses.COLORS, nil)
     else
-      render(message, window, add_newline: add_newline)
+      window.attrset(Ncurses.COLOR_PAIR(fg + bg * Ncurses.COLORS))
     end
   end
 
-  def render_buffer(channel: :main)
-    raise "only handle main channel for now" if channel != :main
+  def render_buffer
     parse_buffer
-    #window.clear
-    buffer_from = [@buffer_lines[:main].length * -1, -1 * (@window_main_height + @buffer_pos + 1)].max
-    buffer_to = [@buffer_lines[:main].length * -1, (@buffer_pos + 1) * -1].max
-    log "rendering pos #{@buffer_pos} #{buffer_from} to #{buffer_to} height #{@height}"
-    @window_main.move(0,0)
-    @buffer_lines[:main][buffer_from..buffer_to].each do | message|
-      colored_send(@window_main, message + "\n")
+    buffer_from = [@buffer_lines.length * -1, -1 * (@text_height + @buffer_pos + 1)].max
+    buffer_to = [@buffer_lines.length * -1, (@buffer_pos + 1) * -1].max
+
+    @window_text.move(0,0)
+    @buffer_lines[buffer_from..buffer_to].each do | message|
+      colored_send(message + "\n")
     end
   end
 
-  def render(message, window = @window_main, add_newline: true)
-
-    message = message.tr("\r", '')
-    # lines = message.split("\n");
-    # return if lines.empty?
-    # if lines.length > 1
-    #   lines.each do |line|
-    #     render line, window, add_newline: add_newline
-    #   end
-    #   return
-    # end
-    # message = lines[0]
-
+  def render(message, add_newline: true)
     message += "\n" if add_newline
-    colored_send(window, message)
+    colored_send(message)
   end
 
-  def colored_send(window, message)
-    set_term
-
+  def colored_send(message)
     regular_format = nil
     if @use_color
       regular_format = FormatState.new(@color_settings["regular"], self.method(:activate_color))
-      regular_format.apply(window)
+      regular_format.apply(@window_text)
     end
 
     colors = @color_settings.keys.dup
@@ -361,72 +239,194 @@ class Display
         if @use_color
           part.match(/<([\/]{0,1})([^>]*)>/i) do
             if ($1.nil?) || ($1.length <= 0)
-              color_encode(window, $2)
+              color_encode($2)
             else
-              color_decode(window, $2)
+              color_decode($2)
             end
           end
         end
       else
-        window.addstr("#{part}")
+        @window_text.addstr("#{part}")
       end
     end
 
     if @use_color
-      regular_format.revert(window)
+      regular_format.revert(@window_text)
     end
 
     update
   end
 
-  def paginate message
-    if @player.nil?
-      return line_wrap(message)
-    elsif not @player.page_height
-      return line_wrap(message)
-    #elsif not @word_wrap
-      #return message.gsub(/([^\r]?)\n/, '\1' + "\r\n")
-    end
-
-    ph = @player.page_height
-
-    out = []
-    #message = message.gsub(/((\e\[\d+[\;]{0,1}\d*[\;]{0,1}\d*m|[^\r\n\n\s\Z]){#@word_wrap})/, "\\1 ") if @word_wrap
-    message = wrap(message, @word_wrap).join("\r\n") if @word_wrap
-    message.scan(/((((\e\[\d+[\;]{0,1}\d*[\;]{0,1}\d*m)|.){1,#{@word_wrap}})(\r\n|\n|\s+|\Z))|(\r\n|\n)/) do |m|
-      if $2
-        out << $2
-      else
-        out << ""
-      end
-    end
-
-    if out.length < ph
-      return out.join("\r\n")
-    end
-
-    @paginator = KPaginator.new(self, out)
-    @paginator.more
-  end
-
-  #Only use if there is no line height
-  def line_wrap message
-    message = wrap(message, @word_wrap).join("\n") if @word_wrap
-    #message = message.gsub(/((\e\[\d+[\;]{0,1}\d*[\;]{0,1}\d*m|[^\r\n\n\s\Z]){#{@word_wrap}})/, "\\1 ") if @word_wrap
-    message.gsub(/(((\e\[\d+[\;]{0,1}\d*[\;]{0,1}\d*m)|.){1,#{@word_wrap}})(\r\n|\n|\s+|\Z)/, "\\1\n")
-  end
-
-  #Next page of paginated output
-  def more
-    if @paginator and @paginator.more?
-      self.print(@paginator.more, false)
-      if not @paginator.more?
-        @paginator = nil
-      end
+  def color_encode(code)
+    parent = @color_stack[-1]
+    code = code.downcase
+    code = "regular" if code.nil? || code.empty? || @color_settings[code].nil?
+    unless code.start_with? "raw "
+      result = FormatState.new(@color_settings[code], self.method(:activate_color), parent)
     else
-      @paginator = nil
-      self.puts "There is no more."
+      /raw (?<code>.*)/ =~ code
+      result = FormatState.new(code, self.method(:activate_color), parent)
     end
+    @color_stack << result
+    result.apply(@window_text)
+  end
+
+  def color_decode(code)
+    @color_stack.pop.revert(@window_text)
+  end
+
+  def parse_buffer(cols = @text_width)
+    raise "channel has no buffer" if buffer.nil?
+    @buffer_lines  = []
+
+    @buffer.each do |message|
+      @buffer_lines.concat(Window.split_message(message, cols))
+    end
+  end
+end
+
+
+
+class Display
+  attr_accessor :color_settings, :use_color
+
+  DEFAULT_HEIGHT = 43
+  DEFAULT_WIDTH = 80
+
+  def initialize(socket, new_color_settings = nil)
+    @height = DEFAULT_HEIGHT
+    @width = DEFAULT_WIDTH
+    @use_color = false
+    @layout_type = :basic
+
+    @color_settings = new_color_settings || to_default_colors
+
+    @socket = socket #StringIO.new
+    @scanner = TelnetScanner.new(socket, self)
+    @scanner.send_preamble
+
+    @screen = Ncurses.newterm("xterm-256color", @socket, @socket)
+
+    Ncurses.set_term(@screen)
+    Ncurses.resizeterm(@height, @width)
+    Ncurses.cbreak           # provide unbuffered input
+    Ncurses.noecho           # turn off input echoing
+    Ncurses.nonl             # turn off newline translation
+    Ncurses.curs_set(2) #high visibility cursor
+
+    Ncurses.stdscr.intrflush(false) # turn off flush-on-interrupt
+    Ncurses.stdscr.keypad(true)     # turn on keypad mode
+
+    Ncurses.stdscr.clear
+
+    @windows = Hash.new
+    @windows[:main] = Window.new(@color_settings, buffered: true)
+    @windows[:input] = Window.new(@color_settings)
+    @windows[:map] = Window.new(@color_settings)
+    @windows[:look] = Window.new(@color_settings)
+    self.selected = :input
+    layout
+  end
+
+  def init_colors
+    Ncurses.start_color
+    @use_color = true
+    @windows[:main].enable_color
+    @windows[:input].enable_color
+    @windows[:map].enable_color
+    @windows[:look].enable_color
+    puts "There are #{Ncurses.COLORS} colors on this client"
+    Ncurses.assume_default_colors(Color::Foreground.attribute(:white), Color::Background.attribute(:black));
+    Ncurses.COLORS.times do |fg|
+      Ncurses.COLORS.times do |bg|
+        Ncurses.init_pair(fg + bg * Ncurses.COLORS, fg, bg)
+      end
+    end
+    update
+  end
+
+  def selected= channel
+    @windows.each do |channel, window|
+      window.selected = false
+    end
+    @windows[channel].selected = true
+  end
+
+  def selected
+    @windows.each do |channel, window|
+      return channel if window.selected
+    end
+  end
+
+  def layout
+    case @layout_type
+    when :basic
+      @windows[:map].destroy
+      @windows[:look].destroy
+      @windows[:main].create(height: @height - 2)
+      @windows[:input].create(height: 3, y: @height - 3)
+    when :full
+      @windows[:map].create(height: @height/2)
+      @windows[:look].create(height: @height/2 - 3, width: 83, y: @height/2)
+      @windows[:main].create(height: @height/2 - 3, x: 83, y: @height/2)
+      @windows[:input].create(height: 3, y: @height - 3)
+    end
+
+    @echo = true
+    update
+  end
+
+  def resolution
+    [@width, @height]
+  end
+
+  def resolution=(resolution)
+    @width = resolution[0]
+    @height = resolution[1]
+    Ncurses.resizeterm(@height, @width)
+    @layout_type = :full if @height > 100 && @width > 165
+    layout
+  end
+
+  def read_rdy?
+    ready, _, _ = IO.select([@socket])
+    ready.any?
+  end
+
+  def echo?
+    @echo
+  end
+
+  def echo_on
+    @echo = true
+  end
+
+  def echo_off
+    @echo = false
+  end
+
+  def recv
+    return nil unless read_rdy?
+
+    set_term
+    recvd = read_line(0, 0)
+
+    puts "read returned: #{recvd}"
+    recvd + "\n"
+  end
+
+  def send_raw message
+    @socket.puts message
+  end
+
+  def send (message, word_wrap = true, message_type: :main, internal_clear: false, add_newline: true)
+    window = nil
+
+    raise "window_type not recognized" if @windows[message_type].nil?
+
+    @windows[message_type].clear if internal_clear
+    @windows[message_type].send(message, word_wrap, add_newline: add_newline)
+
   end
 
   def close
@@ -469,26 +469,8 @@ class Display
     }
   end
 
-  def color_encode(window, code)
-    parent = @color_stack[-1]
-    code = code.downcase
-    code = "regular" if code.nil? || code.empty? || @color_settings[code].nil?
-    unless code.start_with? "raw "
-      result = FormatState.new(@color_settings[code], self.method(:activate_color), parent)
-    else
-      /raw (?<code>.*)/ =~ code
-      result = FormatState.new(code, self.method(:activate_color), parent)
-    end
-    @color_stack << result
-    result.apply(window)
-  end
-
-  def color_decode(window, code)
-    @color_stack.pop.revert(window)
-  end
-
   #Sets the foreground color for a given setting.
-  def set_fg_color(code, color)
+  def set_color(code, color)
     code.downcase! unless code.nil?
     color.downcase! unless color.nil?
 
@@ -543,7 +525,7 @@ CONF
   end
 
   def refresh_watch_windows(player)
-    unless @window_look.nil?
+    if @windows[:look].exists?
       if player.blind?
         send( "You cannot see while you are blind.", message_type: :look, internal_clear: true)
       else
@@ -551,7 +533,7 @@ CONF
         if not room.nil?
           look_text = room.look(player)
           cleared = false
-          split_message(look_text, 79).each do |msg|
+          Window.split_message(look_text, 79).each do |msg|
             send(msg, message_type: :look, internal_clear: !cleared, add_newline: true)
             cleared = true
           end
@@ -561,7 +543,7 @@ CONF
       end
     end
 
-    unless @window_map.nil?
+    if @windows[:map].exists?
       room = $manager.get_object(player.container)
       if not room.nil?
         send(room.area.render_map(player, room.area.position(room)), message_type: :map, internal_clear: true)
@@ -574,45 +556,9 @@ CONF
   private
 
   def update
-
-    white_fg = Color::Foreground.attribute(:white)
-    grey_fg = Color::Foreground.attribute(:grey)
-    black_bg = Color::Background.attribute(:black)
-
-    if @use_color
-      activate_color(@window_main_border, grey_fg, black_bg) unless @window_main_border.nil?
-      activate_color(@window_input_border, grey_fg, black_bg) unless @window_input_border.nil?
-      activate_color(@window_map_border, grey_fg, black_bg) unless @window_map_border.nil?
-      activate_color(@window_look_border, grey_fg, black_bg) unless @window_look_border.nil?
+    @windows.each do |channel, window|
+      window.update
     end
-
-    default_border = 0 if @color_enable
-    default_border = 32 unless @color_enable
-    @window_main_border.border(*([default_border]*8)) unless @window_main_border.nil?
-    @window_input_border.border(*([default_border]*8)) unless @window_input_border.nil?
-    @window_map_border.border(*([default_border]*8)) unless @window_map_border.nil?
-    @window_look_border.border(*([default_border]*8)) unless @window_look_border.nil?
-
-    if @use_color
-      activate_color(@window_main_border, white_fg, black_bg) if @selected.eql? :main
-      activate_color(@window_input_border, white_fg, black_bg) if @selected.eql? :input
-      activate_color(@window_map_border, white_fg, black_bg) if @selected.eql? :map
-      activate_color(@window_look_border, white_fg, black_bg) if @selected.eql? :look
-    end
-
-    @window_main_border.border(*([0]*8)) if @selected.eql? :main
-    @window_input_border.border(*([0]*8)) if @selected.eql? :input
-    @window_map_border.border(*([0]*8)) if @selected.eql? :map
-    @window_look_border.border(*([0]*8)) if @selected.eql? :look
-
-    @window_main_border.noutrefresh() unless @window_main_border.nil?
-    @window_main.noutrefresh() unless @window_main.nil?
-    @window_map_border.noutrefresh() unless @window_map_border.nil?
-    @window_map.noutrefresh() unless @window_map.nil?
-    @window_look_border.noutrefresh() unless @window_look_border.nil?
-    @window_look.noutrefresh() unless @window_look.nil?
-    @window_input_border.refresh() unless @window_input_border.nil?
-    @window_input.refresh() unless @window_input.nil?
     Ncurses.doupdate()
   end
 
@@ -622,19 +568,18 @@ CONF
 
 
   def read_line(y, x,
-                window: @window_input,
-                max_len: (window.getmaxx - x - 1),
+                max_len: (@windows[:input].window_text.getmaxx - x - 1),
                 string: "",
                 cursor_pos: 0)
     escape = nil
     loop do
-      window.clear
-      window.mvaddstr(y,x,string) if echo?
-      window.move(y,x+cursor_pos) if echo?
+      @windows[:input].clear
+      @windows[:input].window_text.mvaddstr(y,x,string) if echo?
+      @windows[:input].window_text.move(y,x+cursor_pos) if echo?
       update
 
       next if not @scanner.process_iac
-      ch = window.getch
+      ch = @windows[:input].window_text.getch
       puts ch
 
       unless escape.nil?
@@ -672,8 +617,7 @@ CONF
         when [27, 91, 53]
           case ch
           when 126 #page up
-            @buffer_pos += 1 if @buffer_pos < BUFFER_SIZE && @buffer_pos < @buffer_lines[:main].length - 33
-            render_buffer(channel: :main)
+            @windows[:main].buffer_pos += 1
             escape = nil
             next
           else
@@ -684,8 +628,7 @@ CONF
         when [27, 91, 54]
           case ch
           when 126 #page down
-            @buffer_pos -= 1 if @buffer_pos > 0
-            render_buffer(channel: :main)
+            @windows[:main].buffer_pos -= 1
             escape = nil
             next
           else
@@ -710,11 +653,10 @@ CONF
   #      when Ncurses::KEY_ENTER, ?\n, ?\r
   #        return string, cursor_pos, ch # Which return key has been used?
         when 13 # return
-          window.clear
-          send("≫≫≫≫≫ #{string}") if echo?
-          @selected = :input
-          @buffer_pos = 0
-          render_buffer(channel: :main)
+          @windows[:input].clear
+          self.selected = :input
+          @windows[:main].send("≫≫≫≫≫ #{string}") if echo?
+          @windows[:main].buffer_pos = 0
           update
           return string#, cursor_pos, ch # Which return key has been used?
         #when Ncurses::KEY_BACKSPACE
@@ -735,27 +677,27 @@ CONF
           end
           @selected = :input
         when 9 # tab
-          case @selected
+          case self.selected
           when :input
-            @selected = :main
+            self.selected = :main
           when :main
-            if not @window_map.nil?
-              @selected = :map
-            elsif not @window_look.nil?
-              @selected = :look
+            if @windows[:map].exists?
+              self.selected = :map
+            elsif @windows[:look].exists?
+              self.selected = :look
             else
-              @selected = :input
+              self.selected = :input
             end
           when :map
-            if not @window_look.nil?
-              @selected = :look
+            if @windows[:look].exists?
+              self.selected = :look
             else
-              @selected = :input
+              self.selected = :input
             end
           when :look
-            @selected = :input
+            self.selected = :input
           else
-            @selected = :input
+            self.selected = :input
           end
           update
         else

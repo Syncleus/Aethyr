@@ -116,7 +116,7 @@ module Editor
   #
   #Basically just colors the output.
   def editor_out message
-    self.puts "<editor>#{message}</editor>"
+    self.send_puts "<editor>#{message}</editor>"
   end
 
   #Replace a line in the buffer.

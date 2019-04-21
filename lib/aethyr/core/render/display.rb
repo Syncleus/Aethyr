@@ -41,7 +41,10 @@ class Display
       :main => Window.new(@color_settings, buffered: true),
       :input => Window.new(@color_settings),
       :map => Window.new(@color_settings),
-      :look => Window.new(@color_settings)
+      :look => Window.new(@color_settings),
+      :fight_enemy => Window.new(@color_settings),
+      :fight_team => Window.new(@color_settings),
+      :fight_queue => Window.new(@color_settings, buffered: true)
     }
     self.selected = :input
     layout
@@ -76,17 +79,18 @@ class Display
     end
   end
 
-  def layout
-    case @layout_type
-    when :basic
+  def layout(in_fight: false)
+    if @layout_type == :full && @height > 100 && @width > 165
+      unless in_fight
+        @windows[:map].create(height: @height/2)
+        @windows[:look].create(height: @height/2 - 3, width: 83, y: @height/2)
+        @windows[:main].create(height: @height/2 - 3, x: 83, y: @height/2)
+        @windows[:input].create(height: 3, y: @height - 3)
+      end
+    else
       @windows[:map].destroy
       @windows[:look].destroy
       @windows[:main].create(height: @height - 2)
-      @windows[:input].create(height: 3, y: @height - 3)
-    when :full
-      @windows[:map].create(height: @height/2)
-      @windows[:look].create(height: @height/2 - 3, width: 83, y: @height/2)
-      @windows[:main].create(height: @height/2 - 3, x: 83, y: @height/2)
       @windows[:input].create(height: 3, y: @height - 3)
     end
 
@@ -102,7 +106,7 @@ class Display
     @width = resolution[0]
     @height = resolution[1]
     Ncurses.resizeterm(@height, @width)
-    @layout_type = :full if @height > 100 && @width > 165
+    @layout_type = :full
     layout
   end
 

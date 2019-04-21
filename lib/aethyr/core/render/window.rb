@@ -110,11 +110,13 @@ class Window
     else
       render(message, add_newline: add_newline)
     end
+    update
   end
 
   def buffer_pos= new_pos
     @buffer_pos = new_pos if new_pos <= @buffer_size && new_pos <= @buffer_lines.length - @text_height && new_pos >= 0
     render_buffer
+    update
   end
 
   def self.split_message(message, cols = @text_width)
@@ -249,8 +251,6 @@ class Window
     if @use_color
       regular_format.revert(@window_text)
     end
-
-    update
   end
 
   def color_encode(code)

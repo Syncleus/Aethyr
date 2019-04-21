@@ -299,7 +299,9 @@ CONF
       @windows[:input].clear
       @windows[:input].window_text.mvaddstr(y,x,string) if echo?
       @windows[:input].window_text.move(y,x+cursor_pos) if echo?
-      update
+      #update
+      @windows[:input].update
+      Ncurses.doupdate();
 
       next if not @scanner.process_iac
       ch = @windows[:input].window_text.getch
@@ -372,15 +374,16 @@ CONF
           cursor_pos = [0, cursor_pos-1].max
         when Ncurses::KEY_RIGHT
           cursor_pos = [max_len, cursor_pos + 1, string.length].min
-          # similar, implement yourself !
-  #      when Ncurses::KEY_ENTER, ?\n, ?\r
-  #        return string, cursor_pos, ch # Which return key has been used?
+        when Ncurses::KEY_UP
+          @windows[:main].buffer_pos += 1
+        when Ncurses::KEY_DOWN
+          @windows[:main].buffer_pos -= 1
         when 13 # return
           @windows[:input].clear
           self.selected = :input
           @windows[:main].send("≫≫≫≫≫ #{string}") if echo?
           @windows[:main].buffer_pos = 0
-          update
+          @windows[:main].update
           return string#, cursor_pos, ch # Which return key has been used?
         #when Ncurses::KEY_BACKSPACE
         when 127, "\b".ord, Ncurses::KEY_BACKSPACE  # backspace

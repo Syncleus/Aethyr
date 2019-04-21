@@ -50,10 +50,9 @@ class Display
   def init_colors
     Ncurses.start_color
     @use_color = true
-    @windows[:main].enable_color
-    @windows[:input].enable_color
-    @windows[:map].enable_color
-    @windows[:look].enable_color
+    @windows.each do |channel, window|
+      window.enable_color
+    end
     puts "There are #{Ncurses.COLORS} colors on this client"
     Ncurses.assume_default_colors(Color::Foreground.attribute(:white), Color::Background.attribute(:black));
     Ncurses.COLORS.times do |fg|

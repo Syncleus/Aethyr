@@ -41,4 +41,19 @@
    <important>`~'    )'`')</important>                              <news>'</news>
      <important>` ``</important>
 
-                         Welcome to the Aethyr
+                              <earthhigh>Welcome to the</earthhigh>
+<earth>     ..                              s</earth>
+<earth>  :**888H: `: .xH""                 :8      .uef^"      ..</earth>
+<earth> X   `8888k XX888                  .88    :d88E        @L             .u    .</earth>
+<earth>'8hx  48888 ?8888         .u      :888ooo `888E       9888i   .dL   .d88B :@8c</earth>
+<earth>'8888 '8888 `8888      ud8888.  -*8888888  888E .z8k  `Y888k:*888. ="8888f8888r</earth>
+<earth> %888>'8888  8888    :888'8888.   8888     888E~?888L   888E  888I   4888>'88"</earth>
+<earth>   "8 '888"  8888    d888 '88%"   8888     888E  888E   888E  888I   4888> '</earth>
+<earth>  .-` X*"    8888    8888.+"      8888     888E  888E   888E  888I   4888></earth>
+<earth>    .xhx.    8888    8888L       .8888Lu=  888E  888E   888E  888I  .d888L .+</earth>
+<earth>  .H88888h.~`8888..  '8888c. .+  ^%888*    888E  888E  x888N>-888'  ^"8888*"</earth>
+<earth> .~  `%88!` '888*~    "88888%      'Y"    m888N= 888`   "88"  888      "Y"</earth>
+<earth>       `"     ""        "YP'               `Y"   888          88F</earth>
+<earth>                                                J88"         98"</earth>
+<earth>                                                @%         ./"</earth>
+<earth>                                              :"          ~`</earth>

@@ -276,8 +276,9 @@ CONF
 
   def update
     @windows.each do |channel, window|
-      window.update
+      window.update unless channel == :input
     end
+    @windows[:input].update #make sure input always takes the cursor
     Ncurses.doupdate()
   end
 

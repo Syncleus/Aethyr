@@ -6,6 +6,7 @@ require 'aethyr/core/components/manager'
 require 'aethyr/core/render/window'
 
 class Display
+  attr_reader :layout_type
   attr_accessor :color_settings, :use_color
 
   DEFAULT_HEIGHT = 43
@@ -79,15 +80,30 @@ class Display
     end
   end
 
-  def layout(in_fight: false)
+  def layout(layout: @layout_type, in_combat: false)
+    @layout_type = layout
     if @layout_type == :full && @height > 100 && @width > 165
-      unless in_fight
+      unless in_combat
+        @windows[:fight_enemy].destroy
+        @windows[:fight_team].destroy
+        @windows[:fight_queue].destroy
         @windows[:map].create(height: @height/2)
         @windows[:look].create(height: @height/2 - 3, width: 83, y: @height/2)
         @windows[:main].create(height: @height/2 - 3, x: 83, y: @height/2)
         @windows[:input].create(height: 3, y: @height - 3)
+      else
+        @windows[:map].destroy
+        @windows[:look].destroy
+        @windows[:fight_enemy].create(height: @height/3 - 1, width: @width - 83)
+        @windows[:fight_team].create(height: @height/3 - 1, width: @width - 83, y: @height/3)
+        @windows[:fight_queue].create(height: @height - 3, width: 83, x: @width - 83)
+        @windows[:main].create(height: @height/3 - 1, width: @width - 83, y: @height/2)
+        @windows[:input].create(height: 3, y: @height - 3)
       end
     else
+      @windows[:fight_enemy].destroy
+      @windows[:fight_team].destroy
+      @windows[:fight_queue].destroy
       @windows[:map].destroy
       @windows[:look].destroy
       @windows[:main].create(height: @height - 2)
@@ -106,7 +122,6 @@ class Display
     @width = resolution[0]
     @height = resolution[1]
     Ncurses.resizeterm(@height, @width)
-    @layout_type = :full
     layout
   end
 

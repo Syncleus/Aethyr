@@ -66,6 +66,7 @@ class StorageMachine
     #Yeah, so whatever on this little deal. Probably should do it better later.
     player.use_color = player.io.display.use_color if player.io
     player.color_settings = player.io.display.color_settings if player.io
+    player.layout = player.io.display.layout_type if player.io
 
     #Okay, this is tricky. We can't serialize the IO object stored in the Player
     #objects. To get around this (we don't want to store it anyhow), we temporarily

@@ -4,7 +4,7 @@ class Window
   attr_reader :window_border, :window_text, :buffer, :buffer_lines, :text_height, :text_width, :x, :y, :height, :width, :buffered, :use_color, :buffer_size, :color_settings, :buffer_pos
   attr_accessor :selected
 
-  def initialize( color_settings, buffered: false, buffer_size: 10000 )
+  def initialize( color_settings, buffered: false, buffer_size: 10000, paginate: nil )
     @buffer = [] if buffered
     @buffer_lines = [] if buffered
     @buffer_pos = 0 if buffered
@@ -15,6 +15,7 @@ class Window
     @color_settings = color_settings
     @color_stack = []
     @exists = false
+    @paginate = paginate
   end
 
   def exists?
@@ -195,6 +196,30 @@ class Window
   end
 
   private
+  # def paginate(message, cols = @text_width)
+  #   return word_wrap(message, cols) if @paginate.nil?
+  #
+  #   ph = @paginate
+  #
+  #   out = []
+  #   #message = message.gsub(/((\e\[\d+[\;]{0,1}\d*[\;]{0,1}\d*m|[^\r\n\n\s\Z]){#@word_wrap})/, "\\1 ") if @word_wrap
+  #   message = wrap(message, @word_wrap).join("\r\n") if @word_wrap
+  #   message.scan(/((((\e\[\d+[\;]{0,1}\d*[\;]{0,1}\d*m)|.){1,#{@word_wrap}})(\r\n|\n|\s+|\Z))|(\r\n|\n)/) do |m|
+  #     if $2
+  #       out << $2
+  #     else
+  #       out << ""
+  #     end
+  #   end
+  #
+  #   if out.length < ph
+  #     return out.join("\r\n")
+  #   end
+  #
+  #   @paginator = KPaginator.new(self, out)
+  #   @paginator.more
+  # end
+
   def activate_color_window(window, fg, bg)
     return if not @use_color
     #window.attron(fg + bg * Ncurses.COLORS)

@@ -34,4 +34,5 @@ Just run the application with the following command.
 == Using Docker
  
     docker build -t syncleus/aethyr .
-    docker run -p 8888:8888 --rm syncleus/aethyr
+    docker run --rm -i -v "$PWD/storage:/usr/src/app/storage" -v "$PWD/conf:/usr/src/app/conf" -v "$PWD/lib/aethyr/extensions/reactions:/usr/src/app/lib/aethyr/extensions/reactions" -t syncleus/aethyr bundle exec ./bin/aethyr_setup
+    docker run -p 8888:8888 -v "$PWD/storage:/usr/src/app/storage" -v "$PWD/conf:/usr/src/app/conf" -v "$PWD/lib/aethyr/extensions/reactions:/usr/src/app/lib/aethyr/extensions/reactions" --rm syncleus/aethyr

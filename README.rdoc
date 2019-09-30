@@ -30,3 +30,8 @@ Just run the application with the following command.
      bundle exec rake
      bundle exec ./bin/aethyr_setup
      bundle exec ./bin/aethyr run
+
+== Using Docker
+ 
+    docker build -t syncleus/aethyr .
+    docker run -p 8888:8888 --rm syncleus/aethyr

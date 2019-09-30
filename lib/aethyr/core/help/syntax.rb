@@ -67,23 +67,23 @@ AREACT [RELOAD|CLEAR] [OBJECT]",
 TERRAIN HERE TYPE [TYPE]
 TERRAIN HERE (INDOORS|WATER|UNDERWATER) (YES|NO)",
 "bug" =>
-"BUG <issue>
+"BUG [issue]
 BUG <id number>
 BUG LIST
 BUG STATUS <id_number> <status>
 BUG [SHOW|ADD|DEL] <id_number>",
 "idea" =>
-"IDEA <issue>
+"IDEA [issue]
 IDEA <id number>
 IDEA LIST
 IDEA STATUS <id_number> <status>
 IDEA [SHOW|ADD|DEL] <id_number>",
 "typo" =>
-"TYPO <issue>
-TYPO <id number>
+"TYPO [issue]
+TYPO [id number]
 TYPO LIST
-TYPO STATUS <id_number> <status>
-TYPO [SHOW|ADD|DEL] <id_number>",
+TYPO STATUS [id_number] [status]
+TYPO [SHOW|ADD|DEL] [id_number]",
 "climb" =>
 "What would you like to climb?",
 "close" =>

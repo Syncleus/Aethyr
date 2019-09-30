@@ -83,13 +83,13 @@ module Settings
         player.io.to_default
         player.output "Colors set to defaults."
       else
-        player.output player.io.set_fg_color(event[:option], event[:color])
+        player.output player.io.set_color(event[:option], event[:color])
       end
     end
 
     #Show color configuration.
     def showcolors(event, player, room)
-      player.output player.io.show_color_config
+      player.output player.io.display.show_color_config
     end
 
     def setpassword(event, player, room)

@@ -106,7 +106,7 @@ def reset_storage
   puts "Recreating initial objects..."
 
   $manager = Manager.new
-  
+
   city_area = $manager.create_object(Area, nil, nil, nil, :@name => "City of Ófærr")
   city_area.add_flag PlusEarth.new(city_area)
   city_area.info.terrain.type =  Terrain::CITY
@@ -115,7 +115,7 @@ def reset_storage
   church_entrance_room = $manager.create_object(Room, city_area, [-1,0], nil, :@name => "Church of Light Entrance", :@short_desc => "Before you stands an ancient disregarded church. It is too dark to see inside however from the look of the collapsed roof and rotting wood door way it probably isnt safe to enter.")
   $manager.create_object(Exit, town_square_room, nil, church_entrance_room.goid, :@alt_names => ["west"])
   $manager.create_object(Exit, church_entrance_room, nil, town_square_room.goid, :@alt_names => ["east"])
-  
+
   area = $manager.create_object(Area, nil, nil, nil, :@name => "an Underground Cavern")
   area.info.terrain.type =  Terrain::UNDERGROUND
   area.add_flag MinusFire.new(area)
@@ -126,7 +126,7 @@ def reset_storage
   $manager.create_object(Exit, church_entrance_room, nil, hole.goid, :@alt_names => ["church"])
   slime = $manager.create_object(Mobile, hole, nil, nil, :@generic => "blue slime", :@short_desc => "A <mob>blue slime</mob> stands here being useless", :@alt_names => ["slime"])
 
-  
+
   man = $manager.create_object(Mobile, hole, nil, nil, :@generic => "tall man", :@short_desc => "A <mob>tall man</mob> with a <raw fg:orange_4>v<raw fg:red>e</raw fg:red>ry</raw fg:orange_4> long beard stands here placidly.", :@alt_names => ["man"], :@show_in_look => "A <mob>tall man</mob> with a <raw fg:orange_4>v<raw fg:red>e</raw fg:red>ry</raw fg:orange_4> long beard stands here regarding you placidly.", :@sex => "m")
 
   puts "Adding helper reactions..."
@@ -504,4 +504,3 @@ HERE
 end
 
 setup_menu
-

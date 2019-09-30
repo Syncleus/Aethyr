@@ -96,7 +96,7 @@ EOF
               else
                 if not room.nil?
                   look_text = room.look(@player)
-                  @player.output(look_text, message_type: :look)
+                  @player.output(look_text)
                 else
                   @player.output "Nothing to look at."
                 end
@@ -115,7 +115,7 @@ EOF
             result
           end
         end
-        
+
         Aethyr::Extend::HandlerRegistry.register_handler(LookHandler)
       end
     end

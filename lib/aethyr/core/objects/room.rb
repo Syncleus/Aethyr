@@ -14,13 +14,13 @@ require 'aethyr/core/objects/traits/location'
 # terrain.room_type (Symbol)
 class Room < Container
   include Location
-  
+
   attr_reader :terrain
 
   #Create new room. Arguments same as GameObject.
   def initialize(*args)
     super(nil, *args)
-    
+
     @generic = "room"
   end
 
@@ -36,8 +36,7 @@ class Room < Container
     object.container = @game_object_id
 
     if object.is_a? Player or object.is_a? Mobile
-      object.output(self.look(object), message_type: :look) unless object.blind?
-      object.output(self.area.render_map(object, self.area.position(self)), message_type: :map) if object.is_a? Player
+      object.update_display
     end
   end
 
@@ -51,7 +50,7 @@ class Room < Container
   def exits
     @inventory.find_all('class', Exit)
   end
-  
+
   def players(only_visible = true, exclude = nil)
     players = Array.new
     @inventory.each do |item|
@@ -59,7 +58,7 @@ class Room < Container
     end
     players
   end
-  
+
   def mobs(only_visible = true)
     mobs = Array.new
     @inventory.each do |item|
@@ -67,7 +66,7 @@ class Room < Container
     end
     mobs
   end
-  
+
   def things(only_visible = true)
     things = Array.new
     @inventory.each do |item|
@@ -75,7 +74,7 @@ class Room < Container
     end
     things
   end
-  
+
   def exits(only_visible = true)
     exits = Array.new
     @inventory.each do |item|
@@ -121,7 +120,7 @@ class Room < Container
         else
           quantity = item.article
         end
-        
+
         idents = ["<identifier>#{item.generic}</identifier>"]
         idents += item.alt_names.map() {|e| "<identifier>" + e + "</identifier>"}
         idents = idents.join(', ')
@@ -147,7 +146,7 @@ class Room < Container
     else
       players = "The following #{players.length <= 1 ? 'player is' : 'players are'} here:\n#{players.list(@inventory, :expanded)}\n"
     end
-    
+
     if mobs.empty?
       mobs = ""
     else
@@ -159,7 +158,7 @@ class Room < Container
     else
       things = "There are the following items in the room:\n#{things.list(@inventory, :expanded)}\n"
     end
-    
+
     info = "You find some things unusual about this place:\n"
     info += "  Type: " + self.terrain_type.name + "\n"
     self.flags.values.each do |f|
@@ -172,4 +171,3 @@ class Room < Container
     "\n<roomtitle>#{@name}</roomtitle>\n\n#{(@short_desc || '') + add_to_desc}\n\n[Exits: #{exits.list}]\n\n#{info}#{players}#{mobs}#{things}\n"
   end
 end
-

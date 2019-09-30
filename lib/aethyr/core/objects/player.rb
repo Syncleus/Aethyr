@@ -40,8 +40,8 @@ class Player < LivingObject
 
   }
 
-  attr_reader :admin
-  attr_accessor :color_settings, :use_color, :reply_to, :page_height
+  attr_reader :admin, :color_settings
+  attr_accessor :use_color, :reply_to, :page_height, :layout
 
   #Create a new player object with the given socket connection. You must also pass in a game_object_id and a room, although if you pass in nil for game_object_id it will auto-generate one for you.
   def initialize(connection, game_object_id, room, *args)
@@ -58,12 +58,20 @@ class Player < LivingObject
     @blind = false
     @reply_to = nil
     @prompt_shown = false
+    @layout = :basic
+    @player.display.layout(layout: @layout, in_combat: info.in_combat)
+
     info.stats.satiety = 120
     map_skill = Aethyr::Extensions::Skills::Map.new(self.game_object_id)
     kick_skill = Aethyr::Extensions::Skills::Kick.new(self.game_object_id)
     info.skills = { map_skill.id => map_skill, kick_skill.id => kick_skill}
     info.explored_rooms = Set.new [room]
     map_skill.add_xp 750
+  end
+
+  def color_settings= new_color_settings
+    @color_settings = new_color_settings
+    @player.display.color_settings = @color_settings
   end
 
   #Searches inventory and equipment for item.
@@ -139,14 +147,14 @@ class Player < LivingObject
   end
 
   #Outputs a message to the Player. Used for all communication to Player.
-  def output(message, message_type: :main)
+  def output(message, no_newline = false, message_type: :main)
     return if message.nil?
     begin
       if message.is_a? Array
         message = message.join("\r\n")
       end
 
-      @player.say(message, message_type: message_type) unless (@player.nil? or @player.closed?)
+      @player.say(message, no_newline, message_type: message_type) unless (@player.nil? or @player.closed?)
     rescue Exception => e
       log "Unable to send message to #{@name}"
       log e.inspect
@@ -176,9 +184,10 @@ class Player < LivingObject
     end
 
     clean_input = input.downcase.strip
-    self.output('Help topics available:') if (clean_input.eql? "help") or (clean_input.eql? "help topics")
+    self.output("Help topics available: ", false) if (clean_input.eql? "help") or (clean_input.eql? "help topics")
     broadcast(:player_input, {:publisher => self, :input => input})
     event = CommandParser.parse(self, input)
+    self.output(" ", false) if (clean_input.eql? "help") or (clean_input.eql? "help topics")
 
     if event.nil?
       if input
@@ -244,6 +253,10 @@ class Player < LivingObject
     super
   end
 
+  def update_display
+    @player.display.refresh_watch_windows(self)
+  end
+
   def run
     super
     if info.stats.health < info.stats.max_health - 10
@@ -251,5 +264,6 @@ class Player < LivingObject
     elsif info.stats.health < info.stats.max_health
       info.stats.health = info.stats.max_health
     end
+    update_display
   end
 end

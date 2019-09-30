@@ -70,11 +70,11 @@ class GameObject < Publisher
     @actions = Set.new
     @admin = false
   end
-  
+
   def flags
     Hash.new @info.flags
   end
-  
+
   def add_flag(new_flag)
     new_flag.negate_flags(@info.flags)
     @info.flags[new_flag.id] = new_flag
@@ -97,11 +97,14 @@ class GameObject < Publisher
   def update
     return if @busy
     @busy = true
-    if self.is_a? Reacts
-      self.alert(Event.new(:Generic, :action => :tick))
+    begin
+      if self.is_a? Reacts
+        self.alert(Event.new(:Generic, :action => :tick))
+      end
+      run
+    ensure
+      @busy = false
     end
-    run
-    @busy = false
   end
 
   #Checks if the GameObject is busy in the GameObject#update method.
@@ -263,4 +266,3 @@ class GameObject < Publisher
   end
 
 end
-

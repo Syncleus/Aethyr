@@ -8,14 +8,14 @@ require 'aethyr/core/errors'
 module Login
 
   #Get input from io connection and process it
-  def receive_data(data)
-    return if data.nil?
-    data = preprocess_input(data)
-    return if data == ''
+  def receive_data
+    data = @display.recv
+    return false if data.nil?
+    return false if data == ''
 
     if data[-1,1] != "\n"
       @in_buffer << data
-      return
+      return true
     elsif not @in_buffer.empty?
       data = @in_buffer.join + data
       @in_buffer.clear
@@ -38,6 +38,10 @@ module Login
         @player.handle_input d
       else
         case @state
+        when :initial
+          show_resolution_prompt
+        when :resolution
+          do_resolution d
         when :server_menu
           do_server_menu d
         when :login_name
@@ -56,6 +60,32 @@ module Login
           log "wut"
         end
       end
+    end
+    return true
+  end
+
+  def show_initial
+    show_resolution_prompt
+  end
+
+  #Show login menu
+  def show_resolution_prompt
+    output "Would you like color (Y/n)? "
+    @state = :resolution
+  end
+
+  def do_resolution(data)
+    data.strip!
+    log "resolution getting done: #{data}"
+    case data
+    when  /([nNyY]{1})/
+      display.init_colors if $1.downcase.eql? "y"
+      show_server_menu
+    when  ""
+      display.init_colors
+      show_server_menu
+    else
+      show_resolution_prompt
     end
   end
 
@@ -129,11 +159,9 @@ module Login
       return
     end
 
-    if player.color_settings.nil?
-      @use_color = false
-    else
-      @color_settings = player.color_settings
-    end
+
+    @display.color_settings = player.color_settings unless player.color_settings.nil?
+    @display.layout(layout: player.layout, in_combat: player.info.in_combat) unless player.layout.nil?
 
     @word_wrap = player.word_wrap
     player.instance_variable_set(:@player, self)

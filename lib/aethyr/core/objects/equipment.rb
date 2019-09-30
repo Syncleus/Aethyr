@@ -7,29 +7,28 @@ class Equipment
   include HasInventory
 
   @@slots = [
-    :left_arm,
-    :right_arm,
+    :left_shoulder,
     :head,
+    :right_shoulder,
+    :left_arm,
+    :torso,
+    :right_arm,
+    :left_foot,
+    :legs,
+    :right_foot,
+    :left_hand,
+    :right_hand,
     :face,
     :neck,
     :left_wrist,
     :right_wrist,
     :waist,
-    :left_foot,
-    :right_foot,
-    :left_hand,
-    :right_hand,
     :left_ring_finger,
     :right_ring_finger,
     :left_ear,
     :right_ear,
     :left_ankle,
     :right_ankle,
-    :torso,
-    :arms,
-    :legs,
-    :feet,
-    :hands
     ]
 
   attr_reader :equipment
@@ -203,7 +202,7 @@ class Equipment
     position ||= game_object.position
     position = sym(position)
 
-    if [:arm, :leg, :wield, :wrist, :foot, :ankle, :ring_finger, :ear, :hand].include? position
+    if [:arm, :wield, :wrist, :foot, :ankle, :ring_finger, :ear, :hand, :shoulder].include? position
       return position_of(game_object, "left_#{position}".to_sym) || position_of(game_object, "right_#{position}".to_sym)
     end
 

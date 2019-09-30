@@ -9,7 +9,7 @@ module Aethyr
           def initialize(player)
             super(player, ["bug", "typo", "idea"])
           end
-          
+
           def self.object_added(data)
             return unless data[:game_object].is_a? Player
             data[:game_object].subscribe(IssueHandler.new(data[:game_object]))
@@ -32,7 +32,7 @@ module Aethyr
               action_help({})
             end
           end
-          
+
           private
           def action_help(event)
             player.output <<'EOF'
@@ -49,7 +49,7 @@ These commands allow players and administrators to report and manipulate feedbac
 
 Note that players can only see and edit their own feedback, while adminsitrators will see them all.
 
-BUG <issue> is used to make the initial report.
+BUG [issue] is used to make the initial report.
 BUG LIST will list all reports.
 BUG ADD can be used to append comments to a report.
 BUG STATUS can be used to change the status of a report to a different value (administrators only).
@@ -61,7 +61,7 @@ bug 1
 bug add 1 Actually, this only happens with battleaxes, not all axes.
 EOF
           end
-          
+
           def action(event)
             case event[:option]
             when "new"

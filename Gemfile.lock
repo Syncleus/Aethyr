@@ -21,8 +21,7 @@ GEM
       thor (~> 0.19)
     backports (3.11.4)
     builder (3.2.3)
-    childprocess (1.0.1)
-      rake (< 13.0)
+    childprocess (1.0.0)
     concurrent-ruby (1.1.4)
     contracts (0.16.0)
     cucumber (3.1.2)
@@ -51,7 +50,7 @@ GEM
     multi_json (1.13.1)
     multi_test (0.1.2)
     ncursesw (1.4.10)
-    rake (11.3.0)
+    rake (13.0.1)
     rdoc (4.3.0)
     require_all (2.0.0)
     rspec-expectations (3.8.2)
@@ -69,7 +68,7 @@ DEPENDENCIES
   aruba (~> 0.14)
   bundler (~> 2.0)
   json (~> 1.8)
-  rake (~> 11.3)
+  rake (~> 13.0)
   rdoc (~> 4.2)
 
 BUNDLED WITH

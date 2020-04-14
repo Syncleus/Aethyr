@@ -36,6 +36,7 @@ class PlayerConnection
     @expect_callback = nil
     @ip_address = Socket.unpack_sockaddr_in(addrinfo)[1]
 
+    200.times{print "\n"}
     print(File.read(ServerConfig.intro_file), false) if File.exist? ServerConfig.intro_file
 
     show_initial

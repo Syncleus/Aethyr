@@ -51,7 +51,7 @@ module Aethyr
         updateTask.execute
         saveTask.execute
 
-        listener = server_socket('0.0.0.0', 8888)
+        listener = server_socket(address, port)
 
         File.open("logs/server.log", "a") { |f| f.puts "#{Time.now} Server started." }
         log "Server up and running on #{address}:#{port}", 0

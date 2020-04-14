@@ -26,7 +26,7 @@ Just run the application with the following command.
 
 == From source
 
-     bundle install
+     bundle install --path vendor/bundle
      bundle exec rake
      bundle exec ./bin/aethyr_setup
      bundle exec ./bin/aethyr run

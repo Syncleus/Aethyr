@@ -7,3 +7,5 @@ results.html
 .idea/
 nbproject/
 lib/aethyr/extensions/reactions/
+.bundle/
+vendor/

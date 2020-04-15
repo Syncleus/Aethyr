@@ -61,8 +61,6 @@ module CommandParser
 
   @martial_combat = Set.new(['punch', 'kick', 'dodge'])
 
-  @magic = Set.new
-
   @equipment = Set.new(['wear', 'remove'])
 
   @admin = Set.new(['acreate',

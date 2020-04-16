@@ -105,8 +105,6 @@ module CommandParser
 
   @settings = Set.new(['set'])
 
-  @mobile = Set.new(['teach'])
-
   #etc...
 
   class <<self

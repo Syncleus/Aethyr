@@ -7,6 +7,7 @@ include Aethyr::Direction
 #CommandParser parses commands into commands for the event handler.
 module CommandParser
 
+=begin
   @movement = Set.new([
   'sit',
   'stand',
@@ -99,6 +100,7 @@ module CommandParser
   ])
 
   @settings = Set.new(['set'])
+=end
 
   #etc...
 
@@ -143,25 +145,7 @@ module CommandParser
         command = command[0].downcase
       end
 
-      event = if @emotes.include? command
-          parse_emote input
-        elsif @movement.include? command
-          parse_movement input
-        elsif @equipment.include? command
-          parse_equipment input
-        elsif @settings.include? command
-          parse_settings input
-        elsif @admin.include? command and player.admin
-          parse_admin input
-        elsif @weapon_combat.include? command
-          parse_weapon_combat input
-        elsif @martial_combat.include? command
-          parse_martial_combat input
-        elsif @news.include? command
-          parse_news input
-        elsif @mobile.include? command and player.is_a? Mobile
-          parse_mobile command  ### implement me
-        elsif input =~ /^alarm\s+([0-9]+)$/i
+      event = if input =~ /^alarm\s+([0-9]+)$/i
           after $1.to_i do
             player.output "***ALARM***"
           end

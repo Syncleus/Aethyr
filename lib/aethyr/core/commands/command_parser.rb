@@ -11,10 +11,6 @@ module CommandParser
   'sit',
   'stand',
   'pose',
-  'enter',
-  'climb',
-  'jump',
-  'crawl',
   'gait'
   ])
 
@@ -67,7 +63,6 @@ module CommandParser
   'alook',
   'adesc',
   'acarea',
-  'acopy',
   'acomment',
   'acomm',
   'aconfig',
@@ -222,9 +217,6 @@ module CommandParser
         event[:pose] = $1.strip
       when /^stand$/i
         event[:action] = :stand
-      when /^(jump|crawl|climb|enter)$/i
-        input.downcase!
-        return nil  ### TODO: handle portal movement
       else
         return nil
       end

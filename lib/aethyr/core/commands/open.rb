@@ -1,15 +1,18 @@
 require "aethyr/core/registry"
 require "aethyr/core/commands/command_handler"
+require "aethyr/core/util/direction"
 
 module Aethyr
   module Core
     module Commands
       module Open
         class OpenHandler < Aethyr::Extend::CommandHandler
+          include Aethyr::Direction
+
           def initialize(player)
             super(player, ["open"])
           end
-          
+
           def self.object_added(data)
             return unless data[:game_object].is_a? Player
             data[:game_object].subscribe(OpenHandler.new(data[:game_object]))
@@ -24,7 +27,7 @@ module Aethyr
               action_help({})
             end
           end
-          
+
           private
           def action_help(event)
             player.output <<'EOF'
@@ -44,7 +47,7 @@ See also: LOCK, UNLOCK, CLOSE
 
 EOF
           end
-          
+
           def action(event)
             room = $manager.get_object(@player.container)
             object = expand_direction(event[:object])

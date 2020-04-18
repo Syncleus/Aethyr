@@ -1,11 +1,15 @@
 require "aethyr/core/registry"
 require "aethyr/core/commands/command_handler"
+require "aethyr/core/util/direction"
 
 module Aethyr
   module Core
     module Commands
       module Move
         class MoveHandler < Aethyr::Extend::CommandHandler
+
+          include Aethyr::Direction
+
           def initialize(player)
             super(player, ["go", "move", "east", "west", "northeast", "northwest", "north", "southeast", "southwest", "south", "e", "w", "nw", "ne", "sw", "se", "n", "s", "up", "down", "u", "d", "in", "out"])
           end
@@ -74,7 +78,7 @@ EOF
             room.out_event(event)
           end
         end
-        
+
         Aethyr::Extend::HandlerRegistry.register_handler(MoveHandler)
       end
     end

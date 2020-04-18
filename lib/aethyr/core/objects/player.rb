@@ -1,5 +1,4 @@
 require 'aethyr/core/objects/living'
-require 'aethyr/core/commands/command_parser'
 require 'aethyr/core/objects/traits/has_inventory'
 require 'aethyr/core/help/syntax'
 # TODO : Delete the next to requires
@@ -186,24 +185,8 @@ class Player < LivingObject
     clean_input = input.downcase.strip
     self.output("Help topics available: ", false) if (clean_input.eql? "help") or (clean_input.eql? "help topics")
     broadcast(:player_input, {:publisher => self, :input => input})
-    event = CommandParser.parse(self, input)
     self.output(" ", false) if (clean_input.eql? "help") or (clean_input.eql? "help topics")
 
-    if event.nil?
-      if input
-        doc = Syntax.find(input.strip.split[0].downcase)
-        if doc
-          output doc
-        else
-          output 'Not sure what you mean by that.'
-        end
-      end
-    elsif @asleep and event[:action] != 'wake'
-      output 'You cannot do that when you are asleep!'
-    else
-      changed
-      notify_observers(event)
-    end
   end
 
   #The player's next input will go to the block.

@@ -5,6 +5,7 @@ require 'aethyr/core/objects/inventory'
 require 'aethyr/core/objects/traits/pronoun'
 require 'aethyr/core/util/guid'
 require 'aethyr/core/objects/info/info'
+require 'aethyr/core/event'
 
 #Base class for all game objects, including players. Should be subclassed to do anything useful.
 class GameObject < Publisher

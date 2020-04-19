@@ -40,7 +40,7 @@ class Player < LivingObject
   }
 
   attr_reader :admin, :color_settings
-  attr_accessor :use_color, :reply_to, :page_height, :layout
+  attr_accessor :use_color, :reply_to, :page_height
 
   #Create a new player object with the given socket connection. You must also pass in a game_object_id and a room, although if you pass in nil for game_object_id it will auto-generate one for you.
   def initialize(connection, game_object_id, room, *args)
@@ -57,8 +57,7 @@ class Player < LivingObject
     @blind = false
     @reply_to = nil
     @prompt_shown = false
-    @layout = :basic
-    @player.display.layout(layout: @layout, in_combat: info.in_combat)
+    @player.display.layout(layout: :basic)
 
     info.stats.satiety = 120
     map_skill = Aethyr::Extensions::Skills::Map.new(self.game_object_id)
@@ -66,6 +65,16 @@ class Player < LivingObject
     info.skills = { map_skill.id => map_skill, kick_skill.id => kick_skill}
     info.explored_rooms = Set.new [room]
     map_skill.add_xp 750
+  end
+
+  def layout
+    return nil if @player.display.nil?
+    return @player.display.layout_type
+  end
+
+  def layout= new_layout
+    @player.display.layout(layout: new_layout)
+    @player.display.refresh_watch_windows(self)
   end
 
   def color_settings= new_color_settings
@@ -165,7 +174,6 @@ class Player < LivingObject
   #Just outputs a message to the player that we don't know what
   #to do with the method call.
   def method_missing(*args)
-    super
     self.output("Don't know what do to with: #{args.inspect}")
   end
 

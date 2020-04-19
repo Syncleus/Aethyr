@@ -153,6 +153,17 @@ EOF
                 end
                 player.output("Set description to:\r\n#{player.long_desc}")
               end
+            when "layout"
+              case event[:value].downcase
+              when "basic"
+                player.layout = :basic
+              when "partial"
+                player.layout = :partial
+              when "full"
+                player.layout = :full
+              else
+                player.output "#{value} is not a valid layout please set one of the following: basic, partial, full."
+              end
             else
               player.output "No such setting: #{event[:setting]}"
             end

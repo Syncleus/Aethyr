@@ -1,3 +1,4 @@
+# coding: utf-8
 require "ncursesw"
 require 'stringio'
 require 'aethyr/core/connection/telnet_codes'
@@ -43,9 +44,6 @@ class Display
       :input => Window.new(@color_settings),
       :map => Window.new(@color_settings),
       :look => Window.new(@color_settings),
-      :fight_enemy => Window.new(@color_settings),
-      :fight_team => Window.new(@color_settings),
-      :fight_queue => Window.new(@color_settings, buffered: true)
     }
     self.selected = :input
     layout
@@ -80,30 +78,14 @@ class Display
     end
   end
 
-  def layout(layout: @layout_type, in_combat: false)
+  def layout(layout: @layout_type)
     @layout_type = layout
     if @layout_type == :full && @height > 100 && @width > 165
-      unless in_combat
-        @windows[:fight_enemy].destroy
-        @windows[:fight_team].destroy
-        @windows[:fight_queue].destroy
-        @windows[:map].create(height: @height/2)
-        @windows[:look].create(height: @height/2 - 3, width: 83, y: @height/2)
-        @windows[:main].create(height: @height/2 - 3, x: 83, y: @height/2)
-        @windows[:input].create(height: 3, y: @height - 3)
-      else
-        @windows[:map].destroy
-        @windows[:look].destroy
-        @windows[:fight_enemy].create(height: @height/3 - 1, width: @width - 83)
-        @windows[:fight_team].create(height: @height/3 - 1, width: @width - 83, y: @height/3)
-        @windows[:fight_queue].create(height: @height - 3, width: 83, x: @width - 83)
-        @windows[:main].create(height: @height/3 - 1, width: @width - 83, y: @height/2)
-        @windows[:input].create(height: 3, y: @height - 3)
-      end
+      @windows[:map].create(height: @height/2)
+      @windows[:look].create(height: @height/2 - 3, width: 83, y: @height/2)
+      @windows[:main].create(height: @height/2 - 3, x: 83, y: @height/2)
+      @windows[:input].create(height: 3, y: @height - 3)
     else
-      @windows[:fight_enemy].destroy
-      @windows[:fight_team].destroy
-      @windows[:fight_queue].destroy
       @windows[:map].destroy
       @windows[:look].destroy
       @windows[:main].create(height: @height - 2)

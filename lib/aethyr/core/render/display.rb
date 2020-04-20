@@ -78,6 +78,7 @@ class Display
     @windows.each do |channel, window|
       return channel if window.selected
     end
+    return :input
   end
 
   def layout(layout: @layout_type)
@@ -358,7 +359,11 @@ CONF
         when [27, 91, 53]
           case ch
           when 126 #page up
-            @windows[:main].buffer_pos += 1
+            if self.selected == :input
+              @windows[:main].buffer_pos += 5
+            else
+              @windows[self.selected].buffer_pos +=5
+            end
             escape = nil
             next
           else
@@ -369,7 +374,11 @@ CONF
         when [27, 91, 54]
           case ch
           when 126 #page down
-            @windows[:main].buffer_pos -= 1
+            if self.selected == :input
+              @windows[:main].buffer_pos -= 5
+            else
+              @windows[self.selected].buffer_pos -= 5
+            end
             escape = nil
             next
           else

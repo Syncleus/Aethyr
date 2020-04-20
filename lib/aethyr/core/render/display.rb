@@ -44,6 +44,8 @@ class Display
       :input => Window.new(@color_settings),
       :map => Window.new(@color_settings),
       :look => Window.new(@color_settings),
+      :quick_bar => Window.new(@color_settings),
+      :status => Window.new(@color_settings)
     }
     self.selected = :input
     layout
@@ -81,13 +83,23 @@ class Display
   def layout(layout: @layout_type)
     puts "layout #{layout} set for resolution #{@width}x#{@height}"
     @layout_type = layout
-    if @layout_type == :full && @height > 60 && @width > 165
-      @windows[:map].create(height: @height/2)
+    if @layout_type == :full && @height > 60 && @width > 249
+      @windows[:quick_bar].create(height: 3, y: @height - 5)
+      @windows[:map].create(height: @height/2 + 1, width: 166)
+      @windows[:look].create(height: @height/2 - 3, width: 83, y: @height/2)
+      @windows[:main].create(height: @height/2 - 3, width: 83, x: 83, y: @height/2)
+      @windows[:status].create(height: @height - 4, x: 166)
+    elsif (@layout_type == :partial || @layout_type == :full) && @height > 60 && @width > 166
+      @windows[:status].destroy
+      @windows[:quick_bar].create(height: 3, y: @height - 5)
+      @windows[:map].create(height: @height/2 + 1)
       @windows[:look].create(height: @height/2 - 3, width: 83, y: @height/2)
       @windows[:main].create(height: @height/2 - 3, x: 83, y: @height/2)
     else
       @windows[:map].destroy
       @windows[:look].destroy
+      @windows[:quick_bar].destroy
+      @windows[:status].destroy
       @windows[:main].create(height: @height - 2)
     end
     @windows[:input].create(height: 3, y: @height - 3)
@@ -269,15 +281,23 @@ CONF
         send("No map of current area.", message_type: :map, internal_clear: true)
       end
     end
+
+    if @windows[:quick_bar].exists?
+      send("this is the quick bar", message_type: :quick_bar, internal_clear: true, add_newline: false)
+    end
+
+    if @windows[:status].exists?
+      send("This is the status window", message_type: :status, internal_clear: true, add_newline: false)
+    end
   end
 
   private
 
   def update
     @windows.each do |channel, window|
-      window.update unless channel == :input
+      window.update unless channel == self.selected
     end
-    @windows[:input].update #make sure input always takes the cursor
+    @windows[self.selected].update unless @windows[self.selected].nil? #make sure the selected window always takes the last update so border renders properly
     Ncurses.doupdate()
   end
 
@@ -401,22 +421,26 @@ CONF
         when 9 # tab
           case self.selected
           when :input
-            self.selected = :main
-          when :main
-            if @windows[:map].exists?
-              self.selected = :map
-            elsif @windows[:look].exists?
+            if @windows[:look].exists?
               self.selected = :look
+            else
+              self.selected = :main
+            end
+          when :main
+            if @windows[:status].exists?
+              self.selected = :status
             else
               self.selected = :input
             end
           when :map
-            if @windows[:look].exists?
-              self.selected = :look
+              self.selected = :main
+          when :look
+            if @windows[:map].exists?
+              self.selected = :map
             else
               self.selected = :input
             end
-          when :look
+          when :status
             self.selected = :input
           else
             self.selected = :input

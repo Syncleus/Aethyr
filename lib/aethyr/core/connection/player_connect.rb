@@ -94,11 +94,11 @@ class PlayerConnection
 
   #Sends message followed by a newline. Also capitalizes
   #the first letter in the message.
-  def send_puts( message, no_newline = false, message_type: :main)
+  def send_puts( message, no_newline = false, message_type: :main, internal_clear: false)
     message = message.to_s
     first = message.index(/[a-zA-Z]/)
     message[first,1] = message[first,1] unless first.nil?
-    self.print(message, true, !no_newline, message_type: message_type)
+    self.print(message, true, !no_newline, message_type: message_type, internal_clear: internal_clear)
   end
 
   alias :output :send_puts
@@ -114,8 +114,8 @@ class PlayerConnection
   end
 
   #Send message without newline
-  def print(message, parse = true, newline = false, message_type: :main)
-    @display.send(message, parse, add_newline: newline, message_type: message_type) unless closed?
+  def print(message, parse = true, newline = false, message_type: :main, internal_clear: false)
+    @display.send(message, parse, add_newline: newline, message_type: message_type, internal_clear: internal_clear) unless closed?
   end
 
   #Close the io connection

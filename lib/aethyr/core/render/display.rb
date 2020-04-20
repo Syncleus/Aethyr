@@ -79,8 +79,9 @@ class Display
   end
 
   def layout(layout: @layout_type)
+    puts "layout #{layout} set for resolution #{@width}x#{@height}"
     @layout_type = layout
-    if @layout_type == :full && @height > 100 && @width > 165
+    if @layout_type == :full && @height > 60 && @width > 165
       @windows[:map].create(height: @height/2)
       @windows[:look].create(height: @height/2 - 3, width: 83, y: @height/2)
       @windows[:main].create(height: @height/2 - 3, x: 83, y: @height/2)
@@ -141,7 +142,10 @@ class Display
   def send (message, word_wrap = true, message_type: :main, internal_clear: false, add_newline: true)
     window = nil
 
-    raise "window_type not recognized" if @windows[message_type].nil?
+    if @windows[message_type].nil? || (not @windows[message_type].exists?)
+      message_type = :main
+      internal_clear = false
+    end
 
     @windows[message_type].clear if internal_clear
     @windows[message_type].send(message, word_wrap, add_newline: add_newline)
@@ -245,20 +249,16 @@ CONF
 
   def refresh_watch_windows(player)
     if @windows[:look].exists?
-      if player.blind?
-        send( "You cannot see while you are blind.", message_type: :look, internal_clear: true)
-      else
-        room = $manager.get_object(player.container)
-        if not room.nil?
-          look_text = room.look(player)
-          cleared = false
-          Window.split_message(look_text, 79).each do |msg|
-            send(msg, message_type: :look, internal_clear: !cleared, add_newline: true)
-            cleared = true
-          end
-        else
-          send("Nothing to look at.", message_type: :look, internal_clear: true)
+      room = $manager.get_object(player.container)
+      if not room.nil?
+        look_text = room.look(player)
+        cleared = false
+        Window.split_message(look_text, 79).each do |msg|
+          send(msg, message_type: :look, internal_clear: !cleared, add_newline: true)
+          cleared = true
         end
+      else
+        send("Nothing to look at.", message_type: :look, internal_clear: true)
       end
     end
 

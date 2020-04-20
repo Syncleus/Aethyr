@@ -87,6 +87,7 @@ class Room < Container
   #Returns a description of the room including: name of the room, room short description, visible people in the room,
   #visible objects in the room. All pretty-like.
   def look(player)
+    return "You cannot see while you are blind" if player.blind?
     players = Array.new
     mobs = Array.new
     things = Array.new

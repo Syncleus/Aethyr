@@ -85,13 +85,12 @@ class Display
       @windows[:map].create(height: @height/2)
       @windows[:look].create(height: @height/2 - 3, width: 83, y: @height/2)
       @windows[:main].create(height: @height/2 - 3, x: 83, y: @height/2)
-      @windows[:input].create(height: 3, y: @height - 3)
     else
       @windows[:map].destroy
       @windows[:look].destroy
       @windows[:main].create(height: @height - 2)
-      @windows[:input].create(height: 3, y: @height - 3)
     end
+    @windows[:input].create(height: 3, y: @height - 3)
 
     @echo = true
     update

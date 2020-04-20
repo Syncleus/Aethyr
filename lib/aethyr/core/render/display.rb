@@ -362,7 +362,7 @@ CONF
             if self.selected == :input
               @windows[:main].buffer_pos += 5
             else
-              @windows[self.selected].buffer_pos +=5
+              @windows[self.selected].buffer_pos +=5 if (@windows[self.selected].respond_to? :buffer_pos) && (not @windows[self.selected].buffer_pos.nil?)
             end
             escape = nil
             next
@@ -377,7 +377,7 @@ CONF
             if self.selected == :input
               @windows[:main].buffer_pos -= 5
             else
-              @windows[self.selected].buffer_pos -= 5
+              @windows[self.selected].buffer_pos -= 5 if (@windows[self.selected].respond_to? :buffer_pos) && (not @windows[self.selected].buffer_pos.nil?)
             end
             escape = nil
             next

@@ -37,7 +37,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'ncursesw', '~> 1.4'
   spec.add_development_dependency 'bundler', '~> 2.0'
   spec.add_development_dependency 'json', '~> 1.8'
-  spec.add_development_dependency 'rake', '~> 11.3'
+  spec.add_development_dependency 'rake', '~> 13.0'
   spec.add_development_dependency 'rdoc', '~> 4.2'
   spec.add_development_dependency 'aruba', '~> 0.14'
 end

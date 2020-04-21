@@ -43,7 +43,7 @@ class Display
       :main => Window.new(@color_settings, buffered: true),
       :input => Window.new(@color_settings),
       :map => Window.new(@color_settings),
-      :look => Window.new(@color_settings),
+      :look => Window.new(@color_settings, buffered: true),
       :quick_bar => Window.new(@color_settings),
       :status => Window.new(@color_settings)
     }
@@ -264,11 +264,9 @@ CONF
       room = $manager.get_object(player.container)
       if not room.nil?
         look_text = room.look(player)
-        cleared = false
-        Window.split_message(look_text, 79).each do |msg|
-          send(msg, message_type: :look, internal_clear: !cleared, add_newline: true)
-          cleared = true
-        end
+        #cleared = false
+        msg = Window.split_message(look_text, 79).join("\n")
+        send(msg, message_type: :look, internal_clear: true, add_newline: true)
       else
         send("Nothing to look at.", message_type: :look, internal_clear: true)
       end

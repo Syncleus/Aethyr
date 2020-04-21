@@ -96,6 +96,7 @@ class Window
 
   def clear
     @window_text.clear
+    @buffer = [] unless @buffer.nil?
   end
 
   def send (message, word_wrap = true, add_newline: true)

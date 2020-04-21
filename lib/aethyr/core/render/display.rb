@@ -45,7 +45,8 @@ class Display
       :map => Window.new(@color_settings),
       :look => Window.new(@color_settings, buffered: true),
       :quick_bar => Window.new(@color_settings),
-      :status => Window.new(@color_settings)
+      :status => Window.new(@color_settings),
+      :chat => Window.new(@color_settings, buffered: true)
     }
     self.selected = :input
     layout
@@ -84,14 +85,23 @@ class Display
   def layout(layout: @layout_type)
     puts "layout #{layout} set for resolution #{@width}x#{@height}"
     @layout_type = layout
-    if @layout_type == :full && @height > 60 && @width > 249
+    if @layout_type == :wide && @height >= 60 && @width >= 332
       @windows[:quick_bar].create(height: 3, y: @height - 5)
       @windows[:map].create(height: @height/2 + 1, width: 166)
       @windows[:look].create(height: @height/2 - 3, width: 83, y: @height/2)
       @windows[:main].create(height: @height/2 - 3, width: 83, x: 83, y: @height/2)
-      @windows[:status].create(height: @height - 4, x: 166)
-    elsif (@layout_type == :partial || @layout_type == :full) && @height > 60 && @width > 166
+      @windows[:chat].create(height: @height - 4, width: @width - 249, x: 166)
+      @windows[:status].create(height: @height - 4, x: @width - 83)
+    elsif (@layout_type == :full || @layout_type == :wide) && @height >= 60 && @width >= 249
+      @windows[:quick_bar].create(height: 3, y: @height - 5)
+      @windows[:map].create(height: @height/2 + 1, width: 166)
+      @windows[:look].create(height: @height/2 - 3, width: 83, y: @height/2)
+      @windows[:main].create(height: @height/2 - 3, width: 83, x: 83, y: @height/2)
+      @windows[:chat].create(height: @height - 4, x: 166)
       @windows[:status].destroy
+    elsif (@layout_type == :partial || @layout_type == :full || @layout_type == :wide) && @height >= 60 && @width >= 166
+      @windows[:status].destroy
+      @windows[:chat].destroy
       @windows[:quick_bar].create(height: 3, y: @height - 5)
       @windows[:map].create(height: @height/2 + 1)
       @windows[:look].create(height: @height/2 - 3, width: 83, y: @height/2)
@@ -101,6 +111,7 @@ class Display
       @windows[:look].destroy
       @windows[:quick_bar].destroy
       @windows[:status].destroy
+      @windows[:chat].destroy
       @windows[:main].create(height: @height - 2)
     end
     @windows[:input].create(height: 3, y: @height - 3)
@@ -285,6 +296,10 @@ CONF
       send("this is the quick bar", message_type: :quick_bar, internal_clear: true, add_newline: false)
     end
 
+    if @windows[:chat].exists?
+      send("This is the chat window", message_type: :chat, internal_clear: false, add_newline: true)
+    end
+
     if @windows[:status].exists?
       send("This is the status window", message_type: :status, internal_clear: true, add_newline: false)
     end
@@ -434,7 +449,9 @@ CONF
               self.selected = :main
             end
           when :main
-            if @windows[:status].exists?
+            if @windows[:chat].exists?
+              self.selected = :chat
+            elsif @windows[:status].exists?
               self.selected = :status
             else
               self.selected = :input
@@ -444,6 +461,12 @@ CONF
           when :look
             if @windows[:map].exists?
               self.selected = :map
+            else
+              self.selected = :input
+            end
+          when :chat
+            if @windows[:status].exists?
+              self.selected = :status
             else
               self.selected = :input
             end

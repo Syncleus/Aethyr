@@ -161,8 +161,10 @@ EOF
                 player.layout = :partial
               when "full"
                 player.layout = :full
+              when "wide"
+                player.layout = :wide
               else
-                player.output "#{value} is not a valid layout please set one of the following: basic, partial, full."
+                player.output "#{value} is not a valid layout please set one of the following: basic, partial, full, wide."
               end
             else
               player.output "No such setting: #{event[:setting]}"

@@ -85,7 +85,7 @@ class Display
   def layout(layout: @layout_type)
     puts "layout #{layout} set for resolution #{@width}x#{@height}"
     @layout_type = layout
-    if @layout_type == :wide && @height >= 60 && @width >= 332
+    if @layout_type == :wide && @height >= 60 && @width >= 300
       @windows[:quick_bar].create(height: 3, y: @height - 5)
       @windows[:map].create(height: @height/2 + 1, width: 166)
       @windows[:look].create(height: @height/2 - 3, width: 83, y: @height/2)

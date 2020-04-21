@@ -296,10 +296,6 @@ CONF
       send("this is the quick bar", message_type: :quick_bar, internal_clear: true, add_newline: false)
     end
 
-    if @windows[:chat].exists?
-      send("This is the chat window", message_type: :chat, internal_clear: false, add_newline: true)
-    end
-
     if @windows[:status].exists?
       send("This is the status window", message_type: :status, internal_clear: true, add_newline: false)
     end

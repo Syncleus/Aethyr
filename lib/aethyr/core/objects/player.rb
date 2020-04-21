@@ -129,27 +129,29 @@ class Player < LivingObject
 
   #Sends an event to the player.
   def out_event(event)
+    message_type = :main
+    message_type = event[:message_type] unless event[:message_type].nil?
     if event[:target] == self and event[:player] != self
       if self.blind? and not self.deaf?
-        self.output event[:to_blind_target]
+        self.output(event[:to_blind_target], message_type: message_type)
       elsif self.deaf? and not self.blind?
-        self.output event[:to_deaf_target]
+        self.output(event[:to_deaf_target], message_type: message_type)
       elsif self.deaf? and self.blind?
-        self.output event[:to_deafandblind_target]
+        self.output(event[:to_deafandblind_target], message_type: message_type)
       else
-        self.output event[:to_target]
+        self.output(event[:to_target], message_type: message_type)
       end
     elsif event[:player] == self
-      self.output event[:to_player]
+      self.output(event[:to_player], message_type: message_type)
     else
       if self.blind? and not self.deaf?
-        self.output event[:to_blind_other]
+        self.output(event[:to_blind_other], message_type: message_type)
       elsif self.deaf? and not self.blind?
-        self.output event[:to_deaf_other]
+        self.output(event[:to_deaf_other], message_type: message_type)
       elsif self.deaf? and self.blind?
-        self.output event[:to_deafandblind_other]
+        self.output(event[:to_deafandblind_other], message_type: message_type)
       else
-        self.output event[:to_other]
+        self.output(event[:to_other], message_type: message_type)
       end
     end
   end

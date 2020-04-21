@@ -143,6 +143,7 @@ EOF
 
             phrase = "<say>\"#{phrase}#{ender}\"</say>"
 
+            event[:message_type] = :chat
             event[:target] = target
             if target and pvoice == "ask"
               event[:to_target] = prefix + "#{@player.name} #{rvoice} you, #{phrase}"

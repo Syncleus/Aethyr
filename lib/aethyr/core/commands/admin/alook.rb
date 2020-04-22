@@ -44,6 +44,9 @@ EOF
               object = room
             elsif event[:at].downcase == "here"
               object = $manager.find player.container
+            elsif player == event[:at]
+              player.output "You can't look at yourself without getting lost forever."
+              return
             else
               object = find_object(event[:at], event)
             end

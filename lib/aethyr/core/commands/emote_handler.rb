@@ -13,7 +13,7 @@ module Aethyr
       def make_emote event, player, room, &block
         g = GenericEmote.new(event, player, room)
         g.instance_eval(&block)
-        if g.return_event
+        if g.return_event && (g.return_event.respond_to? :has_key?)
           g.set_post #add postfix
           log "Doing event" , Logger::Ultimate
           room.out_event g.return_event
@@ -28,6 +28,8 @@ module Aethyr
 
         def initialize(event, player, room)
           @event = event
+          @event[:message_type] = :chat
+          @event[:player] = player
           @player = player
           @room = room
           @post = event[:post]

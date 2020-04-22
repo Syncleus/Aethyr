@@ -58,7 +58,7 @@ EOF
 
               people.each do |person|
                 out = action.gsub(person.name, 'you')
-                person.output("#{player.name} #{out}") unless person.can? :blind and person.blind?
+                person.output("#{player.name} #{out}", message_type = :chat) unless person.can? :blind and person.blind?
               end
 
               room.output("#{player.name} #{action}", player, *people)
@@ -68,8 +68,9 @@ EOF
             end
 
             if show
-              event.to_player = "You emote: #{show}"
-              event.to_other = show
+              event[:message_type] = :chat
+              event[:to_player] = "You emote: #{show}"
+              event[:to_other] = show
               room.out_event event
             end
           end

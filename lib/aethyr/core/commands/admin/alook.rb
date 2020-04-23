@@ -11,8 +11,7 @@ module Aethyr
           end
 
           def self.object_added(data)
-            return unless data[:game_object].is_a? Player
-            data[:game_object].subscribe(AlookHandler.new(data[:game_object]))
+            return Aethyr::Extend::AdminHandler.admin_object_added(data, AlookHandler)
           end
 
           def player_input(data)

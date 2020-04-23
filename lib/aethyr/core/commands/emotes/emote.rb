@@ -11,8 +11,7 @@ module Aethyr
           end
 
           def self.object_added(data)
-            return unless data[:game_object].is_a? Player
-            data[:game_object].subscribe(EmoteHandler.new(data[:game_object]))
+            super(data, klass: self)
           end
 
           def player_input(data)

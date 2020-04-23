@@ -11,7 +11,7 @@ module Aethyr
           end
 
           def self.object_added(data)
-            super(data, klass: self)
+            super(data, self)
           end
           
           def player_input(data)

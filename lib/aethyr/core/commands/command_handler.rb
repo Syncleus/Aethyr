@@ -25,9 +25,9 @@ module Aethyr
 
       protected
       #event listener parent that listens for when a new user is added to the manager
-      def self.object_added(data, klass: child_class)
+      def self.object_added(data, child_class)
         return unless data[:game_object].is_a? Player
-        data[:game_object].subscribe(klass.new(data[:game_object]))
+        data[:game_object].subscribe(child_class.new(data[:game_object]))
       end
 
     end

@@ -11,7 +11,7 @@ module Aethyr
           end
 
           def self.object_added(data)
-            return Aethyr::Extend::AdminHandler.admin_object_added(data, AlookHandler)
+            super(data, klass: self)
           end
 
           def player_input(data)

@@ -7,12 +7,12 @@ module Aethyr
         super(player, commands, *args)
       end
 
-      def self.admin_object_added(data, klass)
+      protected
+      def self.object_added(data, child_class)
         return unless (data[:game_object].is_a? Player) && data[:game_object].admin
-        data[:game_object].subscribe(klass.new(data[:game_object]))
+        data[:game_object].subscribe(child_class.new(data[:game_object]))
       end
 
-      protected
       #Tail a file
       def tail file, lines = 10
         require 'util/tail'

@@ -3,8 +3,8 @@ require 'aethyr/core/commands/command_handler'
 module Aethyr
   module Extend
     class AdminHandler < CommandHandler
-      def initialize(player, commands, *args)
-        super(player, commands, *args)
+      def initialize(player, commands, *args, help_entries: [])
+        super(player, commands, *args, help_entries: help_entries)
       end
 
       protected

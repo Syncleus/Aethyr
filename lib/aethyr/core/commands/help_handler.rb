@@ -5,7 +5,7 @@ module Aethyr
     module HandleHelp
       attr_reader :commands
 
-      def initialize(player, commands, *args)
+      def initialize(player, commands, *args, help_entries: [])
         super(player, *args)
 
         @commands = commands
@@ -29,7 +29,7 @@ module Aethyr
     class HelpHandler
       include Aethyr::Extend::HandleHelp
 
-      def initialize(player, commands, *args)
+      def initialize(player, commands, *args, help_entries: [])
         super
       end
     end

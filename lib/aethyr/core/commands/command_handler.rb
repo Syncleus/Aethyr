@@ -19,8 +19,8 @@ module Aethyr
     class CommandHandler < InputHandler
       include Aethyr::Extend::HandleHelp
 
-      def initialize(player, commands, *args)
-        super(player, commands, *args)
+      def initialize(player, commands, *args, help_entries: [])
+        super(player, commands, *args, help_entries: help_entries)
       end
 
       protected

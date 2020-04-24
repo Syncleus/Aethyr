@@ -1,6 +1,7 @@
 require "aethyr/core/registry"
 require "aethyr/core/commands/command_handler"
 require "aethyr/core/util/direction"
+require "aethyr/core/help/help_entry"
 
 module Aethyr
   module Core
@@ -10,8 +11,30 @@ module Aethyr
 
           include Aethyr::Direction
 
+          def self.create_help_entries
+            command = "close"
+            see_also = ["LOCK", "UNLOCK", "OPEN"]
+            syntax_formats = ["CLOSE [object or direction]"]
+            content =  <<'EOF'
+Command: Close
+Syntax: CLOSE [object or direction]
+
+Closes the object. For doors and such, it is more accurate to use the direction in which the object lies.
+
+For example:
+
+CLOSE north
+
+CLOSE door
+
+
+See also: LOCK, UNLOCK, OPEN
+EOF
+            return [Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also)]
+          end
+
           def initialize(player)
-            super(player, ["close"])
+            super(player, ["close"], help_entries: CloseHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -23,8 +46,6 @@ module Aethyr
             case data[:input]
             when /^(close|shut)\s+(\w+)$/i
               action({ :object => $2  })
-            when /^help (close|shut)$/i
-              action_help({})
             end
           end
 
@@ -43,23 +64,6 @@ module Aethyr
             end
           end
 
-          def action_help(event)
-            @player.output <<'EOF'
-Command: Close
-Syntax: CLOSE [object or direction]
-
-Closes the object. For doors and such, it is more accurate to use the direction in which the object lies.
-
-For example:
-
-CLOSE north
-
-CLOSE door
-
-
-See also: LOCK, UNLOCK, OPEN
-EOF
-          end
         end
 
         Aethyr::Extend::HandlerRegistry.register_handler(CloseHandler)

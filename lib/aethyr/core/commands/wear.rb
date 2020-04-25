@@ -6,8 +6,28 @@ module Aethyr
     module Commands
       module Wear
         class WearHandler < Aethyr::Extend::CommandHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "wear"
+            see_also = ["REMOVE", "INVENTORY"]
+            syntax_formats = ["WEAR <object>"]
+            aliases = nil
+            content =  <<'EOF'
+Sytnax: WEAR <object> ON <body part>
+
+Wear an object. Objects usually have specific places they may be worn.
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["wear"])
+            super(player, ["wear"], WearHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -21,27 +41,10 @@ module Aethyr
               object = $1
               position = $3
               wear({:object => object, :position => position})
-            when /^help (wear)$/i
-              action_help_wear({})
             end
           end
 
           private
-          def action_help_wear(event)
-            @player.output <<'EOF'
-Command: Wear
-Syntax: WEAR <object>
-Sytnax: WEAR <object> ON <body part>
-
-Wear an object. Objects usually have specific places they may be worn.
-
-
-See also: REMOVE, INVENTORY
-
-EOF
-          end
-
-
           def wear(event)
 
             room = $manager.get_object(@player.container)

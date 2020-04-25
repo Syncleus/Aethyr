@@ -6,8 +6,25 @@ module Aethyr
     module Commands
       module Awatch
         class AwatchHandler < Aethyr::Extend::AdminHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "awatch"
+            see_also = nil
+            syntax_formats = ["AWATCH"]
+            aliases = nil
+            content =  <<'EOF'
+Sorry no help has been written for this command yet
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["awatch"])
+            super(player, ["awatch"], AwatchHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -21,19 +38,10 @@ module Aethyr
               target = $3.downcase if $3
               command = $2.downcase if $2
               awatch({:target => target, :command => command})
-            when /^help (awatch)$/i
-              action_help_awatch({})
             end
           end
 
           private
-          def action_help_awatch(event)
-            @player.output <<'EOF'
-Sorry no help has been written for this command yet
-EOF
-          end
-
-
           def awatch(event)
 
             room = $manager.get_object(@player.container)

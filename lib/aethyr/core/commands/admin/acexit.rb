@@ -6,8 +6,25 @@ module Aethyr
     module Commands
       module Acexit
         class AcexitHandler < Aethyr::Extend::AdminHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "acexit"
+            see_also = nil
+            syntax_formats = ["ACEXIT [DIRECTION] [EXIT_ROOM]"]
+            aliases = nil
+            content =  <<'EOF'
+Sorry no help has been written for this command yet
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["acexit"])
+            super(player, ["acexit"], AcexitHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -22,19 +39,10 @@ module Aethyr
               alt_names = [$1.strip]
               args = [$2.strip]
               acreate({:object => object, :alt_names => alt_names, :args => args})
-            when /^help (acexit)$/i
-              action_help_acexit({})
             end
           end
 
           private
-          def action_help_acexit(event)
-            @player.output <<'EOF'
-Sorry no help has been written for this command yet
-EOF
-          end
-
-
           def acreate(event)
 
             room = $manager.get_object(@player.container)

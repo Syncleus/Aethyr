@@ -6,8 +6,41 @@ module Aethyr
     module Commands
       module Tell
         class TellHandler < Aethyr::Extend::CommandHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "tell"
+            see_also = ["SAY", "SAYTO", "WHISPER", "REPLY"]
+            syntax_formats = ["TELL [player] [message]"]
+            aliases = nil
+            content =  <<'EOF'
+All inhabitants of Aethyr have the ability to communicate privately with each other over long distances. This is done through the TELL command. Those who investigate these kinds of things claim there is some kind of latent telepathy in all of us. However, while no one knows for certain how it works, everyone knows it does.
+
+Example:
+TELL Justin Hey, how's it going?
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+
+
+            command = "reply"
+            see_also = ["TELL"]
+            syntax_formats = ["REPLY [message]"]
+            aliases = nil
+            content =  <<'EOF'
+Reply is a shortcut to send a tell to the last person who sent you a tell.
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["tell", "reply"])
+            super(player, ["tell", "reply"], TellHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -21,39 +54,10 @@ module Aethyr
               action_tell({:target => $1, :message => $2 })
             when /^reply\s+(.*)$/i
               action_reply({:message => $1 })
-            when /^help (tell)$/i
-              action_help_tell({})
-            when /^help (reply)$/i
-              action_help_reply({})
             end
           end
 
           private
-          def action_help_tell(event)
-            @player.output <<'EOF'
-Command: Tell
-Syntax: TELL [player] [message]
-
-All inhabitants of Aethyr have the ability to communicate privately with each other over long distances. This is done through the TELL command. Those who investigate these kinds of things claim there is some kind of latent telepathy in all of us. However, while no one knows for certain how it works, everyone knows it does.
-
-Example:
-TELL Justin Hey, how's it going?
-
-
-See also: SAY, SAYTO, WHISPER, REPLY
-EOF
-          end
-
-          def action_help_reply(event)
-            @player.output <<'EOF'
-Command: Reply
-Syntax: REPLY [message]
-
-Reply is a shortcut to send a tell to the last person who sent you a tell.
-
-See also: TELL
-EOF
-          end
 
           #Tells someone something.
           def action_tell(event)

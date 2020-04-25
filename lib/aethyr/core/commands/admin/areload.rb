@@ -6,8 +6,25 @@ module Aethyr
     module Commands
       module Areload
         class AreloadHandler < Aethyr::Extend::AdminHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "areload"
+            see_also = nil
+            syntax_formats = ["ARELOAD [OBJECT]"]
+            aliases = nil
+            content =  <<'EOF'
+Sorry no help has been written for this command yet
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["areload"])
+            super(player, ["areload"], AreloadHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -20,19 +37,10 @@ module Aethyr
             when /^areload\s+(.*)$/i
               object = $1
               areload({:object => object})
-            when /^help (areload)$/i
-              action_help_areload({})
             end
           end
 
           private
-          def action_help_areload(event)
-            @player.output <<'EOF'
-Sorry no help has been written for this command yet
-EOF
-          end
-
-
           def areload(event)
 
             room = $manager.get_object(@player.container)

@@ -6,8 +6,32 @@ module Aethyr
     module Commands
       module Sit
         class SitHandler < Aethyr::Extend::CommandHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "sit"
+            see_also = ["STAND"]
+            syntax_formats = ["SIT", "SIT ON <object>"]
+            aliases = nil
+            content =  <<'EOF'
+Using this command, you can sit on things like chairs and benches. When used without an object, you will sit down on the ground.
+
+Note that you must stand up before you can move anywhere.
+
+Example:
+
+SIT ON stool
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["sit"])
+            super(player, ["sit"], SitHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -20,33 +44,10 @@ module Aethyr
             when /^sit\s+on\s+(.*)$/i, /^sit\s+(.*)$/i, /^sit$/i
               object = $1.strip if $1
               sit({:object => object})
-            when /^help (sit)$/i
-              action_help_sit({})
             end
           end
 
           private
-          def action_help_sit(event)
-            @player.output <<'EOF'
-Command: Sit
-Syntax: SIT
-Syntax: SIT ON <object>
-
-Using this command, you can sit on things like chairs and benches. When used without an object, you will sit down on the ground.
-
-Note that you must stand up before you can move anywhere.
-
-Example:
-
-SIT ON stool
-
-
-See also: STAND
-
-EOF
-          end
-
-
           def sit(event)
 
             room = $manager.get_object(@player.container)

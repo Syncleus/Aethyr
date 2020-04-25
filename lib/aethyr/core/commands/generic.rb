@@ -7,8 +7,192 @@ module Aethyr
     module Commands
       module Generic
         class GenericHandler < Aethyr::Extend::CommandHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "health"
+            see_also = ["STATUS", "HUNGER"]
+            syntax_formats = ["HEALTH"]
+            aliases = nil
+            content =  <<'EOF'
+Shows you how healthy you are.
+
+You can be:
+	at full health
+	a bit bruised
+	a little beat up
+	slightly injured
+	quite injured
+	slightly wounded
+	wounded in several places
+	heavily wounded
+	bleeding profusely and in serious pain
+	nearly dead
+	dead
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+
+
+            command = "satiety"
+            see_also = ["STAT", "HEALTH"]
+            syntax_formats = ["HUNGER", "SATIETY"]
+            aliases = nil
+            content =  <<'EOF'
+Shows you how hungry you are.
+
+You can be:
+	completely stuffed
+	full and happy
+	full and happy
+	satisfied
+	not hungry
+	slightly hungry
+	slightly hungry
+	peckish
+	hungry
+	very hungry
+	famished
+	starving
+	literally dying of hunger
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+
+
+            command = "status"
+            see_also = ["INVENTORY", "HUNGER", "HEALTH"]
+            syntax_formats = ["STATUS", "STAT", "ST"]
+            aliases = nil
+            content =  <<'EOF'
+Shows your current health, hunger/satiety, and position.
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+
+
+            command = "fill"
+            see_also = nil
+            syntax_formats = ["FILL [container] FROM [source]"]
+            aliases = nil
+            content =  <<'EOF'
+Fill a container from a source
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+
+
+            command = "date_time"
+            see_also = nil
+            syntax_formats = ["DATE"]
+            aliases = nil
+            content =  <<'EOF'
+Date and Time
+
+        TIME
+
+Shows the current date and time in Aethyr. Not completely done yet, but it is a first step.
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+
+
+            command = "who"
+            see_also = nil
+            syntax_formats = ["WHO"]
+            aliases = nil
+            content =  <<'EOF'
+This will list everyone else who is currently in Aethyr and where they happen to be at the moment.
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+
+
+            command = "deleteme"
+            see_also = nil
+            syntax_formats = ["DELETE ME PLEASE"]
+            aliases = nil
+            content =  <<'EOF'
+Deleting Your Character
+
+In case you ever need to do so, you can remove your character from the game. Quite permanently. You will need to enter your password as confirmation and that's it. You will be wiped out of time and memory.
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+
+
+            command = "write"
+            see_also = nil
+            syntax_formats = ["WRITE [target]"]
+            aliases = nil
+            content =  <<'EOF'
+Write something on the specified target.
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+
+
+            command = "taste"
+            see_also = nil
+            syntax_formats = ["TASTE [target]"]
+            aliases = nil
+            content =  <<'EOF'
+Taste the specified target.
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+
+
+            command = "smell"
+            see_also = nil
+            syntax_formats = ["SMELL [target]"]
+            aliases = nil
+            content =  <<'EOF'
+Smell the specified target.
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+
+
+            command = "listen"
+            see_also = nil
+            syntax_formats = ["LISTEN [target]"]
+            aliases = nil
+            content =  <<'EOF'
+Listen to the specified target.
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+
+
+            command = "feel"
+            see_also = nil
+            syntax_formats = ["FEEL [target]"]
+            aliases = nil
+            content =  <<'EOF'
+Feel the specified target.
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ['date', 'delete', 'feel', 'taste', 'smell', 'sniff', 'lick', 'listen', 'health', 'hunger', 'satiety', 'shut', 'status', 'stat', 'st', 'time', 'typo', 'who', 'write'])
+            super(player, ['date', 'delete', 'feel', 'taste', 'smell', 'sniff', 'lick', 'listen', 'health', 'hunger', 'satiety', 'shut', 'status', 'stat', 'st', 'time', 'typo', 'who', 'write'], GenericHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -45,30 +229,6 @@ module Aethyr
               action_time({})
             when /^date$/i
               action_date({})
-            when /^help (delete|delete me please)$/i
-              action_help_deleteme({})
-            when /^help health$/i
-              action_help_health({})
-            when /^help (satiety|hunger)$/i
-              action_help_satiety({})
-            when /^help (st|stat|status)$/i
-              action_help_status({})
-            when /^help write/i
-              action_help_write({ :target => $1.strip})
-            when /^help listen$/i
-              action_help_listen({ :target => $3})
-            when /^help (smell|sniff)$/i
-              action_help_smell({ :target => $3})
-            when /^help (taste|lick)$/i
-              action_help_taste({ :target => $3})
-            when /^help feel$/i
-              action_help_feel({ :target => $3})
-            when /^help who$/i
-              action_help_who({})
-            when /^help (date|time)$/i
-              action_help_date_time({})
-            when /^help fill$/i
-              action_help_fill({})
             end
           end
 
@@ -77,86 +237,16 @@ module Aethyr
           def action_health(event)
             @player.output "You are #{@player.health}."
           end
-
-          def action_help_health(event)
-            @player.output <<'EOF'
-Command: Health
-Syntax: HEALTH
-
-Shows you how healthy you are.
-
-You can be:
-	at full health
-	a bit bruised
-	a little beat up
-	slightly injured
-	quite injured
-	slightly wounded
-	wounded in several places
-	heavily wounded
-	bleeding profusely and in serious pain
-	nearly dead
-	dead
-
-See also: STATUS, HUNGER
-
-EOF
-          end
-
           #Display hunger.
           def action_satiety(event)
             @player.output "You are #{@player.satiety}."
           end
-
-          def action_help_satiety(event)
-            @player.output <<'EOF'
-Command: Hunger (or Satiety)
-Syntax: HUNGER
-Syntax: SATIETY
-
-Shows you how hungry you are.
-
-You can be:
-	completely stuffed
-	full and happy
-	full and happy
-	satisfied
-	not hungry
-	slightly hungry
-	slightly hungry
-	peckish
-	hungry
-	very hungry
-	famished
-	starving
-	literally dying of hunger
-
-See also: STAT HEALTH
-
-EOF
-          end
-
           #Display status.
           def action_status(event)
             @player.output("You are #{@player.health}.")
             @player.output("You are feeling #{@player.satiety}.")
             @player.output "You are currently #{@player.pose || 'standing up'}."
           end
-
-          def action_help_status(event)
-            @player.output <<'EOF'
-Command: Status
-Syntax: STATUS
-Syntax: STAT
-Syntax: ST
-
-Shows your current health, hunger/satiety, and position.
-
-See also: INVENTORY, HUNGER, HEALTH
-
-EOF
-          end
-
           #Fill something.
           def action_fill(event)
             room = $manager.get_object(@player.container)
@@ -186,17 +276,6 @@ EOF
               return
             end
           end
-
-          def action_help_fill(event)
-            @player.output <<'EOF'
-Command: Fill
-Syntax: FILL [container] FROM [source]
-
-Fill a container from a source
-
-EOF
-          end
-
           #Display time.
           def action_time(event)
             @player.output $manager.time
@@ -206,19 +285,6 @@ EOF
           def action_date(event)
             @player.output $manager.date
           end
-
-          def action_help_date_time(event)
-            @player.output <<'EOF'
-Date and Time
-
-Syntax: DATE
-        TIME
-
-Shows the current date and time in Aethyr. Not completely done yet, but it is a first step.
-
-EOF
-          end
-
           #Show who is in the game.
           def action_who(event)
             players = $manager.find_all("class", Player)
@@ -230,17 +296,6 @@ EOF
 
             @player.output output
           end
-
-          def action_help_who(event)
-            @player.output <<'EOF'
-Command: Who
-Syntax: WHO
-
-This will list everyone else who is currently in Aethyr and where they happen to be at the moment.
-
-EOF
-          end
-
           #Delete your player.
           def action_deleteme(event)
             if event[:password]
@@ -261,18 +316,6 @@ EOF
               end
             end
           end
-
-          def action_help_deleteme(event)
-            @player.output <<'EOF'
-Deleting Your Character
-
-Syntax: DELETE ME PLEASE
-
-In case you ever need to do so, you can remove your character from the game. Quite permanently. You will need to enter your password as confirmation and that's it. You will be wiped out of time and memory.
-
-EOF
-          end
-
           #Write something.
           def action_write(event)
             object = @player.search_inv(event[:target])
@@ -296,17 +339,6 @@ EOF
               @player.output "You finish your writing."
             end
           end
-
-          def action_help_write(event)
-            @player.output <<'EOF'
-Command: Write
-Syntax: WRITE [target]
-
-Write something on the specified target.
-
-EOF
-          end
-
           def action_taste(event)
             room = $manager.get_object(@player.container)
             object = @player.search_inv(event[:target]) || room.find(event[:target])
@@ -330,17 +362,6 @@ EOF
             event[:to_other] = "#{@player.name} hesitantly sticks out #{@player.pronoun(:possessive)} tongue and licks #{object.name}."
             room.out_event event
           end
-
-          def action_help_taste(event)
-            @player.output <<'EOF'
-Command: Taste
-Syntax: TASTE [target]
-
-Taste the specified target.
-
-EOF
-          end
-
           def action_smell(event)
             room = $manager.get_object(@player.container)
             if event[:target].nil?
@@ -384,17 +405,6 @@ EOF
             event[:to_other] = "#{@player.name} thrusts #{@player.pronoun(:possessive)} nose at #{object.name} and sniffs."
             room.out_event event
           end
-
-          def action_help_smell(event)
-            @player.output <<'EOF'
-Command: Smell
-Syntax: SMELL [target]
-
-Smell the specified target.
-
-EOF
-          end
-
           def action_listen(event)
             room = $manager.get_object(@player.container)
             if event[:target].nil?
@@ -430,17 +440,6 @@ EOF
             event[:to_other] = "#{@player.name} bends #{@player.pronoun(:possessive)} head towards #{object.name} and listens."
             room.out_event event
           end
-
-          def action_help_listen(event)
-            @player.output <<'EOF'
-Command: Listen
-Syntax: LISTEN [target]
-
-Listen to the specified target.
-
-EOF
-          end
-
           def action_feel(event)
             room = $manager.get_object(@player.container)
             object = @player.search_inv(event[:target]) || room.find(event[:target])
@@ -463,16 +462,6 @@ EOF
             event[:to_target] = "#{@player.name} reaches out a hand and gingerly touches you."
             event[:to_other] = "#{@player.name} reaches out #{@player.pronoun(:possessive)} hand and touches #{object.name}."
             room.out_event event
-          end
-
-          def action_help_feel(event)
-            @player.output <<'EOF'
-Command: Feel
-Syntax: FEEL [target]
-
-Feel the specified target.
-
-EOF
           end
         end
 

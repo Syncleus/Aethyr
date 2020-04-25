@@ -6,8 +6,25 @@ module Aethyr
     module Commands
       module Acarea
         class AcareaHandler < Aethyr::Extend::AdminHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "acarea"
+            see_also = nil
+            syntax_formats = ["ACAREA [NAME]"]
+            aliases = nil
+            content =  <<'EOF'
+Sorry no help has been written for this command yet
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["acarea"])
+            super(player, ["acarea"], AcareaHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -20,19 +37,10 @@ module Aethyr
             when /^acarea\s+(.*)$/i
               name = $1.strip
               acarea({:name => name})
-            when /^help (acarea)$/i
-              action_help_acarea({})
             end
           end
 
           private
-          def action_help_acarea(event)
-            @player.output <<'EOF'
-Sorry no help has been written for this command yet
-EOF
-          end
-
-
           def acarea(event)
 
             room = $manager.get_object(@player.container)

@@ -6,8 +6,25 @@ module Aethyr
     module Commands
       module Alog
         class AlogHandler < Aethyr::Extend::AdminHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "alog"
+            see_also = nil
+            syntax_formats = ["ALOG (DEBUG|NORMAL|HIGH|ULTIMATE|OFF)", "ALOG (PLAYER|SERVER|SYSTEM) [LINES]"]
+            aliases = nil
+            content =  <<'EOF'
+Sorry no help has been written for this command yet
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["alog"])
+            super(player, ["alog"], AlogHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -21,19 +38,10 @@ module Aethyr
               command = $1
               value = $3.downcase if $3
               alog({:command => command, :value => value})
-            when /^help (alog)$/i
-              action_help_alog({})
             end
           end
 
           private
-          def action_help_alog(event)
-            @player.output <<'EOF'
-Sorry no help has been written for this command yet
-EOF
-          end
-
-
           def alog(event)
 
             room = $manager.get_object(@player.container)

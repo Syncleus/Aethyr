@@ -6,8 +6,37 @@ module Aethyr
     module Commands
       module Set
         class SetHandler < Aethyr::Extend::CommandHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "set"
+            see_also = ["WORDWRAP", "PAGELENGTH", "DESCRIPTION", "COLORS"]
+            syntax_formats = ["SET <option> [value]"]
+            aliases = nil
+            content =  <<'EOF'
+There are several settings available to you. To see them all, simply use SET.
+To see the values available for a certain setting, use SET <option> without a value.
+
+Example:
+
+To see your color settings, use
+
+SET COLOR
+
+To turn off word wrap, use
+
+SET WORDWRAP OFF
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["set"])
+            super(player, ["set"], SetHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -32,35 +61,10 @@ module Aethyr
               setcolor({:option => option, :color => color})
             when /^set\s+password$/i
               setpassword({})
-            when /^help (set)$/i
-              action_help_set({})
             end
           end
 
           private
-          def action_help_set(event)
-            @player.output <<'EOF'
-Syntax: SET <option> [value]
-
-There are several settings available to you. To see them all, simply use SET.
-To see the values available for a certain setting, use SET <option> without a value.
-
-Example:
-
-To see your color settings, use
-
-SET COLOR
-
-To turn off word wrap, use
-
-SET WORDWRAP OFF
-
-See also: WORDWRAP, PAGELENGTH, DESCRIPTION, COLORS
-
-EOF
-          end
-
-
           def setcolor(event)
 
             room = $manager.get_object(@player.container)

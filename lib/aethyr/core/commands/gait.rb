@@ -6,8 +6,25 @@ module Aethyr
     module Commands
       module Gait
         class GaitHandler < Aethyr::Extend::CommandHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "gait"
+            see_also = nil
+            syntax_formats = ["GAIT"]
+            aliases = nil
+            content =  <<'EOF'
+Sorry no help has been written for this command yet
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["gait"])
+            super(player, ["gait"], GaitHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -20,19 +37,10 @@ module Aethyr
             when /^gait(\s+(.*))?$/i
               phrase = $2 if $2
               gait({:phrase => phrase})
-            when /^help (gait)$/i
-              action_help_gait({})
             end
           end
 
           private
-          def action_help_gait(event)
-            @player.output <<'EOF'
-Sorry no help has been written for this command yet
-EOF
-          end
-
-
           def gait(event)
 
             room = $manager.get_object(@player.container)

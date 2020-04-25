@@ -6,8 +6,32 @@ module Aethyr
     module Commands
       module Wield
         class WieldHandler < Aethyr::Extend::CommandHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "wield"
+            see_also = ["UNWIELD"]
+            syntax_formats = ["WIELD <item>", "WIELD <item> <left|right>"]
+            aliases = nil
+            content =  <<'EOF'
+This command causes you to wield an item. The item must be wieldable and be present in your inventory.
+
+You can also specify which hand with which to wield the weapon. If you do not, it will favor your right hand.
+
+Example:
+
+WIELD sword left
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["wield"])
+            super(player, ["wield"], WieldHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -21,33 +45,10 @@ module Aethyr
               weapon = $1
               side = $3
               wield({:weapon => weapon, :side => side})
-            when /^help (wield)$/i
-              action_help_wield({})
             end
           end
 
           private
-          def action_help_wield(event)
-            @player.output <<'EOF'
-Command: Wield item
-Syntax: WIELD <item>
-Syntax: WIELD <item> <left|right>
-
-This command causes you to wield an item. The item must be wieldable and be present in your inventory.
-
-You can also specify which hand with which to wield the weapon. If you do not, it will favor your right hand.
-
-Example:
-
-WIELD sword left
-
-
-See also: UNWIELD
-
-EOF
-          end
-
-
           def wield(event)
 
             room = $manager.get_object(@player.container)

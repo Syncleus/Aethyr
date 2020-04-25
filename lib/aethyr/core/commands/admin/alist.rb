@@ -6,8 +6,25 @@ module Aethyr
     module Commands
       module Alist
         class AlistHandler < Aethyr::Extend::AdminHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "alist"
+            see_also = nil
+            syntax_formats = ["ALIST [ATTRIB] [QUERY]"]
+            aliases = nil
+            content =  <<'EOF'
+Sorry no help has been written for this command yet
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["alist"])
+            super(player, ["alist"], AlistHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -23,19 +40,10 @@ module Aethyr
               attrib = $2
               match = $1
               alist({:attrib => attrib, :match => match})
-            when /^help (alist)$/i
-              action_help_alist({})
             end
           end
 
           private
-          def action_help_alist(event)
-            @player.output <<'EOF'
-Sorry no help has been written for this command yet
-EOF
-          end
-
-
           def alist(event)
 
             room = $manager.get_object(@player.container)

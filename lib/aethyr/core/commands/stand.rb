@@ -6,8 +6,26 @@ module Aethyr
     module Commands
       module Stand
         class StandHandler < Aethyr::Extend::CommandHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "stand"
+            see_also = ["SIT"]
+            syntax_formats = ["STAND"]
+            aliases = nil
+            content =  <<'EOF'
+Stand up if you are sitting down.
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["stand"])
+            super(player, ["stand"], StandHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -19,26 +37,10 @@ module Aethyr
             case data[:input]
             when /^stand$/i
               stand({})
-            when /^help (stand)$/i
-              action_help_stand({})
             end
           end
 
           private
-          def action_help_stand(event)
-            @player.output <<'EOF'
-Command: Stand
-Syntax: STAND
-
-Stand up if you are sitting down.
-
-
-See also: SIT
-
-EOF
-          end
-
-
           def stand(event)
 
             room = $manager.get_object(@player.container)

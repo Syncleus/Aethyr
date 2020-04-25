@@ -6,8 +6,25 @@ module Aethyr
     module Commands
       module Kick
         class KickHandler < Aethyr::Extend::CommandHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "kick"
+            see_also = nil
+            syntax_formats = ["KICK"]
+            aliases = nil
+            content =  <<'EOF'
+Sorry no help has been written for this command yet
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["kick"])
+            super(player, ["kick"], KickHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -22,19 +39,10 @@ module Aethyr
             when /^kick\s+(.*)$/i
               target = $1
               kick({:target => target})
-            when /^help (kick)$/i
-              action_help_kick({})
             end
           end
 
           private
-          def action_help_kick(event)
-            @player.output <<'EOF'
-Sorry no help has been written for this command yet
-EOF
-          end
-
-
           def kick(event)
 
             room = $manager.get_object(@player.container)

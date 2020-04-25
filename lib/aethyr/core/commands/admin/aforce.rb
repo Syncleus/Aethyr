@@ -6,8 +6,25 @@ module Aethyr
     module Commands
       module Aforce
         class AforceHandler < Aethyr::Extend::AdminHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "aforce"
+            see_also = nil
+            syntax_formats = ["AFORCE [OBJECT] [ACTION]"]
+            aliases = nil
+            content =  <<'EOF'
+Sorry no help has been written for this command yet
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["aforce"])
+            super(player, ["aforce"], AforceHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -21,19 +38,10 @@ module Aethyr
               target = $1
               command = $2
               aforce({:target => target, :command => command})
-            when /^help (aforce)$/i
-              action_help_aforce({})
             end
           end
 
           private
-          def action_help_aforce(event)
-            @player.output <<'EOF'
-Sorry no help has been written for this command yet
-EOF
-          end
-
-
           def aforce(event)
 
             room = $manager.get_object(@player.container)

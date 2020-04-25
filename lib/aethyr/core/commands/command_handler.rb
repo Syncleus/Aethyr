@@ -7,7 +7,7 @@ module Aethyr
       attr_reader :player
 
       def initialize(player, *args)
-        super(*args)
+        super()
         @player = player
       end
 

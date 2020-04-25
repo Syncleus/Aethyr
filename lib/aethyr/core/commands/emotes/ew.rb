@@ -6,8 +6,25 @@ module Aethyr
     module Commands
       module Ew
         class EwHandler < Aethyr::Extend::EmoteHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "ew"
+            see_also = nil
+            syntax_formats = ["EW"]
+            aliases = nil
+            content =  <<'EOF'
+Please see help for emote instead.
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["ew"])
+            super(player, ["ew"], EwHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -21,19 +38,10 @@ module Aethyr
               object = $3
               post = $5
               ew({:object => object, :post => post})
-            when /^help (ew)$/i
-              action_help_ew({})
             end
           end
 
           private
-          def action_help_ew(event)
-            @player.output <<'EOF'
-Please see help for emote instead.
-EOF
-          end
-
-
           def ew(event)
 
             room = $manager.get_object(@player.container)

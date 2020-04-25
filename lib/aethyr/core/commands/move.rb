@@ -8,10 +8,34 @@ module Aethyr
       module Move
         class MoveHandler < Aethyr::Extend::CommandHandler
 
+          def self.create_help_entries
+            help_entries = []
+
+            command = "move"
+            see_also = nil
+            syntax_formats = ["GO [direction or exit]"]
+            aliases = ["go", "east", "west", "northeast", "northwest", "north", "southeast", "southwest", "south", "e", "w", "nw", "ne", "sw", "se", "n", "s", "up", "down", "u", "d", "in", "out"]
+            content =  <<'EOF'
+Move in a particular direction or through a particular exit.
+
+Example:
+
+GO EAST
+
+Note that you can just use EAST, WEST, IN, OUT, UP, DOWN, etc. instead of GO.
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
+
           include Aethyr::Direction
 
           def initialize(player)
-            super(player, ["go", "move", "east", "west", "northeast", "northwest", "north", "southeast", "southwest", "south", "e", "w", "nw", "ne", "sw", "se", "n", "s", "up", "down", "u", "d", "in", "out"])
+            super(player, ["go", "move", "east", "west", "northeast", "northwest", "north", "southeast", "southwest", "south", "e", "w", "nw", "ne", "sw", "se", "n", "s", "up", "down", "u", "d", "in", "out"], MoveHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -26,28 +50,10 @@ module Aethyr
             when /^(east|west|northeast|northwest|north|southeast|southwest|south|e|w|nw|ne|sw|se|n|s|up|down|u|d|in|out)(\s+\((.*)\))?$/i
               action({:direction => expand_direction($1),
               :pre => $3})
-            when /^help (go|move|east|west|northeast|northwest|north|southeast|southwest|south|e|w|nw|ne|sw|se|n|s|up|down|u|d|in|out)$/i
-              action_help({})
             end
           end
 
           private
-          def action_help(event)
-            @player.output <<'EOF'
-Command: Go
-Syntax: GO [direction or exit]
-
-Move in a particular direction or through a particular exit.
-
-Example:
-
-GO EAST
-
-Note that you can just use EAST, WEST, IN, OUT, UP, DOWN, etc. instead of GO.
-
-EOF
-          end
-
           def action(event)
             room = $manager.get_object(@player.container)
             exit = room.exit(event[:direction])

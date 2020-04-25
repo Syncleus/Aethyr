@@ -6,8 +6,25 @@ module Aethyr
     module Commands
       module Huh
         class HuhHandler < Aethyr::Extend::EmoteHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "huh"
+            see_also = nil
+            syntax_formats = ["HUH"]
+            aliases = nil
+            content =  <<'EOF'
+Please see help for emote instead.
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["huh"])
+            super(player, ["huh"], HuhHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -21,19 +38,10 @@ module Aethyr
               object = $3
               post = $5
               huh({:object => object, :post => post})
-            when /^help (huh)$/i
-              action_help_huh({})
             end
           end
 
           private
-          def action_help_huh(event)
-            @player.output <<'EOF'
-Please see help for emote instead.
-EOF
-          end
-
-
           def huh(event)
 
             room = $manager.get_object(@player.container)

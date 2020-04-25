@@ -6,8 +6,25 @@ module Aethyr
     module Commands
       module Adesc
         class AdescHandler < Aethyr::Extend::AdminHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "adesc"
+            see_also = nil
+            syntax_formats = ["ADESC [OBJECT] [DESCRIPTION]", "ADESC INROOM [OBJECT] [DESCRIPTION]"]
+            aliases = nil
+            content =  <<'EOF'
+Sorry no help has been written for this command yet
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["adesc"])
+            super(player, ["adesc"], AdescHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -26,19 +43,10 @@ module Aethyr
               object = $1
               desc = $2
               adesc({:object => object, :desc => desc})
-            when /^help (adesc)$/i
-              action_help_adesc({})
             end
           end
 
           private
-          def action_help_adesc(event)
-            @player.output <<'EOF'
-Sorry no help has been written for this command yet
-EOF
-          end
-
-
           def adesc(event)
 
             room = $manager.get_object(@player.container)

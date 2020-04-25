@@ -6,8 +6,25 @@ module Aethyr
     module Commands
       module Emote
         class EmoteHandler < Aethyr::Extend::EmoteHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "emote"
+            see_also = nil
+            syntax_formats = ["EMOTE"]
+            aliases = nil
+            content =  <<'EOF'
+Please see help for emote instead.
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["emote"])
+            super(player, ["emote"], EmoteHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -20,19 +37,10 @@ module Aethyr
             when /^emote\s+(.*)/i
               show = $1
               emote({:show => show})
-            when /^help (emote)$/i
-              action_help_emote({})
             end
           end
 
           private
-          def action_help_emote(event)
-            @player.output <<'EOF'
-Please see help for emote instead.
-EOF
-          end
-
-
           def emote(event)
 
             room = $manager.get_object(@player.container)

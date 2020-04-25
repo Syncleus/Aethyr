@@ -7,10 +7,34 @@ module Aethyr
     module Commands
       module Open
         class OpenHandler < Aethyr::Extend::CommandHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "open"
+            see_also = ["LOCK", "UNLOCK", "CLOSE"]
+            syntax_formats = ["OPEN [object or direction]"]
+            aliases = nil
+            content =  <<'EOF'
+Opens the object. For doors and such, it is more accurate to use the direction in which the object lies.
+
+For example:
+
+OPEN north
+
+OPEN door
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           include Aethyr::Direction
 
           def initialize(player)
-            super(player, ["open"])
+            super(player, ["open"], OpenHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -22,31 +46,10 @@ module Aethyr
             case data[:input]
             when /^open\s+(\w+)$/i
               action({ :object => $1 })
-            when /^help open$/i
-              action_help({})
             end
           end
 
           private
-          def action_help(event)
-            player.output <<'EOF'
-Command: Open
-Syntax: OPEN [object or direction]
-
-Opens the object. For doors and such, it is more accurate to use the direction in which the object lies.
-
-For example:
-
-OPEN north
-
-OPEN door
-
-
-See also: LOCK, UNLOCK, CLOSE
-
-EOF
-          end
-
           def action(event)
             room = $manager.get_object(@player.container)
             object = expand_direction(event[:object])

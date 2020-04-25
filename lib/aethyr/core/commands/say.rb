@@ -6,34 +6,15 @@ module Aethyr
     module Commands
       module Say
         class SayHandler < Aethyr::Extend::CommandHandler
-          def initialize(player)
-            super(player, ["say", "sayto"])
-          end
 
-          def self.object_added(data)
-            super(data, self)
-          end
+          def self.create_help_entries
+            help_entries = []
 
-          def player_input(data)
-            super(data)
-            case data[:input]
-            when /^say\s+(\((.*?)\)\s*)?(.*)$/i
-              action({ :phrase => $3, :pre => $2 })
-            when /^sayto\s+(\w+)\s+(\((.*?)\)\s*)?(.*)$/i
-              action({:target => $1, :phrase => $4, :pre => $3 })
-            when /^help (sayto)$/i
-              action_help_sayto({})
-            when /^help (say)$/i
-              action_help_say({})
-            end
-          end
-
-          private
-          def action_help_say(event)
-            @player.output <<'EOF'
-Command: Say
-Syntax: SAY [message]
-
+            command = "say"
+            see_also = ["WHISPER", "SAYTO"]
+            syntax_formats = ["SAY [message]"]
+            aliases = nil
+            content =  <<'EOF'
 This is the basic command for communication.  Everyone in the room hears what you say.
 Some formatting is automatic, and a few emoticons are supported at the end of the command.
 
@@ -48,15 +29,16 @@ You can also specify a prefix in parentheses after the say command.
 Example: say (in trepidation) are you going to take my cheese?
 Output:  In trepidation, you ask, "Are you going to take my cheese?"
 
-See also: WHISPER, SAYTO
 EOF
-          end
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
 
-          def action_help_sayto(event)
-            @player.output <<'EOF'
-Command: Say to
-Syntax: SAYTO [name] [message]
 
+
+            command = "sayto"
+            see_also = ["WHISPER", "SAY"]
+            syntax_formats = ["SAYTO [name] [message]"]
+            aliases = nil
+            content =  <<'EOF'
 Say something to someone in particular, who is in the same room:
 
 Example:
@@ -69,9 +51,32 @@ You say to Bob, "I like cheese."
 
 Also supports the same variations as the SAY command.
 
-See also: WHISPER, SAY
 EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
           end
+
+
+          def initialize(player)
+            super(player, ["say", "sayto"], SayHandler.create_help_entries)
+          end
+
+          def self.object_added(data)
+            super(data, self)
+          end
+
+          def player_input(data)
+            super(data)
+            case data[:input]
+            when /^say\s+(\((.*?)\)\s*)?(.*)$/i
+              action({ :phrase => $3, :pre => $2 })
+            when /^sayto\s+(\w+)\s+(\((.*?)\)\s*)?(.*)$/i
+              action({:target => $1, :phrase => $4, :pre => $3 })
+            end
+          end
+
+          private
 
           #Says something to the room or to a specific player.
           def action(event)

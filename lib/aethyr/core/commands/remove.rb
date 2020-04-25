@@ -6,8 +6,26 @@ module Aethyr
     module Commands
       module Remove
         class RemoveHandler < Aethyr::Extend::CommandHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "remove"
+            see_also = ["WEAR", "INVENTORY"]
+            syntax_formats = ["REMOVE <object>"]
+            aliases = nil
+            content =  <<'EOF'
+Remove an article of clothing or armor.
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["remove"])
+            super(player, ["remove"], RemoveHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -21,25 +39,10 @@ module Aethyr
               object = $1
               position = $3
               remove({:object => object, :position => position})
-            when /^help (remove)$/i
-              action_help_remove({})
             end
           end
 
           private
-          def action_help_remove(event)
-            @player.output <<'EOF'
-Command: Remove
-Syntax: REMOVE <object>
-
-Remove an article of clothing or armor.
-
-See also: WEAR, INVENTORY
-
-EOF
-          end
-
-
           def remove(event)
 
             room = $manager.get_object(@player.container)

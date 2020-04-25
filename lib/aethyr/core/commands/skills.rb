@@ -8,8 +8,25 @@ module Aethyr
     module Commands
       module Skills
         class SkillsHandler < Aethyr::Extend::CommandHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "skills"
+            see_also = nil
+            syntax_formats = ["SKILLS"]
+            aliases = nil
+            content =  <<'EOF'
+List all your currently known skills, their level, and level up info.
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["skills"])
+            super(player, ["skills"], SkillsHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -21,8 +38,6 @@ module Aethyr
             case data[:input]
             when /^skills$/i
               action({})
-            when /^help (skills)$/i
-              action_help({})
             end
           end
           
@@ -72,16 +87,6 @@ module Aethyr
             end
             @player.output(output)
           end
-
-          def action_help(event)
-            player.output <<'EOF'
-Command: Skills
-Syntax: SKILLS
-
-List all your currently known skills, their level, and level up info.
-EOF
-          end
-
           def self.generate_progress(width, percentage, style = :vertical_smooth)
             if (style.eql? :horizontal_smooth) or (style.eql? :vertical_smooth)
               working_space = width - 7

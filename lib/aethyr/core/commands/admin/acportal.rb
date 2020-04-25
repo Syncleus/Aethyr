@@ -6,8 +6,25 @@ module Aethyr
     module Commands
       module Acportal
         class AcportalHandler < Aethyr::Extend::AdminHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "acportal"
+            see_also = nil
+            syntax_formats = ["ACPORTAL"]
+            aliases = nil
+            content =  <<'EOF'
+Sorry no help has been written for this command yet
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["acportal"])
+            super(player, ["acportal"], AcportalHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -23,19 +40,10 @@ module Aethyr
               portal_action = $2
               args = [$4]
               acportal({:object => object, :alt_names => alt_names, :portal_action => portal_action, :args => args})
-            when /^help (acportal)$/i
-              action_help_acportal({})
             end
           end
 
           private
-          def action_help_acportal(event)
-            @player.output <<'EOF'
-Sorry no help has been written for this command yet
-EOF
-          end
-
-
           def acportal(event)
 
             room = $manager.get_object(@player.container)

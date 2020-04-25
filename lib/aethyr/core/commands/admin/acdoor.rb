@@ -6,8 +6,25 @@ module Aethyr
     module Commands
       module Acdoor
         class AcdoorHandler < Aethyr::Extend::AdminHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "acdoor"
+            see_also = nil
+            syntax_formats = ["ACDOOR [DIRECTION] [EXIT_ROOM]"]
+            aliases = nil
+            content =  <<'EOF'
+Sorry no help has been written for this command yet
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["acdoor"])
+            super(player, ["acdoor"], AcdoorHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -24,19 +41,10 @@ module Aethyr
               direction = $1.strip
               exit_room = $2.strip
               acdoor({:direction => direction, :exit_room => exit_room})
-            when /^help (acdoor)$/i
-              action_help_acdoor({})
             end
           end
 
           private
-          def action_help_acdoor(event)
-            @player.output <<'EOF'
-Sorry no help has been written for this command yet
-EOF
-          end
-
-
           def acdoor event, player, room
 
             exit_room = nil

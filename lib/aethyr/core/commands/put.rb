@@ -6,8 +6,26 @@ module Aethyr
     module Commands
       module Put
         class PutHandler < Aethyr::Extend::CommandHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "put"
+            see_also = ["LOOK", "TAKE", "OPEN"]
+            syntax_formats = ["PUT [object] IN [container]"]
+            aliases = nil
+            content =  <<'EOF'
+Puts an object in a container. The container must be open to do so.
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["put"])
+            super(player, ["put"], PutHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -21,24 +39,10 @@ module Aethyr
               action({ :item => $4,
                 :count => $3.to_i,
                 :container => $5 })
-            when /^help put$/i
-              action_help({})
             end
           end
 
           private
-          def action_help(event)
-            @player.output <<'EOF'
-Command: Put
-Syntax: PUT [object] IN [container]
-
-Puts an object in a container. The container must be open to do so.
-
-See also: LOOK TAKE OPEN
-
-EOF
-          end
-
           def action(event)
             room = $manager.get_object(@player.container)
             item = @player.inventory.find(event[:item])

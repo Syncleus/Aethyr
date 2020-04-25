@@ -6,8 +6,25 @@ module Aethyr
     module Commands
       module Hi
         class HiHandler < Aethyr::Extend::EmoteHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "hi"
+            see_also = nil
+            syntax_formats = ["HI"]
+            aliases = nil
+            content =  <<'EOF'
+Please see help for emote instead.
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["hi"])
+            super(player, ["hi"], HiHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -21,19 +38,10 @@ module Aethyr
               object = $3
               post = $5
               hi({:object => object, :post => post})
-            when /^help (hi)$/i
-              action_help_hi({})
             end
           end
 
           private
-          def action_help_hi(event)
-            @player.output <<'EOF'
-Please see help for emote instead.
-EOF
-          end
-
-
           def hi(event)
 
             room = $manager.get_object(@player.container)

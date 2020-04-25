@@ -6,8 +6,25 @@ module Aethyr
     module Commands
       module Aset
         class AsetHandler < Aethyr::Extend::AdminHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "aset"
+            see_also = nil
+            syntax_formats = ["ASET [OBJECT] @[ATTRIBUTE] [VALUE]"]
+            aliases = nil
+            content =  <<'EOF'
+Sorry no help has been written for this command yet
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["aset", "aset!"])
+            super(player, ["aset", "aset!"], AsetHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -34,19 +51,10 @@ module Aethyr
               value = $3
               force = true
               aset({:object => object, :attribute => attribute, :value => value, :force => force})
-            when /^help (aset|aset!)$/i
-              action_help_aset({})
             end
           end
 
           private
-          def action_help_aset(event)
-            @player.output <<'EOF'
-Sorry no help has been written for this command yet
-EOF
-          end
-
-
           def aset(event)
 
             room = $manager.get_object(@player.container)

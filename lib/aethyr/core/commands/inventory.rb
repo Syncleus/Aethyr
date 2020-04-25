@@ -6,8 +6,28 @@ module Aethyr
     module Commands
       module Inventory
         class InventoryHandler < Aethyr::Extend::CommandHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "inventory"
+            see_also = ["TAKE", "DROP", "WEAR", "REMOVE"]
+            syntax_formats = ["INVENTORY"]
+            aliases = ["i", "inv"]
+            content =  <<'EOF'
+Displays what you are holding and wearing.
+
+'i' and 'inv' are shortcuts for inventory.
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["i", "inv", "inventory"])
+            super(player, ["i", "inv", "inventory"], InventoryHandler.create_help_entries)
           end
           
           def self.object_added(data)
@@ -19,25 +39,10 @@ module Aethyr
             case data[:input]
             when /^(i|inv|inventory)$/i
               action({})
-            when /^help (i|inv|inventory)$/i
-              action_help({})
             end
           end
           
           private
-          def action_help(event)
-            player.output <<'EOF'
-Command: Inventory
-Syntax: INVENTORY
-
-Displays what you are holding and wearing.
-
-'i' and 'inv' are shortcuts for inventory.
-
-
-See also: TAKE, DROP, WEAR, REMOVE
-EOF
-          end
           
           #Shows the inventory of the player.
           def action(event)

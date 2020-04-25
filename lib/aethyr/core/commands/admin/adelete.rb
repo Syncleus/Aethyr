@@ -6,8 +6,25 @@ module Aethyr
     module Commands
       module Adelete
         class AdeleteHandler < Aethyr::Extend::AdminHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "adelete"
+            see_also = nil
+            syntax_formats = ["ADELETE [OBJECT]"]
+            aliases = nil
+            content =  <<'EOF'
+Sorry no help has been written for this command yet
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["adelete"])
+            super(player, ["adelete"], AdeleteHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -20,19 +37,10 @@ module Aethyr
             when /^adelete\s+(.*)$/i
               object = $1
               adelete({:object => object})
-            when /^help (adelete)$/i
-              action_help_adelete({})
             end
           end
 
           private
-          def action_help_adelete(event)
-            @player.output <<'EOF'
-Sorry no help has been written for this command yet
-EOF
-          end
-
-
           def adelete(event)
 
             room = $manager.get_object(@player.container)

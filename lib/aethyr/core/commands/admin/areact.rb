@@ -6,8 +6,25 @@ module Aethyr
     module Commands
       module Areact
         class AreactHandler < Aethyr::Extend::AdminHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "areact"
+            see_also = nil
+            syntax_formats = ["AREACT LOAD [OBJECT] [FILE]", "AREACT [RELOAD|CLEAR] [OBJECT]"]
+            aliases = nil
+            content =  <<'EOF'
+Sorry no help has been written for this command yet
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["areact"])
+            super(player, ["areact"], AreactHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -31,19 +48,10 @@ module Aethyr
               command = $1
               action_name = $3
               areaction({:object => object, :command => command, :action_name => action_name})
-            when /^help (areact)$/i
-              action_help_areact({})
             end
           end
 
           private
-          def action_help_areact(event)
-            @player.output <<'EOF'
-Sorry no help has been written for this command yet
-EOF
-          end
-
-
           def areaction(event)
 
             room = $manager.get_object(@player.container)

@@ -6,8 +6,26 @@ module Aethyr
     module Commands
       module Drop
         class DropHandler < Aethyr::Extend::CommandHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "drop"
+            see_also = ["GET", "TAKE", "GRAB"]
+            syntax_formats = ["DROP [object]"]
+            aliases = nil
+            content =  <<'EOF'
+Removes an object from your inventory and places it gently on the ground.
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["drop"])
+            super(player, ["drop"], DropHandler.create_help_entries)
           end
           
           def self.object_added(data)
@@ -19,8 +37,6 @@ module Aethyr
             case data[:input]
             when /^drop\s+((\w+\s*)*)$/i
               action({ :object => $1.strip })
-            when /^help drop$/i
-              action_help({})
             end
           end
           
@@ -49,18 +65,6 @@ module Aethyr
             event[:to_other] = "#{@player.name} drops #{object.name}."
             event[:to_blind_other] = "You hear something hit the ground."
             room.out_event(event)
-          end
-          
-          def action_help(event)
-            @player.output <<'EOF'
-Command: Drop
-Syntax: DROP [object]
-
-Removes an object from your inventory and places it gently on the ground.
-
-See also: GET, TAKE, GRAB
-
-EOF
           end
         end
 

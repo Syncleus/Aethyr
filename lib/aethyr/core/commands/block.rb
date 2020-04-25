@@ -6,8 +6,26 @@ module Aethyr
     module Commands
       module Block
         class BlockHandler < Aethyr::Extend::CommandHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "block"
+            see_also = ["THRUST", "STATUS"]
+            syntax_formats = ["BLOCK <target>", "BLOCK"]
+            aliases = nil
+            content =  <<'EOF'
+This is a simple block which uses your weapon to attempt to block an opponent's attack. If you are not wielding a weapon, you will attempt a block with your bare hands.
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["block"])
+            super(player, ["block"], BlockHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -20,27 +38,10 @@ module Aethyr
             when /^block(\s+(.*))?$/i
               target = $2
               simple_block({:target => target})
-            when /^help (block)$/i
-              action_help_block({})
             end
           end
 
           private
-          def action_help_block(event)
-            @player.output <<'EOF'
-Command: Simple Block
-Syntax: BLOCK <target>
-Syntax: BLOCK
-
-This is a simple block which uses your weapon to attempt to block an opponent's attack. If you are not wielding a weapon, you will attempt a block with your bare hands.
-
-
-See also: THRUST, STATUS
-
-EOF
-          end
-
-
           def simple_block(event)
 
             room = $manager.get_object(@player.container)

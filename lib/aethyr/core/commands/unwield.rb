@@ -6,8 +6,31 @@ module Aethyr
     module Commands
       module Unwield
         class UnwieldHandler < Aethyr::Extend::CommandHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "unwield"
+            see_also = ["WIELD"]
+            syntax_formats = ["UNWIELD", "UNWIELD <weapon>", "UNWIELD <left|right>"]
+            aliases = nil
+            content =  <<'EOF'
+This command will cause you to unwield a weapon and place it in your inventory. If you do not specify which weapon or which hand you are using to hold the weapon, it will favor your right hand.
+
+Example:
+
+UNWIELD halberd
+UNWIELD left
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["unwield"])
+            super(player, ["unwield"], UnwieldHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -20,33 +43,10 @@ module Aethyr
             when /^unwield(\s+(.*))?$/i
               weapon = $2
               unwield({:weapon => weapon})
-            when /^help (unwield)$/i
-              action_help_unwield({})
             end
           end
 
           private
-          def action_help_unwield(event)
-            @player.output <<'EOF'
-Command: Unwield weapon
-Syntax: UNWIELD
-Syntax: UNWIELD <weapon>
-Syntax: UNWIELD <left|right>
-
-This command will cause you to unwield a weapon and place it in your inventory. If you do not specify which weapon or which hand you are using to hold the weapon, it will favor your right hand.
-
-Example:
-
-UNWIELD halberd
-UNWIELD left
-
-
-See also: WIELD
-
-EOF
-          end
-
-
           def unwield(event)
 
             room = $manager.get_object(@player.container)

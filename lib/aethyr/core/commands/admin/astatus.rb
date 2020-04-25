@@ -6,8 +6,25 @@ module Aethyr
     module Commands
       module Astatus
         class AstatusHandler < Aethyr::Extend::AdminHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "astatus"
+            see_also = nil
+            syntax_formats = ["ASTATUS"]
+            aliases = nil
+            content =  <<'EOF'
+Sorry no help has been written for this command yet
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["astatus"])
+            super(player, ["astatus"], AstatusHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -19,19 +36,10 @@ module Aethyr
             case data[:input]
             when /^astatus/i
               astatus({})
-            when /^help (astatus)$/i
-              action_help_astatus({})
             end
           end
 
           private
-          def action_help_astatus(event)
-            @player.output <<'EOF'
-Sorry no help has been written for this command yet
-EOF
-          end
-
-
           def astatus(event)
 
             room = $manager.get_object(@player.container)

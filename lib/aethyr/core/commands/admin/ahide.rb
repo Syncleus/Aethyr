@@ -6,8 +6,25 @@ module Aethyr
     module Commands
       module Ahide
         class AhideHandler < Aethyr::Extend::AdminHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "ahide"
+            see_also = nil
+            syntax_formats = ["AHIDE"]
+            aliases = nil
+            content =  <<'EOF'
+Sorry no help has been written for this command yet
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["ahide"])
+            super(player, ["ahide"], AhideHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -21,19 +38,10 @@ module Aethyr
               object = $1
               hide = true
               ahide({:object => object, :hide => hide})
-            when /^help (ahide)$/i
-              action_help_ahide({})
             end
           end
 
           private
-          def action_help_ahide(event)
-            @player.output <<'EOF'
-Sorry no help has been written for this command yet
-EOF
-          end
-
-
           def ahide(event)
 
             room = $manager.get_object(@player.container)

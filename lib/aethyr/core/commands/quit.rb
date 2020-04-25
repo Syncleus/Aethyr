@@ -6,8 +6,28 @@ module Aethyr
     module Commands
       module Quit
         class QuitHandler < Aethyr::Extend::CommandHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "quit"
+            see_also = nil
+            syntax_formats = ["QUIT"]
+            aliases = nil
+            content =  <<'EOF'
+Saves your character and logs you off from the game.
+
+You shouldn't need this too often.
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["quit"])
+            super(player, ["quit"], QuitHandler.create_help_entries)
           end
           
           def self.object_added(data)
@@ -18,23 +38,10 @@ module Aethyr
             case data[:input]
             when /^quit$/i
               action({})
-            when /^help quit$/i
-              action_help({})
             end
           end
           
           private
-          def action_help(event)
-            player.output <<'EOF'
-Command: Quit
-Syntax: QUIT
-
-Saves your character and logs you off from the game.
-
-You shouldn't need this too often.
-
-EOF
-          end
           
           def action(event)
             $manager.drop_player player

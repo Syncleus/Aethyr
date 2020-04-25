@@ -6,8 +6,25 @@ module Aethyr
     module Commands
       module Map
         class MapHandler < Aethyr::Extend::CommandHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "map"
+            see_also = nil
+            syntax_formats = ["MAP"]
+            aliases = ["m"]
+            content =  <<'EOF'
+Displays a map of the area.
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["m", "map"])
+            super(player, ["m", "map"], MapHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -19,21 +36,10 @@ module Aethyr
             case data[:input]
             when /^(m|map)$/i
               action({})
-            when /^help (m|map)$/i
-              action_help({})
             end
           end
 
           private
-          def action_help(event)
-            player.output <<'EOF'
-Command: Map
-Syntax: MAP
-
-Displays a map of the area.
-EOF
-          end
-
           def action(event)
             room = $manager.get_object(@player.container)
             player.output(room.area.render_map(player, room.area.position(room)))

@@ -6,8 +6,25 @@ module Aethyr
     module Commands
       module Areas
         class AreasHandler < Aethyr::Extend::AdminHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "areas"
+            see_also = nil
+            syntax_formats = ["AREAS"]
+            aliases = nil
+            content =  <<'EOF'
+Sorry no help has been written for this command yet
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["areas"])
+            super(player, ["areas"], AreasHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -19,19 +36,10 @@ module Aethyr
             case data[:input]
             when /^areas$/i
               areas({})
-            when /^help (areas)$/i
-              action_help_areas({})
             end
           end
 
           private
-          def action_help_areas(event)
-            @player.output <<'EOF'
-Sorry no help has been written for this command yet
-EOF
-          end
-
-
           def areas(event)
 
             room = $manager.get_object(@player.container)

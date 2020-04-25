@@ -6,8 +6,25 @@ module Aethyr
     module Commands
       module Slash
         class SlashHandler < Aethyr::Extend::CommandHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "slash"
+            see_also = nil
+            syntax_formats = ["SLASH"]
+            aliases = nil
+            content =  <<'EOF'
+Sorry no help has been written for this command yet
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["slash"])
+            super(player, ["slash"], SlashHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -22,19 +39,10 @@ module Aethyr
             when /^slash\s+(.*)$/i
               target = $1
               slash({:target => target})
-            when /^help (slash)$/i
-              action_help_slash({})
             end
           end
 
           private
-          def action_help_slash(event)
-            @player.output <<'EOF'
-Sorry no help has been written for this command yet
-EOF
-          end
-
-
           def slash(event)
 
             room = $manager.get_object(@player.container)

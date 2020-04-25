@@ -6,8 +6,25 @@ module Aethyr
     module Commands
       module Punch
         class PunchHandler < Aethyr::Extend::CommandHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "punch"
+            see_also = nil
+            syntax_formats = ["PUNCH"]
+            aliases = nil
+            content =  <<'EOF'
+Sorry no help has been written for this command yet
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["punch"])
+            super(player, ["punch"], PunchHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -22,19 +39,10 @@ module Aethyr
             when /^punch\s+(.*)$/i
               target = $1
               punch({:target => target})
-            when /^help (punch)$/i
-              action_help_punch({})
             end
           end
 
           private
-          def action_help_punch(event)
-            @player.output <<'EOF'
-Sorry no help has been written for this command yet
-EOF
-          end
-
-
           def punch(event)
 
             room = $manager.get_object(@player.container)

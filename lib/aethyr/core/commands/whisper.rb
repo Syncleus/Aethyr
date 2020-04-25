@@ -6,8 +6,34 @@ module Aethyr
     module Commands
       module Whisper
         class WhisperHandler < Aethyr::Extend::CommandHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "whisper"
+            see_also = ["SAY"]
+            syntax_formats = ["WHISPER [person] [message]"]
+            aliases = nil
+            content =  <<'EOF'
+To communicate with someone in the same room, but privately, use this command.
+
+Example:
+
+whisper justin that dog needs a bath
+
+Output:
+
+You whisper to Justin, "That dog needs a bath."
+
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["whisper"])
+            super(player, ["whisper"], WhisperHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -19,32 +45,10 @@ module Aethyr
             case data[:input]
             when /^whisper\s+(\w+)\s+(\((.*?)\)\s*)?(.*)$/i
               action({ :to => $1, :phrase => $4, :pre => $3 })
-            when /^help (whisper)$/i
-              action_help({})
             end
           end
 
           private
-          def action_help(event)
-            @player.output <<'EOF'
-Command: Whisper
-Syntax: WHISPER [person] [message]
-
-To communicate with someone in the same room, but privately, use this command.
-
-Example:
-
-whisper justin that dog needs a bath
-
-Output:
-
-You whisper to Justin, "That dog needs a bath."
-
-
-See also: SAY
-EOF
-          end
-
           #Whispers to another thing.
           def action(event)
             room = $manager.get_object(@player.container)

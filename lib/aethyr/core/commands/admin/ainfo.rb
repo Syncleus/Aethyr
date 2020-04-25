@@ -6,8 +6,25 @@ module Aethyr
     module Commands
       module Ainfo
         class AinfoHandler < Aethyr::Extend::AdminHandler
+
+          def self.create_help_entries
+            help_entries = []
+
+            command = "ainfo"
+            see_also = nil
+            syntax_formats = ["AINFO SET [OBJECT] @[ATTRIBUTE] [VALUE]", "AINFO DELETE [OBJECT] @[ATTRIBUTE]", "AINFO [SHOW|CLEAR] [OBJECT]"]
+            aliases = nil
+            content =  <<'EOF'
+Sorry no help has been written for this command yet
+EOF
+            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
+
+            return help_entries
+          end
+
+
           def initialize(player)
-            super(player, ["ainfo"])
+            super(player, ["ainfo"], AinfoHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -32,19 +49,10 @@ module Aethyr
               object = $2
               attrib = $3
               ainfo({:command => command, :object => object, :attrib => attrib})
-            when /^help (ainfo)$/i
-              action_help_ainfo({})
             end
           end
 
           private
-          def action_help_ainfo(event)
-            @player.output <<'EOF'
-Sorry no help has been written for this command yet
-EOF
-          end
-
-
           def ainfo(event)
 
             room = $manager.get_object(@player.container)

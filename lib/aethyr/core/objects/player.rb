@@ -42,6 +42,7 @@ class Player < LivingObject
 
   attr_reader :admin, :color_settings, :help_library
   attr_accessor :use_color, :reply_to, :page_height
+  volatile :@help_library, :@player
 
   #Create a new player object with the given socket connection. You must also pass in a game_object_id and a room, although if you pass in nil for game_object_id it will auto-generate one for you.
   def initialize(connection, game_object_id, room, *args)
@@ -58,7 +59,8 @@ class Player < LivingObject
     @blind = false
     @reply_to = nil
     @prompt_shown = false
-    @player.display.layout(layout: :basic)
+    @layout = :basic
+    @player.display.layout(layout: @layout)
     @help_library = Aethyr::Core::Help::HelpLibrary.new
 
     info.stats.satiety = 120
@@ -67,6 +69,19 @@ class Player < LivingObject
     info.skills = { map_skill.id => map_skill, kick_skill.id => kick_skill}
     info.explored_rooms = Set.new [room]
     map_skill.add_xp 750
+  end
+
+  #called right before saving to temporarily remove volatile data.
+  def dehydrate
+    volatile_data = super()
+    @layout = volatile_data[:@player].display.layout_type
+    return volatile_data
+  end
+
+  #This should be called anytime the volatile data needs to be restored or initialized during a save or load
+  def rehydrate(volatile_data)
+    super(volatile_data)
+    @help_library = Aethyr::Core::Help::HelpLibrary.new if @help_library.nil?
   end
 
   def layout

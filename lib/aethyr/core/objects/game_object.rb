@@ -19,6 +19,13 @@ class GameObject < Publisher
   alias :can? :respond_to?
   alias :goid :game_object_id
 
+  @@volatile = []
+
+  def self.volatile(*attrs)
+    @@volatile += attrs
+    @@volatile.uniq!
+  end
+
   #Creates a new GameObject. Most of this long list of parameters is simply ignored at creation time,
   #because they can all be set later.
   def initialize(game_object_id = nil, container = nil, name = "", alt_names = Array.new, short_desc = "Nothing interesting here.", long_desc = "", generic = "", sex = "n", article = "a")
@@ -70,6 +77,23 @@ class GameObject < Publisher
     @plural = nil
     @actions = Set.new
     @admin = false
+  end
+
+  # removes all volatle data but provides it as a map for restoration in rehydrate
+  def dehydrate
+    volatile_data = {}
+    @@volatile.each do |attr|
+      volatile_data[attr] = self.instance_variable_get(attr)
+      self.instance_variable_set(attr, nil)
+    end
+    return volatile_data
+  end
+
+  def rehydrate(volatile_data)
+    return if volatile_data.nil?
+    volatile_data.each do |attr, data|
+      self.instance_variable_set(attr, data) if @@volatile.include? attr
+    end
   end
 
   def flags

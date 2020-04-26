@@ -63,17 +63,6 @@ class StorageMachine
       end
     end
 
-    #Yeah, so whatever on this little deal. Probably should do it better later.
-    player.use_color = player.io.display.use_color if player.io
-    player.color_settings = player.io.display.color_settings if player.io
-    player.layout = player.io.display.layout_type if player.io
-
-    #Okay, this is tricky. We can't serialize the IO object stored in the Player
-    #objects. To get around this (we don't want to store it anyhow), we temporarily
-    #set it to nil, then back to whatever it was.
-    player_connection = player.instance_variable_get(:@player)
-    player.instance_variable_set(:@player, nil)
-
     log "Saving player: #{player.name}"
     store_object(player)
 
@@ -82,7 +71,6 @@ class StorageMachine
     end
 
     log "Player saved: #{player.name}"
-    player.instance_variable_set(:@player, player_connection)
   end
 
   #Sets password for a given player. Accepts player name or player object.
@@ -197,6 +185,8 @@ class StorageMachine
   #Warning: this temporarily removes the object's observers.
   def store_object(object)
 
+    volatile_data = object.dehydrate()
+
     if object.is_a? Observable
       observers = object.instance_variable_get(:@observer_peers)
       unless observers.nil?
@@ -224,6 +214,8 @@ class StorageMachine
     end
 
     @saved += 1
+
+    object.rehydrate(volatile_data)
 
     log "Stored #{object} # #{object.game_object_id}", Logger::Ultimate
   end
@@ -339,6 +331,9 @@ class StorageMachine
         object.container = ServerConfig.start_room
       end
     end
+
+    object.rehydrate(nil)
+
     return object
   end
 

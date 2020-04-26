@@ -159,12 +159,8 @@ module Login
       return
     end
 
-
-    @display.color_settings = player.color_settings unless player.color_settings.nil?
-    @display.layout(layout: player.layout, in_combat: player.info.in_combat) unless player.layout.nil?
-
     @word_wrap = player.word_wrap
-    player.instance_variable_set(:@player, self)
+    player.set_connection(self)
     $manager.add_object(player)
 
     @player = player

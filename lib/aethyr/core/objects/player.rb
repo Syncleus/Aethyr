@@ -71,6 +71,12 @@ class Player < LivingObject
     map_skill.add_xp 750
   end
 
+  def set_connection(new_player)
+    @player = new_player
+    @player.display.color_settings = @color_settings
+    @player.display.layout(layout: @layout)
+  end
+
   #called right before saving to temporarily remove volatile data.
   def dehydrate
     volatile_data = super()
@@ -85,11 +91,12 @@ class Player < LivingObject
   end
 
   def layout
-    return nil if @player.display.nil?
+    return @layout if @player.display.nil?
     return @player.display.layout_type
   end
 
   def layout= new_layout
+    @layout = new_layout
     @player.display.layout(layout: new_layout)
     @player.display.refresh_watch_windows(self)
   end
@@ -188,12 +195,6 @@ class Player < LivingObject
       log(e.backtrace.join("\n"), Logger::Normal, true)
       quit
     end
-  end
-
-  #Just outputs a message to the player that we don't know what
-  #to do with the method call.
-  def method_missing(*args)
-    self.output("Don't know what do to with: #{args.inspect}")
   end
 
   #Handles the input from the Player. Basically, it just takes the

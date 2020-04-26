@@ -9,15 +9,9 @@ module Aethyr
         super(player, *args)
 
         @commands = commands
-      end
 
-      def player_input(data)
-        super(data)
-        case data[:input]
-        when /^(help|help topics)$/i
-          if self.can_help?
-            self.player.output( commands, false)
-          end
+        help_entries.each do |entry|
+          player.help_library.entry_register entry
         end
       end
 

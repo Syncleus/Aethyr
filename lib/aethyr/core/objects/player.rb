@@ -4,6 +4,7 @@ require 'aethyr/core/help/syntax'
 # TODO : Delete the next to requires
 require 'aethyr/extensions/skills/map'
 require 'aethyr/extensions/skills/kick'
+require 'aethyr/core/help/help_library'
 
 #Base class for all players.
 class Player < LivingObject
@@ -39,7 +40,7 @@ class Player < LivingObject
 
   }
 
-  attr_reader :admin, :color_settings
+  attr_reader :admin, :color_settings, :help_library
   attr_accessor :use_color, :reply_to, :page_height
 
   #Create a new player object with the given socket connection. You must also pass in a game_object_id and a room, although if you pass in nil for game_object_id it will auto-generate one for you.
@@ -58,6 +59,7 @@ class Player < LivingObject
     @reply_to = nil
     @prompt_shown = false
     @player.display.layout(layout: :basic)
+    @help_library = Aethyr::Core::Help::HelpLibrary.new
 
     info.stats.satiety = 120
     map_skill = Aethyr::Extensions::Skills::Map.new(self.game_object_id)

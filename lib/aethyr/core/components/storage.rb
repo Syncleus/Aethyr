@@ -306,6 +306,7 @@ class StorageMachine
       end
     end
 
+
     object.rehydrate(nil)
     game_objects << object
 
@@ -354,9 +355,8 @@ class StorageMachine
           object = Marshal.load(gd[id])
           log "Loaded #{object}", Logger::Ultimate
           unless object.nil? or (not include_players and object.is_a? Player)
-            if object.is_a? Observable
-              fix_observers object
-            end
+
+            object.rehydrate(nil)
 
             game_objects << object
             objects << object

@@ -12,6 +12,13 @@ class GameObject < Publisher
   include Observable
   include Pronoun
 
+  @@volatile = []
+
+  def self.volatile(*attrs)
+    @@volatile += attrs
+    @@volatile.uniq!
+  end
+
   attr_reader :short_desc, :game_object_id, :alt_names, :generic, :article, :sex, :show_in_look, :actions, :balance, :admin, :manager
   attr_accessor :container, :show_in_look, :actions, :pose, :visible, :comment, :movable, :quantity, :info
   attr_writer :plural
@@ -19,13 +26,6 @@ class GameObject < Publisher
   alias :can? :respond_to?
   alias :goid :game_object_id
   volatile :@observer_peers
-
-  @@volatile = []
-
-  def self.volatile(*attrs)
-    @@volatile += attrs
-    @@volatile.uniq!
-  end
 
   #Creates a new GameObject. Most of this long list of parameters is simply ignored at creation time,
   #because they can all be set later.

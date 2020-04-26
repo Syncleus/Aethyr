@@ -211,10 +211,7 @@ class Player < LivingObject
     end
 
     clean_input = input.downcase.strip
-    self.output("Help topics available: ", false) if (clean_input.eql? "help") or (clean_input.eql? "help topics")
     broadcast(:player_input, {:publisher => self, :input => input})
-    self.output(" ", false) if (clean_input.eql? "help") or (clean_input.eql? "help topics")
-
   end
 
   #The player's next input will go to the block.

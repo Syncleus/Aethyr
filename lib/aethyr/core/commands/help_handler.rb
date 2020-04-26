@@ -20,7 +20,7 @@ module Aethyr
       end
     end
 
-    class HelpHandler
+    class HelpEntryHandler
       include Aethyr::Extend::HandleHelp
 
       def initialize(player, commands, *args, help_entries: [])

@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["adelete"], AdeleteHandler.create_help_entries)
+            super(player, ["adelete"], help_entries: AdeleteHandler.create_help_entries)
           end
 
           def self.object_added(data)

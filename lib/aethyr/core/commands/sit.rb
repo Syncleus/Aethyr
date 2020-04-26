@@ -31,7 +31,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["sit"], SitHandler.create_help_entries)
+            super(player, ["sit"], help_entries: SitHandler.create_help_entries)
           end
 
           def self.object_added(data)

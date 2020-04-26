@@ -34,7 +34,7 @@ EOF
           include Aethyr::Direction
 
           def initialize(player)
-            super(player, ["open"], OpenHandler.create_help_entries)
+            super(player, ["open"], help_entries: OpenHandler.create_help_entries)
           end
 
           def self.object_added(data)

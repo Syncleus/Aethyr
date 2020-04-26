@@ -35,7 +35,7 @@ EOF
           include Aethyr::Direction
 
           def initialize(player)
-            super(player, ["go", "move", "east", "west", "northeast", "northwest", "north", "southeast", "southwest", "south", "e", "w", "nw", "ne", "sw", "se", "n", "s", "up", "down", "u", "d", "in", "out"], MoveHandler.create_help_entries)
+            super(player, ["go", "move", "east", "west", "northeast", "northwest", "north", "southeast", "southwest", "south", "e", "w", "nw", "ne", "sw", "se", "n", "s", "up", "down", "u", "d", "in", "out"], help_entries: MoveHandler.create_help_entries)
           end
 
           def self.object_added(data)

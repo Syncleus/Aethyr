@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["poke"], PokeHandler.create_help_entries)
+            super(player, ["poke"], help_entries: PokeHandler.create_help_entries)
           end
 
           def self.object_added(data)

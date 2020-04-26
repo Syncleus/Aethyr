@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["portal"], PortalHandler.create_help_entries)
+            super(player, ["portal"], help_entries: PortalHandler.create_help_entries)
           end
 
           def self.object_added(data)

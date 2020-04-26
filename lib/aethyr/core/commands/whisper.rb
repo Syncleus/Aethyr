@@ -33,7 +33,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["whisper"], WhisperHandler.create_help_entries)
+            super(player, ["whisper"], help_entries: WhisperHandler.create_help_entries)
           end
 
           def self.object_added(data)

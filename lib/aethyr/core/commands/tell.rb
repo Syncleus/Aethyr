@@ -40,7 +40,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["tell", "reply"], TellHandler.create_help_entries)
+            super(player, ["tell", "reply"], help_entries: TellHandler.create_help_entries)
           end
 
           def self.object_added(data)

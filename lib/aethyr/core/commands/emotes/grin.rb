@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["grin"], GrinHandler.create_help_entries)
+            super(player, ["grin"], help_entries: GrinHandler.create_help_entries)
           end
 
           def self.object_added(data)

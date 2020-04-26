@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["shrug"], ShrugHandler.create_help_entries)
+            super(player, ["shrug"], help_entries: ShrugHandler.create_help_entries)
           end
 
           def self.object_added(data)

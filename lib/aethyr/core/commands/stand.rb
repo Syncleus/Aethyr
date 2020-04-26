@@ -25,7 +25,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["stand"], StandHandler.create_help_entries)
+            super(player, ["stand"], help_entries: StandHandler.create_help_entries)
           end
 
           def self.object_added(data)

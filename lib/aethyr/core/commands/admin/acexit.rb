@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["acexit"], AcexitHandler.create_help_entries)
+            super(player, ["acexit"], help_entries: AcexitHandler.create_help_entries)
           end
 
           def self.object_added(data)

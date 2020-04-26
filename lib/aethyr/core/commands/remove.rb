@@ -25,7 +25,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["remove"], RemoveHandler.create_help_entries)
+            super(player, ["remove"], help_entries: RemoveHandler.create_help_entries)
           end
 
           def self.object_added(data)

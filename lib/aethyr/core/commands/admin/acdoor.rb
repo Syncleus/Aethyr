@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["acdoor"], AcdoorHandler.create_help_entries)
+            super(player, ["acdoor"], help_entries: AcdoorHandler.create_help_entries)
           end
 
           def self.object_added(data)

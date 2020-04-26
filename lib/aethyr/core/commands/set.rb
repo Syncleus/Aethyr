@@ -36,7 +36,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["set"], SetHandler.create_help_entries)
+            super(player, ["set"], help_entries: SetHandler.create_help_entries)
           end
 
           def self.object_added(data)

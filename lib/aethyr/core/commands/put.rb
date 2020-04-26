@@ -25,7 +25,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["put"], PutHandler.create_help_entries)
+            super(player, ["put"], help_entries: PutHandler.create_help_entries)
           end
 
           def self.object_added(data)

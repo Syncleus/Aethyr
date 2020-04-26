@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["aput"], AputHandler.create_help_entries)
+            super(player, ["aput"], help_entries: AputHandler.create_help_entries)
           end
 
           def self.object_added(data)

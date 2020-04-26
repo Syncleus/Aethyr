@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["wave"], WaveHandler.create_help_entries)
+            super(player, ["wave"], help_entries: WaveHandler.create_help_entries)
           end
 
           def self.object_added(data)

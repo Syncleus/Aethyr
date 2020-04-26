@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["sigh"], SighHandler.create_help_entries)
+            super(player, ["sigh"], help_entries: SighHandler.create_help_entries)
           end
 
           def self.object_added(data)

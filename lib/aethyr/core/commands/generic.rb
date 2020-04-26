@@ -192,7 +192,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ['date', 'delete', 'feel', 'taste', 'smell', 'sniff', 'lick', 'listen', 'health', 'hunger', 'satiety', 'shut', 'status', 'stat', 'st', 'time', 'typo', 'who', 'write'], GenericHandler.create_help_entries)
+            super(player, ['date', 'delete', 'feel', 'taste', 'smell', 'sniff', 'lick', 'listen', 'health', 'hunger', 'satiety', 'shut', 'status', 'stat', 'st', 'time', 'typo', 'who', 'write'], help_entries: GenericHandler.create_help_entries)
           end
 
           def self.object_added(data)

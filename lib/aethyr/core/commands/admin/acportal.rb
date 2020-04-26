@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["acportal"], AcportalHandler.create_help_entries)
+            super(player, ["acportal"], help_entries: AcportalHandler.create_help_entries)
           end
 
           def self.object_added(data)

@@ -26,7 +26,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["skills"], SkillsHandler.create_help_entries)
+            super(player, ["skills"], help_entries: SkillsHandler.create_help_entries)
           end
 
           def self.object_added(data)

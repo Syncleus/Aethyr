@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["acprop"], AcpropHandler.create_help_entries)
+            super(player, ["acprop"], help_entries: AcpropHandler.create_help_entries)
           end
 
           def self.object_added(data)

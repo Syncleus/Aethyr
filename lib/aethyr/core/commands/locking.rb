@@ -27,7 +27,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["lock", "unlock"], LockingHandler.create_help_entries)
+            super(player, ["lock", "unlock"], help_entries: LockingHandler.create_help_entries)
           end
 
           def self.object_added(data)

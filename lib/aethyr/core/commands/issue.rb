@@ -37,7 +37,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["bug", "typo", "idea"], IssueHandler.create_help_entries)
+            super(player, ["bug", "typo", "idea"], help_entries: IssueHandler.create_help_entries)
           end
 
           def self.object_added(data)

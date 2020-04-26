@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["brb"], BrbHandler.create_help_entries)
+            super(player, ["brb"], help_entries: BrbHandler.create_help_entries)
           end
 
           def self.object_added(data)

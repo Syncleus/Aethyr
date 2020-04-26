@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["nod"], NodHandler.create_help_entries)
+            super(player, ["nod"], help_entries: NodHandler.create_help_entries)
           end
 
           def self.object_added(data)

@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["whereis"], WhereisHandler.create_help_entries)
+            super(player, ["whereis"], help_entries: WhereisHandler.create_help_entries)
           end
 
           def self.object_added(data)

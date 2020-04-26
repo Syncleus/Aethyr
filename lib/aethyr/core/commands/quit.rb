@@ -27,7 +27,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["quit"], QuitHandler.create_help_entries)
+            super(player, ["quit"], help_entries: QuitHandler.create_help_entries)
           end
           
           def self.object_added(data)

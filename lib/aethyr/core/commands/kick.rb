@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["kick"], KickHandler.create_help_entries)
+            super(player, ["kick"], help_entries: KickHandler.create_help_entries)
           end
 
           def self.object_added(data)

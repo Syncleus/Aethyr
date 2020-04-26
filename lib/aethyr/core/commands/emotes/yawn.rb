@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["yawn"], YawnHandler.create_help_entries)
+            super(player, ["yawn"], help_entries: YawnHandler.create_help_entries)
           end
 
           def self.object_added(data)

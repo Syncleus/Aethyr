@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["slash"], SlashHandler.create_help_entries)
+            super(player, ["slash"], help_entries: SlashHandler.create_help_entries)
           end
 
           def self.object_added(data)

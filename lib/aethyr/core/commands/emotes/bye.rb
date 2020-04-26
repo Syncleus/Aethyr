@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["bye"], ByeHandler.create_help_entries)
+            super(player, ["bye"], help_entries: ByeHandler.create_help_entries)
           end
 
           def self.object_added(data)

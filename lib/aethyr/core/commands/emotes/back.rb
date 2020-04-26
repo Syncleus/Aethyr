@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["back"], BackHandler.create_help_entries)
+            super(player, ["back"], help_entries: BackHandler.create_help_entries)
           end
 
           def self.object_added(data)

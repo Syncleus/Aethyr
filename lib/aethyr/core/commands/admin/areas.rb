@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["areas"], AreasHandler.create_help_entries)
+            super(player, ["areas"], help_entries: AreasHandler.create_help_entries)
           end
 
           def self.object_added(data)

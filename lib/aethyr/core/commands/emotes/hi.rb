@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["hi"], HiHandler.create_help_entries)
+            super(player, ["hi"], help_entries: HiHandler.create_help_entries)
           end
 
           def self.object_added(data)

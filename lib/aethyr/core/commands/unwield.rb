@@ -30,7 +30,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["unwield"], UnwieldHandler.create_help_entries)
+            super(player, ["unwield"], help_entries: UnwieldHandler.create_help_entries)
           end
 
           def self.object_added(data)

@@ -25,7 +25,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["drop"], DropHandler.create_help_entries)
+            super(player, ["drop"], help_entries: DropHandler.create_help_entries)
           end
           
           def self.object_added(data)

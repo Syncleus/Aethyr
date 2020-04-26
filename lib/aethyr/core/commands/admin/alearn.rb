@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["alearn"], AlearnHandler.create_help_entries)
+            super(player, ["alearn"], help_entries: AlearnHandler.create_help_entries)
           end
 
           def self.object_added(data)

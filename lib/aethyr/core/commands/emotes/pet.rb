@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["pet"], PetHandler.create_help_entries)
+            super(player, ["pet"], help_entries: PetHandler.create_help_entries)
           end
 
           def self.object_added(data)

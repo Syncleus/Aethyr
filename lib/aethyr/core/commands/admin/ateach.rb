@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["ateach"], AteachHandler.create_help_entries)
+            super(player, ["ateach"], help_entries: AteachHandler.create_help_entries)
           end
 
           def self.object_added(data)

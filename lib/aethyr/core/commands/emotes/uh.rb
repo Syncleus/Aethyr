@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["uh"], UhHandler.create_help_entries)
+            super(player, ["uh"], help_entries: UhHandler.create_help_entries)
           end
 
           def self.object_added(data)

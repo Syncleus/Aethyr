@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["awatch"], AwatchHandler.create_help_entries)
+            super(player, ["awatch"], help_entries: AwatchHandler.create_help_entries)
           end
 
           def self.object_added(data)

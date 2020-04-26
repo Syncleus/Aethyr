@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["areload"], AreloadHandler.create_help_entries)
+            super(player, ["areload"], help_entries: AreloadHandler.create_help_entries)
           end
 
           def self.object_added(data)

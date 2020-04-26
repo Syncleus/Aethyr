@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["gait"], GaitHandler.create_help_entries)
+            super(player, ["gait"], help_entries: GaitHandler.create_help_entries)
           end
 
           def self.object_added(data)

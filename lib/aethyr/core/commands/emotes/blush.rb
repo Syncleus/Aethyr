@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["blush"], BlushHandler.create_help_entries)
+            super(player, ["blush"], help_entries: BlushHandler.create_help_entries)
           end
 
           def self.object_added(data)

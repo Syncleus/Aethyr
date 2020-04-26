@@ -51,7 +51,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["news"], NewsHandler.create_help_entries)
+            super(player, ["news"], help_entries: NewsHandler.create_help_entries)
           end
 
           def self.object_added(data)

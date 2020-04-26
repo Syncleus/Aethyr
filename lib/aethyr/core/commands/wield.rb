@@ -31,7 +31,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["wield"], WieldHandler.create_help_entries)
+            super(player, ["wield"], help_entries: WieldHandler.create_help_entries)
           end
 
           def self.object_added(data)

@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["ahide"], AhideHandler.create_help_entries)
+            super(player, ["ahide"], help_entries: AhideHandler.create_help_entries)
           end
 
           def self.object_added(data)

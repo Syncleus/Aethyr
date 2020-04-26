@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["dodge"], DodgeHandler.create_help_entries)
+            super(player, ["dodge"], help_entries: DodgeHandler.create_help_entries)
           end
 
           def self.object_added(data)

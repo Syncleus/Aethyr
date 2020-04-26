@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["acomment"], AcommentHandler.create_help_entries)
+            super(player, ["acomment"], help_entries: AcommentHandler.create_help_entries)
           end
 
           def self.object_added(data)

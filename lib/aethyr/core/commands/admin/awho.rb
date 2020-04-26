@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["awho"], AwhoHandler.create_help_entries)
+            super(player, ["awho"], help_entries: AwhoHandler.create_help_entries)
           end
 
           def self.object_added(data)

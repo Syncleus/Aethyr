@@ -59,7 +59,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["say", "sayto"], SayHandler.create_help_entries)
+            super(player, ["say", "sayto"], help_entries: SayHandler.create_help_entries)
           end
 
           def self.object_added(data)

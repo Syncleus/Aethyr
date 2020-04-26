@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["curtsey"], CurtseyHandler.create_help_entries)
+            super(player, ["curtsey"], help_entries: CurtseyHandler.create_help_entries)
           end
 
           def self.object_added(data)

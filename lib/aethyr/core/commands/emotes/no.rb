@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["no"], NoHandler.create_help_entries)
+            super(player, ["no"], help_entries: NoHandler.create_help_entries)
           end
 
           def self.object_added(data)

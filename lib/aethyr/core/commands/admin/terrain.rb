@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["terrain"], TerrainHandler.create_help_entries)
+            super(player, ["terrain"], help_entries: TerrainHandler.create_help_entries)
           end
 
           def self.object_added(data)

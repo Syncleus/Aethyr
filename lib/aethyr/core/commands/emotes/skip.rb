@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["skip"], SkipHandler.create_help_entries)
+            super(player, ["skip"], help_entries: SkipHandler.create_help_entries)
           end
 
           def self.object_added(data)

@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["laugh"], LaughHandler.create_help_entries)
+            super(player, ["laugh"], help_entries: LaughHandler.create_help_entries)
           end
 
           def self.object_added(data)

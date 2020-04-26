@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["ponder"], PonderHandler.create_help_entries)
+            super(player, ["ponder"], help_entries: PonderHandler.create_help_entries)
           end
 
           def self.object_added(data)

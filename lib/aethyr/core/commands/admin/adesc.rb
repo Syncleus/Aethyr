@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["adesc"], AdescHandler.create_help_entries)
+            super(player, ["adesc"], help_entries: AdescHandler.create_help_entries)
           end
 
           def self.object_added(data)

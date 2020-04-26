@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["m", "map"], MapHandler.create_help_entries)
+            super(player, ["m", "map"], help_entries: MapHandler.create_help_entries)
           end
 
           def self.object_added(data)

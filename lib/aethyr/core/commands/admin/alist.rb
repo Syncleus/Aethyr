@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["alist"], AlistHandler.create_help_entries)
+            super(player, ["alist"], help_entries: AlistHandler.create_help_entries)
           end
 
           def self.object_added(data)

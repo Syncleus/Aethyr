@@ -27,7 +27,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["wear"], WearHandler.create_help_entries)
+            super(player, ["wear"], help_entries: WearHandler.create_help_entries)
           end
 
           def self.object_added(data)

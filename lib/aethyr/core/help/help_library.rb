@@ -8,8 +8,6 @@ module Aethyr
         end
 
         def entry_register(new_entry)
-          pp new_entry
-          pp @help_registry
           @help_registry[new_entry.topic] = new_entry
         end
 

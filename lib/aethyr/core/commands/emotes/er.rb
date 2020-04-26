@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["er"], ErHandler.create_help_entries)
+            super(player, ["er"], help_entries: ErHandler.create_help_entries)
           end
 
           def self.object_added(data)

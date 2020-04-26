@@ -27,7 +27,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["i", "inv", "inventory"], InventoryHandler.create_help_entries)
+            super(player, ["i", "inv", "inventory"], help_entries: InventoryHandler.create_help_entries)
           end
           
           def self.object_added(data)

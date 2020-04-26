@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["restart"], RestartHandler.create_help_entries)
+            super(player, ["restart"], help_entries: RestartHandler.create_help_entries)
           end
 
           def self.object_added(data)

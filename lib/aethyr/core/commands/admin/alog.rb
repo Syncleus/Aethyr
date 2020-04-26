@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["alog"], AlogHandler.create_help_entries)
+            super(player, ["alog"], help_entries: AlogHandler.create_help_entries)
           end
 
           def self.object_added(data)

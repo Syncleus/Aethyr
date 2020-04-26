@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["asave"], AsaveHandler.create_help_entries)
+            super(player, ["asave"], help_entries: AsaveHandler.create_help_entries)
           end
 
           def self.object_added(data)

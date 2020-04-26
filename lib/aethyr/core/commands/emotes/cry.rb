@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["cry"], CryHandler.create_help_entries)
+            super(player, ["cry"], help_entries: CryHandler.create_help_entries)
           end
 
           def self.object_added(data)

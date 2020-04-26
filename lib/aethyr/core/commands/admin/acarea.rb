@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["acarea"], AcareaHandler.create_help_entries)
+            super(player, ["acarea"], help_entries: AcareaHandler.create_help_entries)
           end
 
           def self.object_added(data)

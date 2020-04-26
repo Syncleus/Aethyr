@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["bow"], BowHandler.create_help_entries)
+            super(player, ["bow"], help_entries: BowHandler.create_help_entries)
           end
 
           def self.object_added(data)

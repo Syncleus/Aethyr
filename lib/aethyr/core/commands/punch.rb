@@ -24,7 +24,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["punch"], PunchHandler.create_help_entries)
+            super(player, ["punch"], help_entries: PunchHandler.create_help_entries)
           end
 
           def self.object_added(data)

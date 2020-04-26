@@ -30,7 +30,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ["l", "look"], LookHandler.create_help_entries)
+            super(player, ["l", "look"], help_entries: LookHandler.create_help_entries)
           end
 
           def self.object_added(data)

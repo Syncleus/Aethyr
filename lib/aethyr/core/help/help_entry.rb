@@ -2,7 +2,7 @@ module Aethyr
   module Core
     module Help
       class HelpEntry
-        attr_reader :topic, :redirect, :content, :see_also, :aliases
+        attr_reader :topic, :redirect, :content, :see_also, :aliases, :syntax_formats
 
         def initialize(topic, redirect: nil, content: nil, see_also: nil, aliases: nil, syntax_formats: nil)
           #do some validity checking on the arguments

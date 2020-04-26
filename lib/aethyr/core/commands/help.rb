@@ -17,8 +17,10 @@ module Aethyr
           def player_input(data)
             super(data)
             case data[:input]
-            when /^(help|help topics)$/i
-              self.player.output("Help topics available: " + player.help_library.topics.join(", "), false)
+            when /^(help)$/i
+              self.player.output("\nHelp topics available: " + self.player.help_library.topics.join(", ") + "\n", false)
+            when /^help (.*)$/i
+              self.player.output("\n" + self.player.help_library.render_topic($1) + "\n", false)
             end
           end
         end

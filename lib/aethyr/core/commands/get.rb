@@ -12,7 +12,7 @@ module Aethyr
 
             command = "get"
             see_also = ["GIVE"]
-            syntax_formats = ["GET [object]", "GRAB [object'", "TAKE [object]"]
+            syntax_formats = ["GET [object]", "GRAB [object]", "TAKE [object]"]
             aliases = ["grab", "take"]
             content =  <<'EOF'
 Pick up an object and put it in your inventory.
@@ -27,7 +27,7 @@ EOF
           def initialize(player)
             super(player, ["get", "grab", "take"], help_entries: GetHandler.create_help_entries)
           end
-          
+
           def self.object_added(data)
             super(data, self)
           end
@@ -41,9 +41,9 @@ EOF
               action({ :object => $2.strip })
             end
           end
-          
+
           private
-          
+
           #Gets (or takes) an object and puts it in the player's inventory.
           def action(event)
             room = $manager.get_object(@player.container)

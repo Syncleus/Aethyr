@@ -37,18 +37,18 @@ module Aethyr
 
           rendered = redirected_from
 
-          rendered += "Aliases: " + entry.aliases.join(", ") + "\n" unless aliases.empty?
+          rendered += "Aliases: " + entry.aliases.join(", ") + "\n" unless entry.aliases.empty?
 
           syntaxes = []
-          entry.syntax_formates.each do |syntax|
+          entry.syntax_formats.each do |syntax|
             syntaxes.push "Syntax: #{syntax}"
           end
           rendered += syntaxes.join("\n")
-          rendered += "\n" unless syntaxes.empty? && aliases.empty?
+          rendered += "\n\n" unless syntaxes.empty? && aliases.empty?
 
           rendered += entry.content + "\n"
 
-          rendered += "See also: " + emtry.see_also.join(", ") + "\n" unless see_also.empty?
+          rendered += "See also: " + entry.see_also.join(", ") + "\n" unless entry.see_also.empty?
 
           return rendered
         end

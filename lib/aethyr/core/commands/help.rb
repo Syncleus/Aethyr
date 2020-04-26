@@ -18,9 +18,9 @@ module Aethyr
             super(data)
             case data[:input]
             when /^(help)$/i
-              self.player.output("\nHelp topics available: " + self.player.help_library.topics.join(", ") + "\n", false)
+              self.player.output("Help topics available: " + self.player.help_library.topics.join(", ") + "\n", false)
             when /^help (.*)$/i
-              self.player.output("\n" + self.player.help_library.render_topic($1) + "\n", false)
+              self.player.output(self.player.help_library.render_topic($1), false)
             end
           end
         end

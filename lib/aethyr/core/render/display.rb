@@ -415,7 +415,7 @@ CONF
         when 13 # return
           @windows[:input].clear
           self.selected = :input
-          @windows[:main].send("≫≫≫≫≫ #{string}") if echo?
+          @windows[:main].send("\n≫≫≫≫≫ #{string}\n\n") if echo?
           @windows[:main].buffer_pos = 0
           @windows[:main].update
           return string#, cursor_pos, ch # Which return key has been used?

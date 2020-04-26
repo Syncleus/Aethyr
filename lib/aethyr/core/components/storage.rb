@@ -187,24 +187,12 @@ class StorageMachine
 
     volatile_data = object.dehydrate()
 
-    if object.is_a? Observable
-      observers = object.instance_variable_get(:@observer_peers)
-      unless observers.nil?
-        observers = observers.dup
-        object.delete_observers
-      end
-    end
-
     open_store("goids", false) do |gd|
       gd[object.goid] = object.class.to_s
     end
 
     open_store(object.class, false) do |gd|
       gd[object.goid] = Marshal.dump(object)
-    end
-
-    if object.is_a? Observable and not observers.nil?
-      object.instance_variable_set(:@observer_peers, observers)
     end
 
     if object.respond_to? :equipment
@@ -318,10 +306,7 @@ class StorageMachine
       end
     end
 
-    if object.is_a? Observable
-      fix_observers object
-    end
-
+    object.rehydrate(nil)
     game_objects << object
 
     unless object.container.nil? or game_objects.loaded? object.container
@@ -331,8 +316,6 @@ class StorageMachine
         object.container = ServerConfig.start_room
       end
     end
-
-    object.rehydrate(nil)
 
     return object
   end
@@ -491,15 +474,6 @@ class StorageMachine
     load_all(true).each do |game_object|
       game_object = yield game_object
       store_object(game_object)
-    end
-  end
-
-  #Fixes issue with changes with Observer between Ruby 1.8.7 and 1.9.1
-  def fix_observers object
-    if RUBY_VERSION < "1.9.0"
-      object.instance_variable_set(:@observer_peers, [])
-    else
-      object.instance_variable_set(:@observer_peers, {})
     end
   end
 

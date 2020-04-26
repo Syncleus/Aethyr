@@ -18,6 +18,7 @@ class GameObject < Publisher
   alias :room :container
   alias :can? :respond_to?
   alias :goid :game_object_id
+  volatile :@observer_peers
 
   @@volatile = []
 
@@ -90,7 +91,14 @@ class GameObject < Publisher
   end
 
   def rehydrate(volatile_data)
-    return if volatile_data.nil?
+    if volatile_data.nil?
+      if RUBY_VERSION < "1.9.0"
+        self.instance_variable_set(:@observer_peers, [])
+      else
+        self.instance_variable_set(:@observer_peers, {})
+      end
+      return
+    end
     volatile_data.each do |attr, data|
       self.instance_variable_set(attr, data) if @@volatile.include? attr
     end

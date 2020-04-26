@@ -12,10 +12,39 @@ module Aethyr
 
             command = "emote"
             see_also = nil
-            syntax_formats = ["EMOTE"]
+            syntax_formats = ["EMOTE [action]"]
             aliases = nil
             content =  <<'EOF'
-Please see help for emote instead.
+The emote command is used to convey actions to an entire room besides just talking or premade emotes (also called socials).
+The simplest way to use this command is by simply typing EMOTE then your actions:
+
+If I am Joe and I type:
+EMOTE runs about wildly
+
+It will result in the room seeing:
+Joe runs about wildly.
+
+However, there are more complex uses. Try using $me to substitute for your name:
+
+If I am Joe and I type:
+EMOTE eyes crazy, $me runs about wildly.
+
+It will result in the room seeing:
+Eyes crazy, Joe runs about wildly.
+
+
+You may also use $name to substitute other people's names into your emote.
+
+If I am Joe and I type:
+EMOTE bonks $sarah on the head
+
+The room sees:
+Joe bonks Sarah on the head.
+
+Sarah sees:
+Joe bonks you on the head.
+
+Note that you cannot combine $me and $name in the same emote.
 EOF
             help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
 

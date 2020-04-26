@@ -6,7 +6,7 @@ module Aethyr
     class InputHandler
       attr_reader :player
 
-      def initialize(player, *args)
+      def initialize(player, *args, **kwargs)
         super()
         @player = player
       end
@@ -19,8 +19,8 @@ module Aethyr
     class CommandHandler < InputHandler
       include Aethyr::Extend::HandleHelp
 
-      def initialize(player, commands, *args, help_entries: [])
-        super(player, commands, *args, help_entries: help_entries)
+      def initialize(player, commands, *args, help_entries: [], **kwargs)
+        super(player, commands, *args, help_entries: help_entries, **kwargs)
       end
 
       protected

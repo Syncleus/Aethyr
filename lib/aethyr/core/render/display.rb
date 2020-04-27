@@ -329,6 +329,7 @@ CONF
       Ncurses.doupdate();
 
       next if not @scanner.process_iac
+
       ch = @windows[:input].window_text.getch
       puts ch
 

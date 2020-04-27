@@ -40,4 +40,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake', '~> 11.3'
   spec.add_development_dependency 'rdoc', '~> 4.2'
   spec.add_development_dependency 'aruba', '~> 0.14'
+  spec.add_development_dependency 'rubocop', '~> 0.82'
 end

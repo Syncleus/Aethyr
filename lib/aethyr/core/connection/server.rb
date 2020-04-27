@@ -67,16 +67,11 @@ module Aethyr
           end
 
           players.each do |player|
-            begin
-              player.receive_data
-            rescue Exception => e
-              log "Closing connection for #{player}"
-              begin
-                player.socket.close
-              rescue
-              end
+            if player.closed?
+              log "Player #{player} has closed connection, removing from server queue"
               players.delete(player)
-              log e.message + "\n" + e.backtrace.join("\n") unless player.closed?
+            else
+              player.receive_data
             end
           end
 

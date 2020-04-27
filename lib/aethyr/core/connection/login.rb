@@ -9,6 +9,7 @@ module Login
 
   #Get input from io connection and process it
   def receive_data
+    return false if closed?
     data = @display.recv
     return false if data.nil?
     return false if data == ''

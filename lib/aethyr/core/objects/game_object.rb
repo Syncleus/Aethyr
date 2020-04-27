@@ -84,8 +84,13 @@ class GameObject < Publisher
   def dehydrate
     volatile_data = {}
     @@volatile.each do |attr|
-      volatile_data[attr] = self.instance_variable_get(attr)
-      self.instance_variable_set(attr, nil)
+      if self.instance_variable_defined?(attr)
+        volatile_data[attr] = self.instance_variable_get(attr)
+        begin
+          self.remove_instance_variable(attr)
+        rescue NameError
+        end
+      end
     end
     return volatile_data
   end

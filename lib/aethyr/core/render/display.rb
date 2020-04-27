@@ -28,7 +28,6 @@ class Display
     @screen = Ncurses.newterm("xterm-256color", @socket, @socket)
 
     Ncurses.set_term(@screen)
-    Ncurses.resizeterm(@height, @width)
     Ncurses.cbreak           # provide unbuffered input
     Ncurses.noecho           # turn off input echoing
     Ncurses.nonl             # turn off newline translation

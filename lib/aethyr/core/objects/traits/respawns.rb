@@ -59,6 +59,7 @@ module Respawns
       return
     end
 
-    add_event Event.new(:Mobiles, :player => self, :action => :respawn, :room => room)
+    raise "respawn no longer works, removed events, will likely be rewritten"
+    #add_event Event.new(:Mobiles, :player => self, :action => :respawn, :room => room)
   end
 end

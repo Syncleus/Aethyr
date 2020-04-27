@@ -7,7 +7,7 @@ require 'aethyr/core/registry'
 require 'aethyr/core/util/publisher'
 require 'set'
 
-#The Manager class uses the observer model to recieve commands from objects, which
+#The Manager class uses the wisper to recieve commands from objects, which
 #it then passes along to the EventHandler.
 #The Manager also keeps track of all game objects and takes care of adding, removing, and
 #finding them.
@@ -184,7 +184,7 @@ class Manager < Publisher
   def add_object(game_object, position = nil)
 
     @game_objects << game_object unless @game_objects.loaded? game_object.goid
-    
+
     broadcast(:object_added, { :publisher => self, :game_object => game_object, :position => position})
 
     unless game_object.room.nil?
@@ -346,81 +346,6 @@ class Manager < Publisher
     log e.inspect
     log(e.backtrace.join("\n"))
     log "Error when dropping player, but recovering and continuing."
-  end
-
-  #Update gets called when an event occurs. The event is just passed along to the EventHandler, unless it is a :quit  or :save
-  #event, in which case the Manager takes care of it.
-  def update(event)
-    return if not @running
-    log "Got event: #{event}", Logger::Medium
-    if event.nil?
-      return
-    elsif event[:type] == :Future
-      future_event(event)
-      return
-    end
-
-    log "Adding event to event handler from #{event[:player]}", Logger::Ultimate
-    @event_handler.event_queue << event
-
-    #EventMachine.defer lambda {@event_handler.run}
-    @event_handler.run
-  end
-
-  #Add a future event.
-  def future_event(event)
-    if event[:action] == :call
-      EventMachine.add_timer(event[:time]) do
-        if $manager.cancelled? event
-          $manager.remove_cancelled event
-          break
-        end
-
-        e = event[:event].call
-
-        if e.is_a? String
-          e = CommandParser.parse(event[:player], e)
-        end
-
-        if e.is_a? Event
-          $manager.update(e)
-        end
-
-      end
-    else
-      EventMachine.add_timer(event[:time]) do
-        if $manager.cancelled? event
-          $manager.remove_cancelled event
-          break
-        end
-
-        $manager.update(event[:event])
-      end
-    end
-  end
-
-  def cancel_event event
-    if event.is_a? Integer
-      @cancelled_events << event
-    else
-      @cancelled_events << event.object_id
-    end
-  end
-
-  def cancelled? event
-    if event.is_a? Integer
-      @cancelled_events.include? event
-    else
-      @cancelled_events.include? event.object_id
-    end
-  end
-
-  def remove_cancelled event
-    if event.is_a? Integer
-      @cancelled_event.delete event
-    else
-      @cancelled_event.delete event.object_id
-    end
   end
 
   #Calls update on all objects.

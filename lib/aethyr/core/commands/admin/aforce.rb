@@ -15,7 +15,7 @@ module Aethyr
             syntax_formats = ["AFORCE [OBJECT] [ACTION]"]
             aliases = nil
             content =  <<'EOF'
-Sorry no help has been written for this command yet
+Forces another player to execute a command.
 EOF
             help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
 
@@ -50,17 +50,12 @@ EOF
             if object.nil?
               player.output "Force who?"
               return
-            elsif object.is_a? Mobile
-              unless object.info.redirect_output_to == player.goid
-                object.info.redirect_output_to = player.goid
-
-                after 10 do
-                  object.info.redirect_output_to = nil
-                end
-              end
+            elsif object.is_a? Player
+              object.handle_input(event[:command])
+            else
+              player.output "You can only force other players to execute a command."
             end
 
-            player.add_event(CommandParser.parse(object, event[:command]))
           end
 
         end

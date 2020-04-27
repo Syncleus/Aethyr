@@ -182,7 +182,7 @@ class StorageMachine
 
   #Recursively stores object and its inventory.
   #
-  #Warning: this temporarily removes the object's observers.
+  #Warning: this temporarily removes the object's subscribers.
   def store_object(object)
 
     volatile_data = object.dehydrate()

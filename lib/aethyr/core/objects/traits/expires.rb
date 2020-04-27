@@ -18,6 +18,6 @@ module Expires
   private
 
   def expire
-    add_event Event.new(:Mobiles, :action => :expire, :player => self)
+    raise "expire is not yet properly implemented"
   end
 end

@@ -64,7 +64,8 @@ module Reacts
         unless action.nil?
           log "I am doing an action...", Logger::Ultimate
           changed
-          notify_observers(action)
+          #notify_observers(action)
+          raise "This used to notify observers, not sure how this worked so need to fix this, most likely this will be rewritten before it becomes an issue."
         else
           log "Action did not parse: #{reaction}", Logger::Medium
         end
@@ -118,7 +119,8 @@ module Reacts
     event = CommandParser.parse(self, command)
     return false if event.nil? #failed to parse
 
-    add_event event unless delay
+    raise "removed events this class no longer works, will probably be rewritten"
+    #add_event event unless delay
     event
   end
 
@@ -273,7 +275,8 @@ module Reacts
 
   def teleport item, destination, options = {}
     event = Event.new :Mobiles, {:action => :teleport, :player => self, :object => item, :in => destination}.merge(options)
-    add_event event
+    raise "re removed events this class no longer works and will probably be rewritten"
+    #    add_event event
   end
 
   def follow object, message = nil

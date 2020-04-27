@@ -1,4 +1,3 @@
-require 'observer'
 require 'aethyr/core/util/publisher'
 require 'aethyr/core/util/log'
 require 'aethyr/core/objects/inventory'
@@ -9,7 +8,6 @@ require 'aethyr/core/event'
 
 #Base class for all game objects, including players. Should be subclassed to do anything useful.
 class GameObject < Publisher
-  include Observable
   include Pronoun
 
   attr_reader :short_desc, :game_object_id, :alt_names, :generic, :article, :sex, :show_in_look, :actions, :balance, :admin, :manager
@@ -18,7 +16,6 @@ class GameObject < Publisher
   alias :room :container
   alias :can? :respond_to?
   alias :goid :game_object_id
-  volatile :@observer_peers
 
   #Creates a new GameObject. Most of this long list of parameters is simply ignored at creation time,
   #because they can all be set later.
@@ -71,17 +68,6 @@ class GameObject < Publisher
     @plural = nil
     @actions = Set.new
     @admin = false
-  end
-
-  def rehydrate(volatile_data)
-    super(volatile_data)
-    if volatile_data.nil?
-      if RUBY_VERSION < "1.9.0"
-        self.instance_variable_set(:@observer_peers, [])
-      else
-        self.instance_variable_set(:@observer_peers, {})
-      end
-    end
   end
 
   def flags
@@ -143,12 +129,6 @@ class GameObject < Publisher
   #
   #To be implemented in the subclasses
   def run
-  end
-
-  #Just a way to put an event into the system, nothing more, nothing less.
-  def add_event(event)
-    changed
-    notify_observers(event)
   end
 
   #Basically, this is where hooks for commands would go.

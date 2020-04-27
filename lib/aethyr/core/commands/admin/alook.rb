@@ -51,9 +51,6 @@ EOF
               object = room
             elsif event[:at].downcase == "here"
               object = $manager.find player.container
-            elsif player == event[:at]
-              player.output "You can't look at yourself without getting lost forever."
-              return
             else
               object = find_object(event[:at], event)
             end
@@ -70,6 +67,8 @@ EOF
               val = object.instance_variable_get(var)
               if var == :@observer_peers
                 val = val.keys.map {|k| k.to_s }
+              elsif var == :@local_registrations
+                val = val.map { |e| e.instance_variable_get(:@listener).to_s.tr('#<>', '') }
               end
               output << "\t#{var} = #{val}\n"
             end
@@ -92,6 +91,7 @@ EOF
               output << "\t#{object.equipment.equipment.inspect}\n"
             end
 
+            puts output
             player.output(output)
           end
 

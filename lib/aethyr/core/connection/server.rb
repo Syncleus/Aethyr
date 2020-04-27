@@ -63,15 +63,14 @@ module Aethyr
           #ready, _, _ = IO.select([listener])
           socket, addr_info = listener.accept_nonblock(exception: false)
           if (not socket.nil?) and socket.is_a? Socket
-            did_something = true
             players << handle_client(socket, addr_info)
           end
 
           players.each do |player|
-            did_something = true if player.receive_data
+            player.display.set_term
+            player.receive_data
           end
 
-          sleep 0.1 unless did_something
         end
 
 #        4.times do # Adjust this number for the pool size

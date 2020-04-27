@@ -1,4 +1,3 @@
-# frozen_string_literal: true
 
 require 'socket'
 require 'aethyr/core/connection/telnet_codes'
@@ -64,10 +63,7 @@ class TelnetScanner
   end
 
   def process_iac
-    log 'doing process_iac'
-
     @iac_state = :none if @iac_state.nil?
-    puts 'start'
     ch = nil?
     begin
       ch = @socket.recv_nonblock(1, Socket::MSG_PEEK)
@@ -76,9 +72,7 @@ class TelnetScanner
     end
     return false if ch.nil?
 
-    puts 'stop'
     ch = ch.chr
-    log "processing #{ch.ord}"
     if @iac_state == :none && ch == IAC
       @socket.recv(1)
       @iac_state = :IAC

@@ -12,13 +12,6 @@ class GameObject < Publisher
   include Observable
   include Pronoun
 
-  @@volatile = []
-
-  def self.volatile(*attrs)
-    @@volatile += attrs
-    @@volatile.uniq!
-  end
-
   attr_reader :short_desc, :game_object_id, :alt_names, :generic, :article, :sex, :show_in_look, :actions, :balance, :admin, :manager
   attr_accessor :container, :show_in_look, :actions, :pose, :visible, :comment, :movable, :quantity, :info
   attr_writer :plural
@@ -80,32 +73,14 @@ class GameObject < Publisher
     @admin = false
   end
 
-  # removes all volatle data but provides it as a map for restoration in rehydrate
-  def dehydrate
-    volatile_data = {}
-    @@volatile.each do |attr|
-      if self.instance_variable_defined?(attr)
-        volatile_data[attr] = self.instance_variable_get(attr)
-        begin
-          self.remove_instance_variable(attr)
-        rescue NameError
-        end
-      end
-    end
-    return volatile_data
-  end
-
   def rehydrate(volatile_data)
+    super(volatile_data)
     if volatile_data.nil?
       if RUBY_VERSION < "1.9.0"
         self.instance_variable_set(:@observer_peers, [])
       else
         self.instance_variable_set(:@observer_peers, {})
       end
-      return
-    end
-    volatile_data.each do |attr, data|
-      self.instance_variable_set(attr, data) if @@volatile.include? attr
     end
   end
 

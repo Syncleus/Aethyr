@@ -15,12 +15,13 @@ class PlayerConnection
   include Editor
 
   #Input buffer
-  attr_reader :in_buffer, :display
+  attr_reader :in_buffer, :display, :socket
   attr_accessor :word_wrap
 
-  def initialize(display, addrinfo, *args)
+  def initialize(socket, addrinfo, *args)
     super(*args)
-    @display = display
+    @display = Display.new(socket)
+    @socket = socket
 
     @in_buffer = []
     @paginator = nil
@@ -120,6 +121,7 @@ class PlayerConnection
 
   #Close the io connection
   def close
-    close_connection_after_writing
+    display.close
+    @closed = true
   end
 end

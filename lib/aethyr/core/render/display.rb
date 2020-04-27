@@ -175,6 +175,7 @@ class Display
     Ncurses.nocbreak
     Ncurses.nl
     Ncurses.endwin
+    @socket.close
   end
 
   # Sets colors to defaults

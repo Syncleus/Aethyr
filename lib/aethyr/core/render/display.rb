@@ -83,6 +83,7 @@ class Display
   end
 
   def layout(layout: @layout_type)
+    set_term
     puts "layout #{layout} set for resolution #{@width}x#{@height}"
     @layout_type = layout
     if @layout_type == :wide && @height >= 60 && @width >= 300
@@ -128,7 +129,14 @@ class Display
     @width = resolution[0]
     @height = resolution[1]
     Ncurses.resizeterm(@height, @width)
+    @global_refresh = true
     layout
+  end
+
+  def global_refresh
+    retval = @global_refresh
+    @global_refresh = false
+    return retval
   end
 
   def echo?

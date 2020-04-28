@@ -58,7 +58,6 @@ module Aethyr
 
         players = Set.new()
         loop do
-          did_something = false
           # handle the listener
           #ready, _, _ = IO.select([listener])
           socket, addr_info = listener.accept_nonblock(exception: false)
@@ -72,6 +71,18 @@ module Aethyr
               players.delete(player)
             else
               player.receive_data
+            end
+          end
+
+          # TODO this is a hack to fix a bug from calling resizeterm
+          #check if global refresh is needed
+          need_refresh = false
+          players.each do |player|
+            need_refresh = true if player.display.global_refresh
+          end
+          if need_refresh
+            players.each do |player|
+              player.display.layout
             end
           end
 

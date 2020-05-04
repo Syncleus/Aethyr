@@ -221,8 +221,7 @@ EOF
             when /^(feel)(\s+(.+))?$/i
               action_feel({ :target => $3})
             when /^fill\s+(\w+)\s+from\s+(\w+)$/i
-              action_fill({ :object => $1,
-                :from => $2})
+              action_fill({ :object => $1, :from => $2})
             when /^who$/i
               action_who({})
             when /^time$/i

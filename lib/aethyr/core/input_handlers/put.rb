@@ -36,9 +36,7 @@ EOF
             super(data)
             case data[:input]
             when /^put((\s+(\d+)\s+)|\s+)(\w+)\s+in\s+(\w+)$/i
-              action({ :item => $4,
-                :count => $3.to_i,
-                :container => $5 })
+              action({ :item => $4, :count => $3.to_i, :container => $5 })
             end
           end
 
@@ -79,7 +77,7 @@ EOF
             room.out_event(event)
           end
         end
-        
+
         Aethyr::Extend::HandlerRegistry.register_handler(PutHandler)
       end
     end

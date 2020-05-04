@@ -45,8 +45,9 @@ EOF
           end
 
           private
-          def acdoor event, player, room
-
+          def acdoor(event)
+            room = $manager.get_object(@player.container)
+            player = @player
             exit_room = nil
             if event[:exit_room].nil?
               out = find_object event[:direction], event

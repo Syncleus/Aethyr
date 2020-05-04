@@ -84,6 +84,10 @@ module Aethyr
             players.each do |player|
               player.display.layout
             end
+            #$manager.find_all("class", Player).each do |player|
+            #  puts "updating display of #{player}"
+            #  player.update_display
+            #end
           end
 
         end

@@ -289,9 +289,9 @@ class Display
     if @windows[:map].exists?
       room = $manager.get_object(player.container)
       if !room.nil?
-        send(room.area.render_map(player, room.area.position(room)), message_type: :map, internal_clear: true)
+        player.output(room.area.render_map(player, room.area.position(room)), message_type: :map, internal_clear: true)
       else
-        send('No map of current area.', message_type: :map, internal_clear: true)
+        player.output('No map of current area.', message_type: :map, internal_clear: true)
       end
     end
 

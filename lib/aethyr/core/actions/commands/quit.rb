@@ -11,7 +11,7 @@ module Aethyr
 
           def action
             event = @data
-            $manager.drop_player player
+            $manager.drop_player @player
           end
         end
       end

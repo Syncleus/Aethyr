@@ -1,0 +1,43 @@
+require "aethyr/core/actions/command_action"
+
+module Aethyr
+  module Core
+    module Actions
+      module ReadPost
+        class ReadPostCommand < Aethyr::Core::Actions::CommandAction
+          def initialize(actor, **data)
+            super(actor, **data)
+          end
+
+          def action
+            event = @data
+
+            room = $manager.get_object(@player.container)
+            player = @player
+            board = find_board(event, room)
+
+            if board.nil?
+              player.output "There do not seem to be any postings here."
+              return
+            end
+
+            post = board.get_post event[:post_id]
+            if post.nil?
+              player.output "No such posting here."
+              return
+            end
+
+            if player.info.boards.nil?
+              player.info.boards = {}
+            end
+
+            player.info.boards[board.goid] = event[:post_id].to_i
+
+            player.output board.show_post(post, player.word_wrap || 80)
+          end
+
+        end
+      end
+    end
+  end
+end

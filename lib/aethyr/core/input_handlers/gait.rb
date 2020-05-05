@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/gait"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/command_handler"
+require "aethyr/core/input_handlers/command_handler"
 
 module Aethyr
   module Core
@@ -36,34 +37,11 @@ EOF
             case data[:input]
             when /^gait(\s+(.*))?$/i
               phrase = $2 if $2
-              gait({:phrase => phrase})
+              $manager.submit_action(Aethyr::Core::Actions::Gait::GaitCommand.new(@player, {:phrase => phrase}))
             end
           end
 
           private
-          def gait(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-            if event[:phrase].nil?
-              if player.info.entrance_message
-                player.output "When you move, it looks something like:", true
-                player.output player.exit_message("north")
-              else
-                player.output "You are walking normally."
-              end
-            elsif event[:phrase].downcase == "none"
-              player.info.entrance_message = nil
-              player.info.exit_message = nil
-              player.output "You will now walk normally."
-            else
-              player.info.entrance_message = "#{event[:phrase]}, !name comes in from !direction."
-              player.info.exit_message = "#{event[:phrase]}, !name leaves to !direction."
-
-              player.output "When you move, it will now look something like:", true
-              player.output player.exit_message("north")
-            end
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(GaitHandler)

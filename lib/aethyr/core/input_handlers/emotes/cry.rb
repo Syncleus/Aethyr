@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/cry"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/emotes/emote_handler"
+require "aethyr/core/input_handlers/emotes/emote_handler"
 
 module Aethyr
   module Core
@@ -37,24 +38,11 @@ EOF
             when /^(cry)( +([^()]*))?( +((.*)))?$/i
               object = $3
               post = $5
-              cry({:object => object, :post => post})
+              $manager.submit_action(Aethyr::Core::Actions::Cry::CryCommand.new(@player, {:object => object, :post => post}))
             end
           end
 
           private
-          def cry(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-
-            make_emote event, player, room do
-
-              default do
-                to_player "Tears run down your face as you cry pitifully."
-                to_other "Tears run down #{player.name}'s face as #{player.pronoun} cries pitifully."
-              end
-            end
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(CryHandler)

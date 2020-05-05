@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/ahelp"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/admin/admin_handler"
+require "aethyr/core/input_handlers/admin/admin_handler"
 
 module Aethyr
   module Core
@@ -36,17 +37,11 @@ EOF
             case data[:input]
             when /^ahelp(.*)$/i
               object = $1
-              ahelp({:object => object})
+              $manager.submit_action(Aethyr::Core::Actions::Ahelp::AhelpCommand.new(@player, {:object => object}))
             end
           end
 
           private
-          def ahelp(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-            Generic.help(event, player, room)
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(AhelpHandler)

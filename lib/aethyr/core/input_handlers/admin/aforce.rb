@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/aforce"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/admin/admin_handler"
+require "aethyr/core/input_handlers/admin/admin_handler"
 
 module Aethyr
   module Core
@@ -37,26 +38,11 @@ EOF
             when /^aforce\s+(.*?)\s+(.*)$/i
               target = $1
               command = $2
-              aforce({:target => target, :command => command})
+              $manager.submit_action(Aethyr::Core::Actions::Aforce::AforceCommand.new(@player, {:target => target, :command => command}))
             end
           end
 
           private
-          def aforce(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-            object = find_object(event[:target], event)
-            if object.nil?
-              player.output "Force who?"
-              return
-            elsif object.is_a? Player
-              object.handle_input(event[:command])
-            else
-              player.output "You can only force other players to execute a command."
-            end
-
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(AforceHandler)

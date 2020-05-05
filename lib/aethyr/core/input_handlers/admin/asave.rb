@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/asave"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/admin/admin_handler"
+require "aethyr/core/input_handlers/admin/admin_handler"
 
 module Aethyr
   module Core
@@ -35,19 +36,11 @@ EOF
             super(data)
             case data[:input]
             when /^asave$/i
-              asave({})
+              $manager.submit_action(Aethyr::Core::Actions::Asave::AsaveCommand.new(@player, {}))
             end
           end
 
           private
-          def asave(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-            log "#{player.name} initiated manual save."
-            $manager.save_all
-            player.output "Save complete. Check log for details."
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(AsaveHandler)

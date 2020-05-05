@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/give"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/command_handler"
+require "aethyr/core/input_handlers/command_handler"
 
 module Aethyr
   module Core
@@ -38,47 +39,14 @@ EOF
             super(data)
             case data[:input]
             when /^give\s+((\w+\s*)*)\s+to\s+(\w+)/i
-              action({ :item => $2.strip, :to => $3 })
+              $manager.submit_action(Aethyr::Core::Actions::Give::GiveCommand.new(@player, { :item => $2.strip, :to => $3 }))
             end
           end
           
           private
           
           #Gives an item to someone else.
-          def action(event)
-            room = $manager.get_object(@player.container)
-            item = player.inventory.find(event[:item])
 
-            if item.nil?
-              if response = player.equipment.worn_or_wielded?(event[:item])
-                player.output response
-              else
-                player.output "You do not seem to have a #{event[:item]} to give away."
-              end
-
-              return
-            end
-
-            receiver = $manager.find(event[:to], room)
-
-            if receiver.nil?
-              player.output("There is no #{event[:to]}.")
-              return
-            elsif not receiver.is_a? Player and not receiver.is_a? Mobile
-              player.output("You cannot give anything to #{receiver.name}.")
-              return
-            end
-
-            player.inventory.remove(item)
-            receiver.inventory.add(item)
-
-            event[:target] = receiver
-            event[:to_player] = "You give #{item.name} to #{receiver.name}."
-            event[:to_target] = "#{player.name} gives you #{item.name}."
-            event[:to_other] = "#{player.name} gives #{item.name} to #{receiver.name}."
-
-            room.out_event(event)
-          end
         end
 
         Aethyr::Extend::HandlerRegistry.register_handler(GiveHandler)

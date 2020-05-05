@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/shrug"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/emotes/emote_handler"
+require "aethyr/core/input_handlers/emotes/emote_handler"
 
 module Aethyr
   module Core
@@ -37,39 +38,11 @@ EOF
             when /^(shrug)( +([^()]*))?( +((.*)))?$/i
               object = $3
               post = $5
-              shrug({:object => object, :post => post})
+              $manager.submit_action(Aethyr::Core::Actions::Shrug::ShrugCommand.new(@player, {:object => object, :post => post}))
             end
           end
 
           private
-          def shrug(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-
-            make_emote event, player, room do
-
-              no_target do
-                to_player "You shrug your shoulders."
-                to_other "#{player.name} shrugs #{player.pronoun(:possessive)} shoulders."
-                to_deaf_other event[:to_other]
-              end
-
-              self_target do
-                player.output "Don't just shrug yourself off like that!"
-
-              end
-
-              target do
-                to_player  "You give #{event.target.name} a brief shrug."
-                to_target "#{player.name} gives you a brief shrug."
-                to_other "#{player.name} gives #{event.target.name} a brief shrug."
-                to_deaf_other event[:to_other]
-                to_deaf_target event[:to_target]
-              end
-            end
-
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(ShrugHandler)

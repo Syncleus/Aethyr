@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/yes"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/emotes/emote_handler"
+require "aethyr/core/input_handlers/emotes/emote_handler"
 
 module Aethyr
   module Core
@@ -37,37 +38,11 @@ EOF
             when /^(yes)( +([^()]*))?( +((.*)))?$/i
               object = $3
               post = $5
-              yes({:object => object, :post => post})
+              $manager.submit_action(Aethyr::Core::Actions::Yes::YesCommand.new(@player, {:object => object, :post => post}))
             end
           end
 
           private
-          def yes(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-            make_emote event, player, room do
-
-              no_target do
-                to_player  "\"Yes,\" you say, nodding."
-                to_other "#{player.name} says, \"Yes\" and nods."
-              end
-
-              self_target do
-                to_player  "You nod in agreement with yourself."
-                to_other "#{player.name} nods at #{player.pronoun(:reflexive)} strangely."
-                to_deaf_other event[:to_other]
-              end
-
-              target do
-                to_player  "You nod in agreement with #{event.target.name}."
-                to_target "#{player.name} nods in your direction, agreeing."
-                to_other "#{player.name} nods in agreement with #{event.target.name}."
-                to_deaf_other event[:to_other]
-              end
-            end
-
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(YesHandler)

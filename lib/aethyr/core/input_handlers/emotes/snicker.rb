@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/snicker"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/emotes/emote_handler"
+require "aethyr/core/input_handlers/emotes/emote_handler"
 
 module Aethyr
   module Core
@@ -37,36 +38,11 @@ EOF
             when /^(snicker)( +([^()]*))?( +((.*)))?$/i
               object = $3
               post = $5
-              snicker({:object => object, :post => post})
+              $manager.submit_action(Aethyr::Core::Actions::Snicker::SnickerCommand.new(@player, {:object => object, :post => post}))
             end
           end
 
           private
-          def snicker(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-
-            make_emote event, player, room do
-
-              no_target do
-                to_player  "You snicker softly to yourself."
-                to_other "You hear #{player.name} snicker softly."
-                to_blind_other "You hear someone snicker softly."
-              end
-
-              self_target do
-                player.output "What are you snickering about?"
-              end
-
-              target do
-                to_player  "You snicker at #{event.target.name} under your breath."
-                to_target "#{player.name} snickers at you under #{player.pronoun(:possessive)} breath."
-                to_other "#{player.name} snickers at #{event.target.name} under #{player.pronoun(:possessive)} breath."
-              end
-            end
-
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(SnickerHandler)

@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/wear"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/command_handler"
+require "aethyr/core/input_handlers/command_handler"
 
 module Aethyr
   module Core
@@ -40,32 +41,11 @@ EOF
             when /^wear\s+(\w+)(\s+on\s+(.*))?$/i
               object = $1
               position = $3
-              wear({:object => object, :position => position})
+              $manager.submit_action(Aethyr::Core::Actions::Wear::WearCommand.new(@player, {:object => object, :position => position}))
             end
           end
 
           private
-          def wear(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-
-            object = player.inventory.find(event[:object])
-
-            if object.nil?
-              player.output("What #{event[:object]} are you trying to wear?")
-              return
-            elsif object.is_a? Weapon
-              player.output "You must wield #{object.name}."
-              return
-            end
-
-            if player.wear object
-              event[:to_player] = "You put on #{object.name}."
-              event[:to_other] = "#{player.name} puts on #{object.name}."
-              room.out_event(event)
-            end
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(WearHandler)

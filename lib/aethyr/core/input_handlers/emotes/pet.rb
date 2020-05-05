@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/pet"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/emotes/emote_handler"
+require "aethyr/core/input_handlers/emotes/emote_handler"
 
 module Aethyr
   module Core
@@ -37,38 +38,11 @@ EOF
             when /^(pet)( +([^()]*))?( +((.*)))?$/i
               object = $3
               post = $5
-              pet({:object => object, :post => post})
+              $manager.submit_action(Aethyr::Core::Actions::Pet::PetCommand.new(@player, {:object => object, :post => post}))
             end
           end
 
           private
-          def pet(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-
-            make_emote event, player, room do
-
-              no_target do
-                player.output "Who are you trying to pet?"
-              end
-
-              self_target do
-                to_player 'You pet yourself on the head in a calming manner.'
-                to_other "#{player.name} pets #{player.pronoun(:reflexive)} on the head in a calming manner."
-                to_deaf_other "#{player.name} pets #{player.pronoun(:reflexive)} on the head in a calming manner."
-              end
-
-              target do
-                to_player "You pet #{event.target.name} affectionately."
-                to_target "#{player.name} pets you affectionately."
-                to_deaf_target event[:to_target]
-                to_blind_target "Someone pets you affectionately."
-                to_other "#{player.name} pets #{event.target.name} affectionately."
-                to_deaf_other event[:to_other]
-              end
-            end
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(PetHandler)

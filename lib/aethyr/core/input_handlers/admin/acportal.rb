@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/acportal"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/admin/admin_handler"
+require "aethyr/core/input_handlers/admin/admin_handler"
 
 module Aethyr
   module Core
@@ -39,20 +40,11 @@ EOF
               alt_names = []
               portal_action = $2
               args = [$4]
-              acportal({:object => object, :alt_names => alt_names, :portal_action => portal_action, :args => args})
+              $manager.submit_action(Aethyr::Core::Actions::Acportal::AcportalCommand.new(@player, {:object => object, :alt_names => alt_names, :portal_action => portal_action, :args => args}))
             end
           end
 
           private
-          def acportal(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-            object = Admin.acreate(event, player, room)
-            if event[:portal_action] and event[:portal_action].downcase != "enter"
-              object.info.portal_action = event[:portal_action].downcase.to_sym
-            end
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(AcportalHandler)

@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/quit"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/command_handler"
+require "aethyr/core/input_handlers/command_handler"
 
 module Aethyr
   module Core
@@ -37,15 +38,13 @@ EOF
           def player_input(data)
             case data[:input]
             when /^quit$/i
-              action({})
+              $manager.submit_action(Aethyr::Core::Actions::Quit::QuitCommand.new(@player, {}))
             end
           end
           
           private
           
-          def action(event)
-            $manager.drop_player player
-          end
+
         end
 
         Aethyr::Extend::HandlerRegistry.register_handler(QuitHandler)

@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/skip"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/emotes/emote_handler"
+require "aethyr/core/input_handlers/emotes/emote_handler"
 
 module Aethyr
   module Core
@@ -37,37 +38,11 @@ EOF
             when /^(skip)( +([^()]*))?( +((.*)))?$/i
               object = $3
               post = $5
-              skip({:object => object, :post => post})
+              $manager.submit_action(Aethyr::Core::Actions::Skip::SkipCommand.new(@player, {:object => object, :post => post}))
             end
           end
 
           private
-          def skip(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-
-            make_emote event, player, room do
-
-              no_target do
-                to_player "You skip around cheerfully."
-                to_other "#{player.name} skips around cheerfully."
-                to_deaf_other "#{player.name} skips around cheerfully."
-              end
-
-              self_target do
-                player.output 'How?'
-              end
-
-              target do
-                to_player "You skip around #{event.target.name} cheerfully."
-                to_target "#{player.name} skips around you cheerfully."
-                to_other "#{player.name} skips around #{event.target.name} cheerfully."
-                to_deaf_other "#{player.name} skips around #{event.target.name} cheerfully."
-              end
-
-            end
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(SkipHandler)

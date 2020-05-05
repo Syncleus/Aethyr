@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/hi"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/emotes/emote_handler"
+require "aethyr/core/input_handlers/emotes/emote_handler"
 
 module Aethyr
   module Core
@@ -37,35 +38,11 @@ EOF
             when /^(hi)( +([^()]*))?( +((.*)))?$/i
               object = $3
               post = $5
-              hi({:object => object, :post => post})
+              $manager.submit_action(Aethyr::Core::Actions::Hi::HiCommand.new(@player, {:object => object, :post => post}))
             end
           end
 
           private
-          def hi(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-
-            make_emote event, player, room do
-
-              no_target do
-                to_player "\"Hi!\" you greet those around you."
-                to_other "#{player.name} greets those around with a \"Hi!\""
-              end
-
-              self_target do
-                player.output "Hi."
-              end
-
-              target do
-                to_player "You say \"Hi!\" in greeting to #{event.target.name}."
-                to_target "#{player.name} greets you with a \"Hi!\""
-                to_other "#{player.name} greets #{event.target.name} with a hearty \"Hi!\""
-              end
-            end
-
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(HiHandler)

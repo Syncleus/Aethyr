@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/uh"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/emotes/emote_handler"
+require "aethyr/core/input_handlers/emotes/emote_handler"
 
 module Aethyr
   module Core
@@ -37,28 +38,11 @@ EOF
             when /^(uh)( +([^()]*))?( +((.*)))?$/i
               object = $3
               post = $5
-              uh({:object => object, :post => post})
+              $manager.submit_action(Aethyr::Core::Actions::Uh::UhCommand.new(@player, {:object => object, :post => post}))
             end
           end
 
           private
-          def uh(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-            make_emote event, player, room do
-              no_target do
-                to_player "\"Uh...\" you say, staring blankly."
-                to_other "With a blank stare, #{player.name} says, \"Uh...\""
-              end
-
-              target do
-                to_player "With a blank stare at #{target.name}, you say, \"Uh...\""
-                to_other "With a blank stare at #{target.name}, #{player.name} says, \"Uh...\""
-                to_target "Staring blankly at you, #{player.name} says, \"Uh...\""
-              end
-            end
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(UhHandler)

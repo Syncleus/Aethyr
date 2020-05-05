@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/awho"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/admin/admin_handler"
+require "aethyr/core/input_handlers/admin/admin_handler"
 
 module Aethyr
   module Core
@@ -35,25 +36,11 @@ EOF
             super(data)
             case data[:input]
             when /^awho/i
-              awho({})
+              $manager.submit_action(Aethyr::Core::Actions::Awho::AwhoCommand.new(@player, {}))
             end
           end
 
           private
-          def awho(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-            players = $manager.find_all('class', Player)
-
-            names = []
-            players.each do |playa|
-              names << playa.name
-            end
-
-            player.output('Players currently online:', true)
-            player.output(names.join(', '))
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(AwhoHandler)

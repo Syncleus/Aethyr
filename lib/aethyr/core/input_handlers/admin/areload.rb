@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/areload"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/admin/admin_handler"
+require "aethyr/core/input_handlers/admin/admin_handler"
 
 module Aethyr
   module Core
@@ -36,22 +37,11 @@ EOF
             case data[:input]
             when /^areload\s+(.*)$/i
               object = $1
-              areload({:object => object})
+              $manager.submit_action(Aethyr::Core::Actions::Areload::AreloadCommand.new(@player, {:object => object}))
             end
           end
 
           private
-          def areload(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-            begin
-              result = load "#{event[:object]}.rb"
-              player.output "Reloaded #{event[:object]}: #{result}"
-            rescue LoadError
-              player.output "Unable to load #{event[:object]}"
-            end
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(AreloadHandler)

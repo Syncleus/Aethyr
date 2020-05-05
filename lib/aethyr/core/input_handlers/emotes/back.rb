@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/back"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/emotes/emote_handler"
+require "aethyr/core/input_handlers/emotes/emote_handler"
 
 module Aethyr
   module Core
@@ -37,36 +38,11 @@ EOF
             when /^(back)( +([^()]*))?( +((.*)))?$/i
               object = $3
               post = $5
-              back({:object => object, :post => post})
+              $manager.submit_action(Aethyr::Core::Actions::Back::BackCommand.new(@player, {:object => object, :post => post}))
             end
           end
 
           private
-          def back(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-
-            make_emote event, player, room do
-
-              no_target do
-                to_player "\"I'm back!\" you happily announce."
-                to_other "\"I'm back!\" #{player.name} happily announces to those nearby."
-                to_blind_other "Someone announces, \"I'm back!\""
-              end
-
-              self_target do
-                player.output "Hm? How do you do that?"
-              end
-
-              target do
-                to_player "You happily announce your return to #{event.target.name}."
-                to_target "#{player.name} happily announces #{player.pronoun(:possessive)} return to you."
-                to_other "#{player.name} announces #{player.pronoun(:possessive)} return to #{event.target.name}."
-                to_blind_other "Someone says, \"I shall return shortly!\""
-              end
-            end
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(BackHandler)

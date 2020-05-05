@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/more"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/command_handler"
+require "aethyr/core/input_handlers/command_handler"
 
 module Aethyr
   module Core
@@ -38,14 +39,12 @@ EOF
             super(data)
             case data[:input]
             when /^more/i
-              action({})
+              $manager.submit_action(Aethyr::Core::Actions::More::MoreCommand.new(@player, {}))
             end
           end
           
           private
-          def action(event)
-            player.more
-          end
+
         end
 
         Aethyr::Extend::HandlerRegistry.register_handler(MoreHandler)

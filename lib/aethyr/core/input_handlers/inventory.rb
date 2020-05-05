@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/inventory"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/command_handler"
+require "aethyr/core/input_handlers/command_handler"
 
 module Aethyr
   module Core
@@ -38,16 +39,14 @@ EOF
             super(data)
             case data[:input]
             when /^(i|inv|inventory)$/i
-              action({})
+              $manager.submit_action(Aethyr::Core::Actions::Inventory::InventoryCommand.new(@player, {}))
             end
           end
           
           private
           
           #Shows the inventory of the player.
-          def action(event)
-            player.output(player.show_inventory)
-          end
+
         end
 
         Aethyr::Extend::HandlerRegistry.register_handler(InventoryHandler)

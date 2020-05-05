@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/pose"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/command_handler"
+require "aethyr/core/input_handlers/command_handler"
 
 module Aethyr
   module Core
@@ -36,23 +37,11 @@ EOF
             case data[:input]
             when /^pose\s+(.*)$/i
               pose = $1.strip
-              pose({:pose => pose})
+              $manager.submit_action(Aethyr::Core::Actions::Pose::PoseCommand.new(@player, {:pose => pose}))
             end
           end
 
           private
-          def pose(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-            if event[:pose].downcase == "none"
-              player.pose = nil
-              player.output "You are no longer posing."
-            else
-              player.pose = event[:pose]
-              player.output "Your pose is now: #{event[:pose]}."
-            end
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(PoseHandler)

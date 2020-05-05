@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/smile"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/emotes/emote_handler"
+require "aethyr/core/input_handlers/emotes/emote_handler"
 
 module Aethyr
   module Core
@@ -37,35 +38,11 @@ EOF
             when /^(smile)( +([^()]*))?( +((.*)))?$/i
               object = $3
               post = $5
-              smile({:object => object, :post => post})
+              $manager.submit_action(Aethyr::Core::Actions::Smile::SmileCommand.new(@player, {:object => object, :post => post}))
             end
           end
 
           private
-          def smile(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-
-            make_emote event, player, room do
-
-              self_target do
-                to_player "You smile happily at yourself."
-                to_other "#{player.name} smiles at #{player.pronoun(:reflexive)} sillily."
-              end
-
-              target do
-                to_player "You smile at #{event.target.name} kindly."
-                to_target "#{player.name} smiles at you kindly."
-                to_other "#{player.name} smiles at #{event.target.name} kindly."
-              end
-
-              no_target do
-                to_player "You smile happily."
-                to_other "#{player.name} smiles happily."
-              end
-            end
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(SmileHandler)

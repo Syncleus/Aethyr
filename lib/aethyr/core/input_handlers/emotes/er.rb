@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/er"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/emotes/emote_handler"
+require "aethyr/core/input_handlers/emotes/emote_handler"
 
 module Aethyr
   module Core
@@ -37,28 +38,11 @@ EOF
             when /^(er)( +([^()]*))?( +((.*)))?$/i
               object = $3
               post = $5
-              er({:object => object, :post => post})
+              $manager.submit_action(Aethyr::Core::Actions::Er::ErCommand.new(@player, {:object => object, :post => post}))
             end
           end
 
           private
-          def er(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-            make_emote event, player, room do
-              no_target do
-                to_player "With a look of uncertainty, you say, \"Er...\""
-                to_other "With a look of uncertainty, #{player.name} says, \"Er...\""
-              end
-
-              target do
-                to_player "Looking at #{target.name} uncertainly, you say, \"Er...\""
-                to_other "Looking at #{target.name} uncertainly, #{player.name} says, \"Er...\""
-                to_target "Looking at you uncertainly, #{player.name} says, \"Er...\""
-              end
-            end
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(ErHandler)

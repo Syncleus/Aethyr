@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/alearn"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/admin/admin_handler"
+require "aethyr/core/input_handlers/admin/admin_handler"
 
 module Aethyr
   module Core
@@ -36,16 +37,11 @@ EOF
             case data[:input]
             when /^alearn\s+(\w+)$/i
               skill = $1
-              alearn({:skill => skill})
+              $manager.submit_action(Aethyr::Core::Actions::Alearn::AlearnCommand.new(@player, {:skill => skill}))
             end
           end
 
           private
-          def alearn(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(AlearnHandler)

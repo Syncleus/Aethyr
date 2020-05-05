@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/remove"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/command_handler"
+require "aethyr/core/input_handlers/command_handler"
 
 module Aethyr
   module Core
@@ -38,43 +39,11 @@ EOF
             when /^remove\s+(\w+)(\s+from\s+(.*))?$/i
               object = $1
               position = $3
-              remove({:object => object, :position => position})
+              $manager.submit_action(Aethyr::Core::Actions::Remove::RemoveCommand.new(@player, {:object => object, :position => position}))
             end
           end
 
           private
-          def remove(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-
-            object = player.equipment.find(event[:object])
-
-            if object.nil?
-              player.output("What #{event[:object]} are you trying to remove?")
-              return
-            end
-
-            if player.inventory.full?
-              player.output("There is no room in your inventory.")
-              return
-            end
-
-            if object.is_a? Weapon
-              player.output("You must unwield weapons.")
-              return
-            end
-
-            response = player.remove(object, event[:position])
-
-            if response
-              event[:to_player] = "You remove #{object.name}."
-              event[:to_other] = "#{player.name} removes #{object.name}."
-              room.out_event(event)
-            else
-              player.output "Could not remove #{object.name} for some reason."
-            end
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(RemoveHandler)

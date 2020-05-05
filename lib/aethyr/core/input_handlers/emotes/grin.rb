@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/grin"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/emotes/emote_handler"
+require "aethyr/core/input_handlers/emotes/emote_handler"
 
 module Aethyr
   module Core
@@ -37,40 +38,11 @@ EOF
             when /^(grin)( +([^()]*))?( +((.*)))?$/i
               object = $3
               post = $5
-              grin({:object => object, :post => post})
+              $manager.submit_action(Aethyr::Core::Actions::Grin::GrinCommand.new(@player, {:object => object, :post => post}))
             end
           end
 
           private
-          def grin(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-
-            make_emote event, player, room do
-
-              no_target do
-                to_player 'You grin widely, flashing all your teeth.'
-                to_other "#{player.name} grins widely, flashing all #{player.pronoun(:possessive)} teeth."
-                to_deaf_other event[:to_other]
-              end
-
-              self_target do
-                to_player "You grin madly at yourself."
-                to_other "#{player.name} grins madly at #{event.target.pronoun(:reflexive)}."
-                to_deaf_other event[:to_other]
-              end
-
-              target do
-                to_player "You give #{event.target.name} a wide grin."
-                to_target "#{player.name} gives you a wide grin."
-                to_deaf_target event[:to_target]
-                to_other "#{player.name} gives #{event.target.name} a wide grin."
-                to_deaf_other event[:to_other]
-              end
-
-            end
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(GrinHandler)

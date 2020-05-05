@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/whereis"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/command_handler"
+require "aethyr/core/input_handlers/command_handler"
 
 module Aethyr
   module Core
@@ -36,40 +37,11 @@ EOF
             case data[:input]
             when /^whereis\s(.*)$/
               object = $1
-              whereis({:object => object})
+              $manager.submit_action(Aethyr::Core::Actions::Whereis::WhereisCommand.new(@player, {:object => object}))
             end
           end
 
           private
-          def whereis(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-            object = find_object(event[:object], event)
-
-            if object.nil?
-              player.output "Could not find #{event[:object]}."
-              return
-            end
-
-            if object.container.nil?
-              if object.can? :area and not object.area.nil? and object.area != object
-                area = $manager.get_object object.area || "nothing"
-                player.output "#{object} is in #{area}."
-              else
-                player.output "#{object} is not in anything."
-              end
-            else
-              container = $manager.get_object object.container
-              if container.nil?
-                player.output "Container for #{object} not found."
-              else
-                player.output "#{object} is in #{container}."
-                event[:object] = container.goid
-                whereis(event, player, room)
-              end
-            end
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(WhereisHandler)

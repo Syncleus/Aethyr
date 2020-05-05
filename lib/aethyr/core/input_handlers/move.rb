@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/move"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/command_handler"
+require "aethyr/core/input_handlers/command_handler"
 require "aethyr/core/util/direction"
 
 module Aethyr
@@ -46,7 +47,7 @@ EOF
             super(data)
             case data[:input]
             when /^go\s+(.*)$/i
-              action({:direction => $1.downcase})
+              $manager.submit_action(Aethyr::Core::Actions::Move::MoveCommand.new(@player, {:direction => $1.downcase}))
             when /^(east|west|northeast|northwest|north|southeast|southwest|south|e|w|nw|ne|sw|se|n|s|up|down|u|d|in|out)(\s+\((.*)\))?$/i
               action({:direction => expand_direction($1),
               :pre => $3})
@@ -54,37 +55,7 @@ EOF
           end
 
           private
-          def action(event)
-            room = $manager.get_object(@player.container)
-            exit = room.exit(event[:direction])
 
-            if exit.nil?
-              @player.output("You cannot go #{event[:direction]}.")
-              return
-            elsif exit.can? :open and not exit.open?
-              @player.output("That exit is closed. Perhaps you should open it?")
-              return
-            end
-
-            new_room = $manager.find(exit.exit_room)
-
-            if new_room.nil?
-              @player.output("That exit #{exit.name} leads into the void.")
-              return
-            end
-
-            room.remove(@player)
-            new_room.add(@player)
-            @player.container = new_room.game_object_id
-            event[:to_player] = "You move #{event[:direction]}."
-            event[:to_other] = "#{@player.name} leaves #{event[:direction]}."
-            event[:to_blind_other] = "You hear someone leave."
-
-            room.out_event(event)
-            look_text = new_room.look(player)
-            out_text = Window.split_message(look_text, 79).join("\n")
-            @player.output(out_text, message_type: :look, internal_clear: true)
-          end
         end
 
         Aethyr::Extend::HandlerRegistry.register_handler(MoveHandler)

@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/astatus"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/admin/admin_handler"
+require "aethyr/core/input_handlers/admin/admin_handler"
 
 module Aethyr
   module Core
@@ -35,23 +36,11 @@ EOF
             super(data)
             case data[:input]
             when /^astatus/i
-              astatus({})
+              $manager.submit_action(Aethyr::Core::Actions::Astatus::AstatusCommand.new(@player, {}))
             end
           end
 
           private
-          def astatus(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-            awho(event, player, room)
-            total_objects = $manager.game_objects_count
-            player.output("Object Counts:" , true)
-            $manager.type_count.each do |obj, count|
-              player.output("#{obj}: #{count}", true)
-            end
-            player.output("Total Objects: #{total_objects}")
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(AstatusHandler)

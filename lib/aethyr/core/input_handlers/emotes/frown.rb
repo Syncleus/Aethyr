@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/frown"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/emotes/emote_handler"
+require "aethyr/core/input_handlers/emotes/emote_handler"
 
 module Aethyr
   module Core
@@ -37,39 +38,11 @@ EOF
             when /^(frown)( +([^()]*))?( +((.*)))?$/i
               object = $3
               post = $5
-              frown({:object => object, :post => post})
+              $manager.submit_action(Aethyr::Core::Actions::Frown::FrownCommand.new(@player, {:object => object, :post => post}))
             end
           end
 
           private
-          def frown(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-
-            make_emote event, player, room do
-              no_target do
-                to_player "The edges of your mouth turn down as you frown."
-                to_other "The edges of #{player.name}'s mouth turn down as #{player.pronoun} frowns."
-                to_deaf_other event[:to_other]
-              end
-
-              self_target do
-                to_player "You frown sadly at yourself."
-                to_other "#{player.name} frowns sadly at #{event.target.pronoun(:reflexive)}."
-                to_deaf_other event[:to_other]
-              end
-
-              target do
-                to_player "You frown at #{event.target.name} unhappily."
-                to_target "#{player.name} frowns at you unhappily."
-                to_deaf_target event[:to_target]
-                to_other "#{player.name} frowns at #{event.target.name} unhappily."
-                to_deaf_other event[:to_other]
-              end
-            end
-
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(FrownHandler)

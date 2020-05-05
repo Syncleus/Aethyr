@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/aconfig"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/admin/admin_handler"
+require "aethyr/core/input_handlers/admin/admin_handler"
 
 module Aethyr
   module Core
@@ -36,45 +37,15 @@ EOF
             case data[:input]
             when /^aconfig(\s+reload)?$/i
               setting = "reload" if $1
-              aconfig({:setting => setting})
+              $manager.submit_action(Aethyr::Core::Actions::Aconfig::AconfigCommand.new(@player, {:setting => setting}))
             when /^aconfig\s+(\w+)\s+(.*)$/i
               setting = $1
               value = $2
-              aconfig({:setting => setting, :value => value})
+              $manager.submit_action(Aethyr::Core::Actions::Aconfig::AconfigCommand.new(@player, {:setting => setting, :value => value}))
             end
           end
 
           private
-          def aconfig(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-
-            if event[:setting].nil?
-              player.output "Current configuration:\n#{ServerConfig}"
-              return
-            end
-
-            setting = event[:setting].downcase.to_sym
-
-            if setting == :reload
-              ServerConfig.reload
-              player.output "Reloaded configuration:\n#{ServerConfig}"
-              return
-            elsif not ServerConfig.has_setting? setting
-              player.output "No such setting."
-              return
-            end
-
-            value = event[:value]
-            if value =~ /^\d+$/
-              value = value.to_i
-            end
-
-            ServerConfig[setting] = value
-
-            player.output "New configuration:\n#{ServerConfig}"
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(AconfigHandler)

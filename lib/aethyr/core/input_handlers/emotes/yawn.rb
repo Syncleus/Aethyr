@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/yawn"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/emotes/emote_handler"
+require "aethyr/core/input_handlers/emotes/emote_handler"
 
 module Aethyr
   module Core
@@ -37,38 +38,11 @@ EOF
             when /^(yawn)( +([^()]*))?( +((.*)))?$/i
               object = $3
               post = $5
-              yawn({:object => object, :post => post})
+              $manager.submit_action(Aethyr::Core::Actions::Yawn::YawnCommand.new(@player, {:object => object, :post => post}))
             end
           end
 
           private
-          def yawn(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-
-            make_emote event, player, room do
-
-              no_target do
-                to_player "You open your mouth in a wide yawn, then exhale loudly."
-                to_other "#{player.name} opens #{player.pronoun(:possessive)} mouth in a wide yawn, then exhales loudly."
-              end
-
-              self_target do
-                to_player "You yawn at how boring you are."
-                to_other "#{player.name} yawns at #{player.pronoun(:reflexive)}."
-                to_deaf_other event[:to_other]
-              end
-
-              target do
-                to_player "You yawn at #{event.target.name}, bored out of your mind."
-                to_target "#{player.name} yawns at you, finding you boring."
-                to_other "#{player.name} yawns at how boring #{event.target.name} is."
-                to_deaf_other event[:to_other]
-              end
-            end
-
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(YawnHandler)

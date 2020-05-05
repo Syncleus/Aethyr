@@ -43,6 +43,10 @@ class Manager < Publisher
     end
   end
 
+  def submit_action action
+    action.action
+  end
+
   #Checks if a game object ID exists already, to avoid conflicts.
   def existing_goid? goid
     @game_objects[goid] || @storage.type_of(goid)

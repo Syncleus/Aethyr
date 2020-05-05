@@ -1,5 +1,11 @@
+require "aethyr/core/actions/commands/all"
+require "aethyr/core/actions/commands/delete_post"
+require "aethyr/core/actions/commands/list_unread"
+require "aethyr/core/actions/commands/write_post"
+require "aethyr/core/actions/commands/read_post"
+require "aethyr/core/actions/commands/latest_news"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/command_handler"
+require "aethyr/core/input_handlers/command_handler"
 
 module Aethyr
   module Core
@@ -62,164 +68,34 @@ EOF
             super(data)
             case data[:input]
             when "news"
-              latest_news({})
+              $manager.submit_action(Aethyr::Core::Actions::LatestNews::LatestNewsCommand.new(@player, {}))
             when /^news\s+(read\s+)?(\d+)$/i
               post_id = $2
-              read_post({:post_id => post_id})
+              $manager.submit_action(Aethyr::Core::Actions::ReadPost::ReadPostCommand.new(@player, {:post_id => post_id}))
             when /^news\s+reply(\s+to\s+)?\s+(\d+)$/i
               reply_to = $2
-              write_post({:reply_to => reply_to})
+              $manager.submit_action(Aethyr::Core::Actions::WritePost::WritePostCommand.new(@player, {:reply_to => reply_to}))
             when /^news\s+unread/i
-              list_unread({})
+              $manager.submit_action(Aethyr::Core::Actions::ListUnread::ListUnreadCommand.new(@player, {}))
             when /^news\s+last\s+(\d+)/i
               limit = $1.to_i
-              latest_news({:limit => limit})
+              $manager.submit_action(Aethyr::Core::Actions::LatestNews::LatestNewsCommand.new(@player, {:limit => limit}))
             when /^news\s+delete\s+(\d+)/i
               post_id = $1
-              delete_post({:post_id => post_id})
+              $manager.submit_action(Aethyr::Core::Actions::DeletePost::DeletePostCommand.new(@player, {:post_id => post_id}))
             when /^news\s+write$/i
-              write_post({})
+              $manager.submit_action(Aethyr::Core::Actions::WritePost::WritePostCommand.new(@player, {}))
             when /^news\s+all/i
-              all({})
+              $manager.submit_action(Aethyr::Core::Actions::All::AllCommand.new(@player, {}))
             end
           end
 
           private
-          def latest_news(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-            board = find_board(event, room)
-
-            if board.nil?
-              player.output "There do not seem to be any postings here."
-              return
-            end
-
-            if not board.is_a? Newsboard
-              log board.class
-            end
-
-            offset = event[:offset] || 0
-            wordwrap = player.word_wrap || 100
-            limit = event[:limit] || player.page_height
-
-            player.output board.list_latest(wordwrap, offset, limit)
-          end
-
-          def read_post(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-            board = find_board(event, room)
-
-            if board.nil?
-              player.output "There do not seem to be any postings here."
-              return
-            end
-
-            post = board.get_post event[:post_id]
-            if post.nil?
-              player.output "No such posting here."
-              return
-            end
-
-            if player.info.boards.nil?
-              player.info.boards = {}
-            end
-
-            player.info.boards[board.goid] = event[:post_id].to_i
-
-            player.output board.show_post(post, player.word_wrap || 80)
-          end
-
-          def write_post(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-            board = find_board(event, room)
-
-            if board.nil?
-              player.output "There do not seem to be any postings here."
-              return
-            end
-
-            player.output("What is the subject of this post?", true)
-
-            player.expect do |subj|
-              player.editor do |message|
-                unless message.nil?
-                  post_id = board.save_post(player, subj, event[:reply_to], message)
-                  player.output "You have written post ##{post_id}."
-                  if board.announce_new
-                    area = $manager.get_object(board.container).area
-                    area.output board.announce_new
-                  end
-                end
-              end
-            end
-          end
-
-          def list_unread(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-            board = find_board(event, room)
-
-            if board.nil?
-              player.output "There do not seem to be any postings here."
-              return
-            end
-
-            if player.info.boards.nil?
-              player.info.boards = {}
-            end
-
-            player.output board.list_since(player.info.boards[board.goid], player.word_wrap)
-          end
-
-          def delete_post(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
 
 
 
 
-            board = find_board(event, room)
 
-            if board.nil?
-              player.output "What newsboard are you talking about?"
-              return
-            end
-
-            post = board.get_post event[:post_id]
-
-            if post.nil?
-              player.output "No such post."
-            elsif post[:author] != player.name
-              player.output "You can only delete your own posts."
-            else
-              board.delete_post event[:post_id]
-              player.output "Deleted post ##{event[:post_id]}"
-            end
-          end
-
-          def all(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-            board = find_board(event, room)
-
-            if board.nil?
-              player.output "There do not seem to be any postings here."
-              return
-            end
-
-            wordwrap = player.word_wrap || 100
-
-            player.output board.list_latest(wordwrap, 0, nil)
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(NewsHandler)

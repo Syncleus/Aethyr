@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/acomment"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/admin/admin_handler"
+require "aethyr/core/input_handlers/admin/admin_handler"
 
 module Aethyr
   module Core
@@ -37,24 +38,11 @@ EOF
             when /^(acomm|acomment)\s+(.*?)\s+(.*)$/i
               target = $2
               comment = $3
-              acomment({:target => target, :comment => comment})
+              $manager.submit_action(Aethyr::Core::Actions::Acomment::AcommentCommand.new(@player, {:target => target, :comment => comment}))
             end
           end
 
           private
-          def acomment(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-            object = find_object(event[:target], event)
-            if object.nil?
-              player.output "Cannot find:#{event[:target]}"
-              return
-            end
-
-            object.comment = event[:comment]
-            player.output "Added comment: '#{event[:comment]}'\nto#{object}"
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(AcommentHandler)

@@ -1,4 +1,4 @@
-require 'aethyr/core/actions/commands/command_handler'
+require 'aethyr/core/input_handlers/command_handler'
 
 module Aethyr
   module Extend

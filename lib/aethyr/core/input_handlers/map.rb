@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/map"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/command_handler"
+require "aethyr/core/input_handlers/command_handler"
 
 module Aethyr
   module Core
@@ -35,15 +36,12 @@ EOF
             super(data)
             case data[:input]
             when /^(m|map)$/i
-              action({})
+              $manager.submit_action(Aethyr::Core::Actions::Map::MapCommand.new(@player, {}))
             end
           end
 
           private
-          def action(event)
-            room = $manager.get_object(@player.container)
-            player.output(room.area.render_map(player, room.area.position(room)))
-          end
+
         end
 
         Aethyr::Extend::HandlerRegistry.register_handler(MapHandler)

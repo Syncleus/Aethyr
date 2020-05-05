@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/open"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/command_handler"
+require "aethyr/core/input_handlers/command_handler"
 require "aethyr/core/util/direction"
 
 module Aethyr
@@ -45,24 +46,12 @@ EOF
             super(data)
             case data[:input]
             when /^open\s+(\w+)$/i
-              action({ :object => $1 })
+              $manager.submit_action(Aethyr::Core::Actions::Open::OpenCommand.new(@player, { :object => $1 }))
             end
           end
 
           private
-          def action(event)
-            room = $manager.get_object(@player.container)
-            object = expand_direction(event[:object])
-            object = player.search_inv(object) || $manager.find(object, room)
 
-            if object.nil?
-              player.output("Open what?")
-            elsif not object.can? :open
-              player.output("You cannot open #{object.name}.")
-            else
-              object.open(event)
-            end
-          end
         end
 
         Aethyr::Extend::HandlerRegistry.register_handler(OpenHandler)

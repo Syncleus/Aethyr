@@ -1,0 +1,24 @@
+require "aethyr/core/actions/command_action"
+
+module Aethyr
+  module Core
+    module Actions
+      module Ahelp
+        class AhelpCommand < Aethyr::Core::Actions::CommandAction
+          def initialize(actor, **data)
+            super(actor, **data)
+          end
+
+          def action
+            event = @data
+
+            room = $manager.get_object(@player.container)
+            player = @player
+            Generic.help(event, player, room)
+          end
+
+        end
+      end
+    end
+  end
+end

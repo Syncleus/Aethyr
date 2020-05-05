@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/areas"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/admin/admin_handler"
+require "aethyr/core/input_handlers/admin/admin_handler"
 
 module Aethyr
   module Core
@@ -35,24 +36,11 @@ EOF
             super(data)
             case data[:input]
             when /^areas$/i
-              areas({})
+              $manager.submit_action(Aethyr::Core::Actions::Areas::AreasCommand.new(@player, {}))
             end
           end
 
           private
-          def areas(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-            areas = $manager.find_all('class', Area)
-
-            if areas.empty?
-              player.output "There are no areas."
-              return
-            end
-
-            player.output areas.map {|a| "#{a.name} -  #{a.inventory.find_all('class', Room).length} rooms (#{a.info.terrain.area_type})" }
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(AreasHandler)

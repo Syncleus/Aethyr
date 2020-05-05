@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/alist"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/admin/admin_handler"
+require "aethyr/core/input_handlers/admin/admin_handler"
 
 module Aethyr
   module Core
@@ -35,39 +36,15 @@ EOF
             super(data)
             case data[:input]
             when /^alist$/i
-              alist({})
+              $manager.submit_action(Aethyr::Core::Actions::Alist::AlistCommand.new(@player, {}))
             when /^alist\s+(@\w+|class)\s+(.*)/i
               attrib = $2
               match = $1
-              alist({:attrib => attrib, :match => match})
+              $manager.submit_action(Aethyr::Core::Actions::Alist::AlistCommand.new(@player, {:attrib => attrib, :match => match}))
             end
           end
 
           private
-          def alist(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-            objects = nil
-            if event[:match].nil?
-              objects = $manager.find_all("class", :GameObject)
-            else
-              objects = $manager.find_all(event[:match], event[:attrib])
-            end
-
-            if objects.empty?
-              player.output "Nothing like that to list!"
-            else
-              output = []
-              objects.each do |o|
-                output << "\t" + o.to_s
-              end
-
-              output = output.join("\n")
-
-              player.output(output)
-            end
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(AlistHandler)

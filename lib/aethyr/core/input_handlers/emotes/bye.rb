@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/bye"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/emotes/emote_handler"
+require "aethyr/core/input_handlers/emotes/emote_handler"
 
 module Aethyr
   module Core
@@ -37,35 +38,11 @@ EOF
             when /^(bye)( +([^()]*))?( +((.*)))?$/i
               object = $3
               post = $5
-              bye({:object => object, :post => post})
+              $manager.submit_action(Aethyr::Core::Actions::Bye::ByeCommand.new(@player, {:object => object, :post => post}))
             end
           end
 
           private
-          def bye(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-
-            make_emote event, player, room do
-
-              no_target do
-                to_player "You say a hearty \"Goodbye!\" to those around you."
-                to_other "#{player.name} says a hearty \"Goodbye!\""
-              end
-
-              self_target do
-                player.output "Goodbye."
-              end
-
-              target do
-                to_player "You say \"Goodbye!\" to #{event.target.name}."
-                to_target "#{player.name} says \"Goodbye!\" to you."
-                to_other "#{player.name} says \"Goodbye!\" to #{event.target.name}"
-              end
-            end
-
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(ByeHandler)

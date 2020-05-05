@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/brb"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/emotes/emote_handler"
+require "aethyr/core/input_handlers/emotes/emote_handler"
 
 module Aethyr
   module Core
@@ -37,37 +38,11 @@ EOF
             when /^(brb)( +([^()]*))?( +((.*)))?$/i
               object = $3
               post = $5
-              brb({:object => object, :post => post})
+              $manager.submit_action(Aethyr::Core::Actions::Brb::BrbCommand.new(@player, {:object => object, :post => post}))
             end
           end
 
           private
-          def brb(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-
-            make_emote event, player, room do
-
-              no_target do
-                to_player "\"I shall return shortly!\" you say to no one in particular."
-                to_other "#{player.name} says, \"I shall return shortly!\" to no one in particular."
-                to_blind_other "Someone says, \"I shall return shortly!\""
-              end
-
-              self_target do
-                player.output "Hm? How do you do that?"
-              end
-
-              target do
-                to_player "You let #{event.target.name} know you will return shortly."
-                to_target "#{player.name} lets you know #{player.pronoun} will return shortly."
-                to_other "#{player.name} tells #{event.target.name} that #{player.pronoun} will return shortly."
-                to_blind_other "Someone says, \"I shall return shortly!\""
-              end
-            end
-
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(BrbHandler)

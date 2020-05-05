@@ -1,5 +1,6 @@
+require "aethyr/core/actions/commands/ahide"
 require "aethyr/core/registry"
-require "aethyr/core/actions/commands/admin/admin_handler"
+require "aethyr/core/input_handlers/admin/admin_handler"
 
 module Aethyr
   module Core
@@ -37,32 +38,11 @@ EOF
             when /^ashow\s+(.*)$/i
               object = $1
               hide = false
-              ahide({:object => object, :hide => hide})
+              $manager.submit_action(Aethyr::Core::Actions::Ahide::AhideCommand.new(@player, {:object => object, :hide => hide}))
             end
           end
 
           private
-          def ahide(event)
-
-            room = $manager.get_object(@player.container)
-            player = @player
-            object = find_object(event[:object], event)
-
-            if object.nil?
-              player.output "Cannot find #{event[:object]}."
-              return
-            end
-
-            if event[:hide]
-              object.show_in_look = ""
-              player.output "#{object.name} is now hidden."
-            elsif object.show_in_look == ""
-              object.show_in_look = false
-              player.output "#{object.name} is no longer hidden."
-            else
-              player.output "This object is not hidden."
-            end
-          end
 
         end
         Aethyr::Extend::HandlerRegistry.register_handler(AshowHandler)

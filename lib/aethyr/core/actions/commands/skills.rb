@@ -1,3 +1,4 @@
+# coding: utf-8
 require "aethyr/core/actions/command_action"
 
 module Aethyr
@@ -40,7 +41,7 @@ module Aethyr
 
               output += "│#{text_format_right % ''}│\n"
 
-              output += "│#{SkillsHandler::generate_progress(box_work_width, skill.level_percentage)}│\n"
+              output += "│#{SkillsCommand::generate_progress(box_work_width, skill.level_percentage)}│\n"
 
               xp_left = "#{skill.xp_to_go} xp to next"
               output += "│#{text_format_right % xp_left}│\n"
@@ -54,6 +55,41 @@ module Aethyr
               output += box_bottom + "\n"
             end
             @player.output(output)
+          end
+
+          private
+          def self.generate_progress(width, percentage, style = :vertical_smooth)
+            if (style.eql? :horizontal_smooth) or (style.eql? :vertical_smooth)
+              working_space = width - 7
+              block_per = 1.0 / working_space.to_f
+              filled = (working_space * percentage).to_i
+              filled_coverage = filled.to_f * block_per
+              bar = ("█" * filled).to_s
+
+              remaining_coverage = percentage - filled_coverage
+              percent_of_block = remaining_coverage / block_per
+              if percent_of_block >= (7.0 / 8.0)
+                bar += (style.eql?(:horizontal_smooth) ? "▉" : "▇" )
+              elsif percent_of_block >= (6.0 / 8.0)
+                bar += (style.eql?(:horizontal_smooth) ? "▊" : "▆" )
+              elsif percent_of_block >= (5.0 / 8.0)
+                bar += (style.eql?(:horizontal_smooth) ? "▋" : "▅" )
+              elsif percent_of_block >= (4.0 / 8.0)
+                bar += (style.eql?(:horizontal_smooth) ? "▌" : "▄" )
+              elsif percent_of_block >= (3.0 / 8.0)
+                bar += (style.eql?(:horizontal_smooth) ? "▍" : "▃" )
+              elsif percent_of_block >= (2.0 / 8.0)
+                bar += (style.eql?(:horizontal_smooth) ? "▎" : "▂" )
+              elsif percent_of_block >= (1.0 / 8.0)
+                bar += (style.eql?(:horizontal_smooth) ? "▏" : "▁" )
+              end
+
+              bar_format = "%-#{working_space}.#{working_space}s"
+              percent_format = "%-4.4s"
+              percent_text = (percentage * 100.0).to_i.to_s + "%"
+
+              return "[<raw fg:white>#{bar_format % bar}</raw fg:white>] #{percent_format % percent_text}"
+            end
           end
         end
       end

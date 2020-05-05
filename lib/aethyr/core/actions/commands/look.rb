@@ -67,6 +67,18 @@ module Aethyr
             end
           end
 
+          private
+          def describe_area(object)
+            if object.is_a? Room
+              result = object.terrain_type.room_text unless object.terrain_type.nil?
+              result = "uncertain" if result.nil?
+            elsif object.is_a? Area
+              result = object.terrain_type.area_text unless object.terrain_type.nil?
+              result = "uncertain" if result.nil?
+            end
+            result
+          end
+
         end
       end
     end

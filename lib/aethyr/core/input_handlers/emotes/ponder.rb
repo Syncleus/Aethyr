@@ -1,4 +1,4 @@
-require "aethyr/core/actions/commands/ponder"
+require "aethyr/core/actions/commands/emotes/ponder"
 require "aethyr/core/registry"
 require "aethyr/core/input_handlers/emotes/emote_handler"
 

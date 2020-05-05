@@ -1,4 +1,4 @@
-require "aethyr/core/actions/commands/skip"
+require "aethyr/core/actions/commands/emotes/skip"
 require "aethyr/core/registry"
 require "aethyr/core/input_handlers/emotes/emote_handler"
 

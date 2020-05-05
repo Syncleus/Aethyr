@@ -1,4 +1,4 @@
-require "aethyr/core/actions/commands/blush"
+require "aethyr/core/actions/commands/emotes/blush"
 require "aethyr/core/registry"
 require "aethyr/core/input_handlers/emotes/emote_handler"
 

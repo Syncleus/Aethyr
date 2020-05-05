@@ -1,10 +1,10 @@
-require "aethyr/core/actions/command_action"
+require "aethyr/core/actions/commands/emotes/emote_action"
 
 module Aethyr
   module Core
     module Actions
       module Sigh
-        class SighCommand < Aethyr::Core::Actions::CommandAction
+        class SighCommand < Aethyr::Core::Actions::EmoteAction
           def initialize(actor, **data)
             super(actor, **data)
           end

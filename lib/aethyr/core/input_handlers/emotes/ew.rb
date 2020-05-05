@@ -1,4 +1,4 @@
-require "aethyr/core/actions/commands/ew"
+require "aethyr/core/actions/commands/emotes/ew"
 require "aethyr/core/registry"
 require "aethyr/core/input_handlers/emotes/emote_handler"
 

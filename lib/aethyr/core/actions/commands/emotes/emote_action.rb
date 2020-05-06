@@ -28,7 +28,7 @@ module Aethyr
         attr_reader :return_event
 
         def initialize(event, player, room)
-          @event = event
+          @event = event.dup
           @event[:message_type] = :chat
           @event[:player] = player
           @player = player

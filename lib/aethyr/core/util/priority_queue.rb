@@ -405,6 +405,8 @@ class PriorityQueue
     delete_min[0] rescue nil
   end
 
+  alias pop_min delete_min_return_key
+
   # call-seq:
   #    delete_min_return_priority -> priority
   #

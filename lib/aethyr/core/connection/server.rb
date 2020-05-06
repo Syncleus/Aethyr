@@ -74,6 +74,9 @@ module Aethyr
             end
           end
 
+          next_action = $manager.pop_action
+          next_action.action unless next_action.nil?
+
           # TODO this is a hack to fix a bug from calling resizeterm
           #check if global refresh is needed
           need_refresh = false

@@ -5,6 +5,7 @@ require 'aethyr/core/errors'
 require 'aethyr/core/objects/info/calendar'
 require 'aethyr/core/registry'
 require 'aethyr/core/util/publisher'
+require 'aethyr/core/util/priority_queue'
 require 'set'
 
 #The Manager class uses the wisper to recieve commands from objects, which
@@ -22,9 +23,12 @@ class Manager < Publisher
   #a Manager object in an external script.
   def initialize(objects = nil)
     Aethyr::Extend::HandlerRegistry.handle(self)
+
     @soft_restart = false
     @storage = StorageMachine.new
     @uptime = Time.new.to_i
+    @future_actions = PriorityQueue.new
+    @pending_actions = PriorityQueue.new
 
     unless objects
       @cancelled_events = Set.new
@@ -43,8 +47,26 @@ class Manager < Publisher
     end
   end
 
-  def submit_action action
-    action.action
+  def submit_action( action, priority: 0, wait: nil )
+    if wait.nil? || wait <= 0
+      @pending_actions.push(action, priority)
+    else
+      activate_when = Manager::epoch_now + wait
+      @future_actions.push({:action => action, :priority => priority}, activate_when)
+    end
+  end
+
+  def pop_action
+    # first check for any future actions ready to become active
+    when_next = @future_actions.min_priority
+    while when_next && when_next < Manager::epoch_now do
+      future_next = @future_actions.pop_min
+      @pending_actions.push(future_next[:action], future_next[:priority])
+      when_next = @future_actions.min_priority
+    end
+
+    #return and pop whatever the next thing in the queue is.
+    return @pending_actions.pop_min
   end
 
   #Checks if a game object ID exists already, to avoid conflicts.
@@ -426,5 +448,10 @@ class Manager < Publisher
 
   def to_s
     "The Manager"
+  end
+
+  private
+  def self.epoch_now
+    return DateTime.now.strftime('%s')
   end
 end

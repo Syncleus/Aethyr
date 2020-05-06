@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Acarea
-        class AcareaCommand < Aethyr::Core::Actions::CommandAction
+        class AcareaCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Say
-        class SayCommand < Aethyr::Core::Actions::CommandAction
+        class SayCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module SimpleDodge
-        class SimpleDodgeCommand < Aethyr::Core::Actions::CommandAction
+        class SimpleDodgeCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

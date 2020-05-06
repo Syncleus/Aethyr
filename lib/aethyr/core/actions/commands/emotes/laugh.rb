@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Laugh
-        class LaughCommand < Aethyr::Core::Actions::EmoteAction
+        class LaughCommand < Aethyr::Extend::EmoteAction
           def initialize(actor, **data)
             super(actor, **data)
           end

@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Setpassword
-        class SetpasswordCommand < Aethyr::Core::Actions::CommandAction
+        class SetpasswordCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

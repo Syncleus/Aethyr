@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Health
-        class HealthCommand < Aethyr::Core::Actions::CommandAction
+        class HealthCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

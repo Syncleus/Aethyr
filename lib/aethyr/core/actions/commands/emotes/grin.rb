@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Grin
-        class GrinCommand < Aethyr::Core::Actions::EmoteAction
+        class GrinCommand < Aethyr::Extend::EmoteAction
           def initialize(actor, **data)
             super(actor, **data)
           end

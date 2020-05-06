@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Aset
-        class AsetCommand < Aethyr::Core::Actions::CommandAction
+        class AsetCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module DeletePlayer
-        class DeletePlayerCommand < Aethyr::Core::Actions::CommandAction
+        class DeletePlayerCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

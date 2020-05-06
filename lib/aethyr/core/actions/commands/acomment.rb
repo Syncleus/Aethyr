@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Acomment
-        class AcommentCommand < Aethyr::Core::Actions::CommandAction
+        class AcommentCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

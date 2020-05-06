@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Punch
-        class PunchCommand < Aethyr::Core::Actions::CommandAction
+        class PunchCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

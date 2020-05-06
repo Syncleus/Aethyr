@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Aconfig
-        class AconfigCommand < Aethyr::Core::Actions::CommandAction
+        class AconfigCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

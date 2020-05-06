@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Status
-        class StatusCommand < Aethyr::Core::Actions::CommandAction
+        class StatusCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Back
-        class BackCommand < Aethyr::Core::Actions::EmoteAction
+        class BackCommand < Aethyr::Extend::EmoteAction
           def initialize(actor, **data)
             super(actor, **data)
           end

@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Sit
-        class SitCommand < Aethyr::Core::Actions::CommandAction
+        class SitCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

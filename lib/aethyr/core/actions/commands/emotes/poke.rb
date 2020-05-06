@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Poke
-        class PokeCommand < Aethyr::Core::Actions::EmoteAction
+        class PokeCommand < Aethyr::Extend::EmoteAction
           def initialize(actor, **data)
             super(actor, **data)
           end

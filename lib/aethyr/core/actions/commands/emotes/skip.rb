@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Skip
-        class SkipCommand < Aethyr::Core::Actions::EmoteAction
+        class SkipCommand < Aethyr::Extend::EmoteAction
           def initialize(actor, **data)
             super(actor, **data)
           end

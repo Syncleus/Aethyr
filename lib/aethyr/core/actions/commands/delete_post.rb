@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module DeletePost
-        class DeletePostCommand < Aethyr::Core::Actions::CommandAction
+        class DeletePostCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Taste
-        class TasteCommand < Aethyr::Core::Actions::CommandAction
+        class TasteCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

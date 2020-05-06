@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Alook
-        class AlookCommand < Aethyr::Core::Actions::CommandAction
+        class AlookCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

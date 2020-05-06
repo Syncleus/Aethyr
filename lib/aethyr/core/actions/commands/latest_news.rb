@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module LatestNews
-        class LatestNewsCommand < Aethyr::Core::Actions::CommandAction
+        class LatestNewsCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

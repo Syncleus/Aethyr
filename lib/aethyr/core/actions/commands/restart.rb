@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Restart
-        class RestartCommand < Aethyr::Core::Actions::CommandAction
+        class RestartCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

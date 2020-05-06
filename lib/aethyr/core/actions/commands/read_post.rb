@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module ReadPost
-        class ReadPostCommand < Aethyr::Core::Actions::CommandAction
+        class ReadPostCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Issue
-        class IssueCommand < Aethyr::Core::Actions::CommandAction
+        class IssueCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

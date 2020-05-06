@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Whereis
-        class WhereisCommand < Aethyr::Core::Actions::CommandAction
+        class WhereisCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

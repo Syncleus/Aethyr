@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Adelete
-        class AdeleteCommand < Aethyr::Core::Actions::CommandAction
+        class AdeleteCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

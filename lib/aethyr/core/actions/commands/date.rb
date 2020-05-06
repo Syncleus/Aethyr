@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Date
-        class DateCommand < Aethyr::Core::Actions::CommandAction
+        class DateCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

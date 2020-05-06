@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Areas
-        class AreasCommand < Aethyr::Core::Actions::CommandAction
+        class AreasCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

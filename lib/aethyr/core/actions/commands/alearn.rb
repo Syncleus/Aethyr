@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Alearn
-        class AlearnCommand < Aethyr::Core::Actions::CommandAction
+        class AlearnCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

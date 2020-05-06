@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Drop
-        class DropCommand < Aethyr::Core::Actions::CommandAction
+        class DropCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

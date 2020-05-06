@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Smile
-        class SmileCommand < Aethyr::Core::Actions::EmoteAction
+        class SmileCommand < Aethyr::Extend::EmoteAction
           def initialize(actor, **data)
             super(actor, **data)
           end

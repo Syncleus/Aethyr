@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Snicker
-        class SnickerCommand < Aethyr::Core::Actions::EmoteAction
+        class SnickerCommand < Aethyr::Extend::EmoteAction
           def initialize(actor, **data)
             super(actor, **data)
           end

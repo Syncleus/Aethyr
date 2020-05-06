@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Unlock
-        class UnlockCommand < Aethyr::Core::Actions::CommandAction
+        class UnlockCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

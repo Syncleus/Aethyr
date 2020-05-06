@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Areload
-        class AreloadCommand < Aethyr::Core::Actions::CommandAction
+        class AreloadCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

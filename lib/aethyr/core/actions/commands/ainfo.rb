@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Ainfo
-        class AinfoCommand < Aethyr::Core::Actions::CommandAction
+        class AinfoCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

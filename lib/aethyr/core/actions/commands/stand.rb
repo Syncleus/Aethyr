@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Stand
-        class StandCommand < Aethyr::Core::Actions::CommandAction
+        class StandCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

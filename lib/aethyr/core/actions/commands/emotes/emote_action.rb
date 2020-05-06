@@ -1,9 +1,8 @@
 require 'aethyr/core/actions/command_action'
 
 module Aethyr
-  module Core
-    module Actions
-    class EmoteAction < Aethyr::Core::Actions::CommandAction
+  module Extend
+    class EmoteAction < Aethyr::Extend::CommandAction
       def initialize(actor, **data)
         super(actor, **data)
       end
@@ -147,5 +146,4 @@ module Aethyr
       end
     end
   end
-end
 end

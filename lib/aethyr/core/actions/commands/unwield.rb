@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Unwield
-        class UnwieldCommand < Aethyr::Core::Actions::CommandAction
+        class UnwieldCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

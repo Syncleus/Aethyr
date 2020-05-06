@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Bye
-        class ByeCommand < Aethyr::Core::Actions::EmoteAction
+        class ByeCommand < Aethyr::Extend::EmoteAction
           def initialize(actor, **data)
             super(actor, **data)
           end

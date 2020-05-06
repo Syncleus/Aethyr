@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Ahide
-        class AhideCommand < Aethyr::Core::Actions::CommandAction
+        class AhideCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

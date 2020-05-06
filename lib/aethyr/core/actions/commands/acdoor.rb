@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Acdoor
-        class AcdoorCommand < Aethyr::Core::Actions::CommandAction
+        class AcdoorCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

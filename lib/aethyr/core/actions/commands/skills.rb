@@ -5,7 +5,7 @@ module Aethyr
   module Core
     module Actions
       module Skills
-        class SkillsCommand < Aethyr::Core::Actions::CommandAction
+        class SkillsCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

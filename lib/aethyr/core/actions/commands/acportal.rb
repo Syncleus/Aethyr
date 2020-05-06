@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Acportal
-        class AcportalCommand < Aethyr::Core::Actions::CommandAction
+        class AcportalCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

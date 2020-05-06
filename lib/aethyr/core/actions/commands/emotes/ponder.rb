@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Ponder
-        class PonderCommand < Aethyr::Core::Actions::EmoteAction
+        class PonderCommand < Aethyr::Extend::EmoteAction
           def initialize(actor, **data)
             super(actor, **data)
           end

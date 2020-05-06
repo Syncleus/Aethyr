@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Curtsey
-        class CurtseyCommand < Aethyr::Core::Actions::EmoteAction
+        class CurtseyCommand < Aethyr::Extend::EmoteAction
           def initialize(actor, **data)
             super(actor, **data)
           end

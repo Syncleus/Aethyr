@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module WritePost
-        class WritePostCommand < Aethyr::Core::Actions::CommandAction
+        class WritePostCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

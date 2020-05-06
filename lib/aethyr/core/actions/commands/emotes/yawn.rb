@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Yawn
-        class YawnCommand < Aethyr::Core::Actions::EmoteAction
+        class YawnCommand < Aethyr::Extend::EmoteAction
           def initialize(actor, **data)
             super(actor, **data)
           end

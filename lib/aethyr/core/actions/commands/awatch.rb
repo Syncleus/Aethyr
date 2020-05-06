@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Awatch
-        class AwatchCommand < Aethyr::Core::Actions::CommandAction
+        class AwatchCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

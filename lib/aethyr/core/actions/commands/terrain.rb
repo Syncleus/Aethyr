@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Terrain
-        class TerrainCommand < Aethyr::Core::Actions::CommandAction
+        class TerrainCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

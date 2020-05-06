@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Reply
-        class ReplyCommand < Aethyr::Core::Actions::CommandAction
+        class ReplyCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

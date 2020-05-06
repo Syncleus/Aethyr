@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Map
-        class MapCommand < Aethyr::Core::Actions::CommandAction
+        class MapCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

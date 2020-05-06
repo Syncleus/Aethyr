@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Portal
-        class PortalCommand < Aethyr::Core::Actions::CommandAction
+        class PortalCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

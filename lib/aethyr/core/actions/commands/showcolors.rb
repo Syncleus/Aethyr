@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Showcolors
-        class ShowcolorsCommand < Aethyr::Core::Actions::CommandAction
+        class ShowcolorsCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

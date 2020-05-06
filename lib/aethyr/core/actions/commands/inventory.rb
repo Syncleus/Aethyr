@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Inventory
-        class InventoryCommand < Aethyr::Core::Actions::CommandAction
+        class InventoryCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

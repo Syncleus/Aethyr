@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Wield
-        class WieldCommand < Aethyr::Core::Actions::CommandAction
+        class WieldCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

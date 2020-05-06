@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module ListUnread
-        class ListUnreadCommand < Aethyr::Core::Actions::CommandAction
+        class ListUnreadCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

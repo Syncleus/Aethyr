@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Ateach
-        class AteachCommand < Aethyr::Core::Actions::CommandAction
+        class AteachCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

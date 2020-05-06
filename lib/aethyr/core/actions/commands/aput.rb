@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Aput
-        class AputCommand < Aethyr::Core::Actions::CommandAction
+        class AputCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

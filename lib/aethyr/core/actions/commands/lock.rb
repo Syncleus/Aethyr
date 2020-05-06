@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Lock
-        class LockCommand < Aethyr::Core::Actions::CommandAction
+        class LockCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

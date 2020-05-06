@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Quit
-        class QuitCommand < Aethyr::Core::Actions::CommandAction
+        class QuitCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

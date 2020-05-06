@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Shrug
-        class ShrugCommand < Aethyr::Core::Actions::EmoteAction
+        class ShrugCommand < Aethyr::Extend::EmoteAction
           def initialize(actor, **data)
             super(actor, **data)
           end

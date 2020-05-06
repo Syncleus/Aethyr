@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Asave
-        class AsaveCommand < Aethyr::Core::Actions::CommandAction
+        class AsaveCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

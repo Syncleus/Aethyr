@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Acroom
-        class AcroomCommand < Aethyr::Core::Actions::CommandAction
+        class AcroomCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

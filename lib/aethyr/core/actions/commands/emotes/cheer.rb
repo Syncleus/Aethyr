@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Cheer
-        class CheerCommand < Aethyr::Core::Actions::EmoteAction
+        class CheerCommand < Aethyr::Extend::EmoteAction
           def initialize(actor, **data)
             super(actor, **data)
           end

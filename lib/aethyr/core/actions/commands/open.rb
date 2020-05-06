@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Open
-        class OpenCommand < Aethyr::Core::Actions::CommandAction
+        class OpenCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

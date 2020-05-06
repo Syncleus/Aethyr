@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Eh
-        class EhCommand < Aethyr::Core::Actions::EmoteAction
+        class EhCommand < Aethyr::Extend::EmoteAction
           def initialize(actor, **data)
             super(actor, **data)
           end

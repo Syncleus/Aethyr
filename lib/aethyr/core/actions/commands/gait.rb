@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Gait
-        class GaitCommand < Aethyr::Core::Actions::CommandAction
+        class GaitCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

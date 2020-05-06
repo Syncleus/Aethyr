@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Awho
-        class AwhoCommand < Aethyr::Core::Actions::CommandAction
+        class AwhoCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

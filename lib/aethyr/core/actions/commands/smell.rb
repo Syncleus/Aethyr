@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Smell
-        class SmellCommand < Aethyr::Core::Actions::CommandAction
+        class SmellCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

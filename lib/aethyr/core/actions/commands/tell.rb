@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Tell
-        class TellCommand < Aethyr::Core::Actions::CommandAction
+        class TellCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

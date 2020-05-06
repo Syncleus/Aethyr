@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Write
-        class WriteCommand < Aethyr::Core::Actions::CommandAction
+        class WriteCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Whisper
-        class WhisperCommand < Aethyr::Core::Actions::CommandAction
+        class WhisperCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

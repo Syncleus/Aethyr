@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Feel
-        class FeelCommand < Aethyr::Core::Actions::CommandAction
+        class FeelCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

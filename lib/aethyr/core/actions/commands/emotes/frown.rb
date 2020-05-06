@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Frown
-        class FrownCommand < Aethyr::Core::Actions::EmoteAction
+        class FrownCommand < Aethyr::Extend::EmoteAction
           def initialize(actor, **data)
             super(actor, **data)
           end

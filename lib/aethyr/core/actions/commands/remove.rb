@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Remove
-        class RemoveCommand < Aethyr::Core::Actions::CommandAction
+        class RemoveCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

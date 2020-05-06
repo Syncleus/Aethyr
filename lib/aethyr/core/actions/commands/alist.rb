@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Alist
-        class AlistCommand < Aethyr::Core::Actions::CommandAction
+        class AlistCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

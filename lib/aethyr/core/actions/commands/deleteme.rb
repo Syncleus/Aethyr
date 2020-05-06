@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Deleteme
-        class DeletemeCommand < Aethyr::Core::Actions::CommandAction
+        class DeletemeCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

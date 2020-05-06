@@ -1,21 +1,18 @@
 module Aethyr
-  module Core
-    module Actions
-      module Action
-        def concurrency
-          return :single
-        end
-
-        def action()
-        end
+  module Extend
+    module Action
+      def concurrency
+        :single
       end
 
-      class Event
-        include Aethyr::Core::Actions::Action
+      def action; end
+    end
 
-        def initialize(**data)
-          @data = data.freeze
-        end
+    class Event
+      include Aethyr::Extend::Action
+
+      def initialize(**data)
+        @data = data.freeze
       end
     end
   end

@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module Get
-        class GetCommand < Aethyr::Core::Actions::CommandAction
+        class GetCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

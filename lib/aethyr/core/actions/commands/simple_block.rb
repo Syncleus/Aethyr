@@ -4,7 +4,7 @@ module Aethyr
   module Core
     module Actions
       module SimpleBlock
-        class SimpleBlockCommand < Aethyr::Core::Actions::CommandAction
+        class SimpleBlockCommand < Aethyr::Extend::CommandAction
           def initialize(actor, **data)
             super(actor, **data)
           end

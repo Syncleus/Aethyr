@@ -10,7 +10,7 @@ module Aethyr
           end
 
           def action
-            event = @data
+            event = @data.dup
             room = $manager.get_object(@player.container)
             exit = room.exit(event[:direction])
 
@@ -37,7 +37,7 @@ module Aethyr
             event[:to_blind_other] = "You hear someone leave."
 
             room.out_event(event)
-            look_text = new_room.look(player)
+            look_text = new_room.look(@player)
             out_text = Window.split_message(look_text, 79).join("\n")
             @player.output(out_text, message_type: :look, internal_clear: true)
           end

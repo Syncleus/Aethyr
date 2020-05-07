@@ -452,6 +452,6 @@ class Manager < Publisher
 
   private
   def self.epoch_now
-    return DateTime.now.strftime('%s')
+    return DateTime.now.strftime('%s').to_i
   end
 end

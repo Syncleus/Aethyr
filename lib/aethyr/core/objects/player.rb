@@ -1,10 +1,10 @@
 require 'aethyr/core/objects/living'
-require 'aethyr/core/commands/command_parser'
 require 'aethyr/core/objects/traits/has_inventory'
 require 'aethyr/core/help/syntax'
 # TODO : Delete the next to requires
 require 'aethyr/extensions/skills/map'
 require 'aethyr/extensions/skills/kick'
+require 'aethyr/core/help/help_library'
 
 #Base class for all players.
 class Player < LivingObject
@@ -40,8 +40,9 @@ class Player < LivingObject
 
   }
 
-  attr_reader :admin
-  attr_accessor :color_settings, :use_color, :reply_to, :page_height
+  attr_reader :admin, :color_settings, :help_library
+  attr_accessor :use_color, :reply_to, :page_height
+  volatile :@help_library, :@player
 
   #Create a new player object with the given socket connection. You must also pass in a game_object_id and a room, although if you pass in nil for game_object_id it will auto-generate one for you.
   def initialize(connection, game_object_id, room, *args)
@@ -58,12 +59,51 @@ class Player < LivingObject
     @blind = false
     @reply_to = nil
     @prompt_shown = false
+    @layout = :basic
+    @player.display.layout(layout: @layout)
+    @help_library = Aethyr::Core::Help::HelpLibrary.new
+
     info.stats.satiety = 120
     map_skill = Aethyr::Extensions::Skills::Map.new(self.game_object_id)
     kick_skill = Aethyr::Extensions::Skills::Kick.new(self.game_object_id)
     info.skills = { map_skill.id => map_skill, kick_skill.id => kick_skill}
     info.explored_rooms = Set.new [room]
     map_skill.add_xp 750
+  end
+
+  def set_connection(new_player)
+    @player = new_player
+    @player.display.color_settings = @color_settings
+    @player.display.layout(layout: @layout)
+  end
+
+  #called right before saving to temporarily remove volatile data.
+  def dehydrate
+    volatile_data = super()
+    @layout = volatile_data[:@player].display.layout_type
+    return volatile_data
+  end
+
+  #This should be called anytime the volatile data needs to be restored or initialized during a save or load
+  def rehydrate(volatile_data)
+    super(volatile_data)
+    @help_library = Aethyr::Core::Help::HelpLibrary.new if @help_library.nil?
+  end
+
+  def layout
+    return @layout if @player.display.nil?
+    return @player.display.layout_type
+  end
+
+  def layout= new_layout
+    @layout = new_layout
+    @player.display.layout(layout: new_layout)
+    @player.display.refresh_watch_windows(self)
+  end
+
+  def color_settings= new_color_settings
+    @color_settings = new_color_settings
+    @player.display.color_settings = @color_settings
   end
 
   #Searches inventory and equipment for item.
@@ -113,53 +153,48 @@ class Player < LivingObject
 
   #Sends an event to the player.
   def out_event(event)
+    message_type = :main
+    message_type = event[:message_type] unless event[:message_type].nil?
     if event[:target] == self and event[:player] != self
       if self.blind? and not self.deaf?
-        self.output event[:to_blind_target]
+        self.output(event[:to_blind_target], message_type: message_type)
       elsif self.deaf? and not self.blind?
-        self.output event[:to_deaf_target]
+        self.output(event[:to_deaf_target], message_type: message_type)
       elsif self.deaf? and self.blind?
-        self.output event[:to_deafandblind_target]
+        self.output(event[:to_deafandblind_target], message_type: message_type)
       else
-        self.output event[:to_target]
+        self.output(event[:to_target], message_type: message_type)
       end
     elsif event[:player] == self
-      self.output event[:to_player]
+      self.output(event[:to_player], message_type: message_type)
     else
       if self.blind? and not self.deaf?
-        self.output event[:to_blind_other]
+        self.output(event[:to_blind_other], message_type: message_type)
       elsif self.deaf? and not self.blind?
-        self.output event[:to_deaf_other]
+        self.output(event[:to_deaf_other], message_type: message_type)
       elsif self.deaf? and self.blind?
-        self.output event[:to_deafandblind_other]
+        self.output(event[:to_deafandblind_other], message_type: message_type)
       else
-        self.output event[:to_other]
+        self.output(event[:to_other], message_type: message_type)
       end
     end
   end
 
   #Outputs a message to the Player. Used for all communication to Player.
-  def output(message, message_type: :main)
+  def output(message, no_newline = false, message_type: :main, internal_clear: false)
     return if message.nil?
     begin
       if message.is_a? Array
         message = message.join("\r\n")
       end
 
-      @player.say(message, message_type: message_type) unless (@player.nil? or @player.closed?)
+      @player.say(message, no_newline, message_type: message_type, internal_clear: internal_clear) unless (@player.nil? or @player.closed?)
     rescue Exception => e
       log "Unable to send message to #{@name}"
       log e.inspect
       log(e.backtrace.join("\n"), Logger::Normal, true)
       quit
     end
-  end
-
-  #Just outputs a message to the player that we don't know what
-  #to do with the method call.
-  def method_missing(*args)
-    super
-    self.output("Don't know what do to with: #{args.inspect}")
   end
 
   #Handles the input from the Player. Basically, it just takes the
@@ -176,25 +211,7 @@ class Player < LivingObject
     end
 
     clean_input = input.downcase.strip
-    self.output('Help topics available:') if (clean_input.eql? "help") or (clean_input.eql? "help topics")
     broadcast(:player_input, {:publisher => self, :input => input})
-    event = CommandParser.parse(self, input)
-
-    if event.nil?
-      if input
-        doc = Syntax.find(input.strip.split[0].downcase)
-        if doc
-          output doc
-        else
-          output 'Not sure what you mean by that.'
-        end
-      end
-    elsif @asleep and event[:action] != 'wake'
-      output 'You cannot do that when you are asleep!'
-    else
-      changed
-      notify_observers(event)
-    end
   end
 
   #The player's next input will go to the block.
@@ -244,6 +261,10 @@ class Player < LivingObject
     super
   end
 
+  def update_display
+    @player.display.refresh_watch_windows(self)
+  end
+
   def run
     super
     if info.stats.health < info.stats.max_health - 10
@@ -251,5 +272,6 @@ class Player < LivingObject
     elsif info.stats.health < info.stats.max_health
       info.stats.health = info.stats.max_health
     end
+    update_display
   end
 end

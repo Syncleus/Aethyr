@@ -10,17 +10,17 @@ require 'aethyr/core/objects/traits/location'
 # info.terrain.area_type = :urban
 class Area < GridContainer
   include Location
-  
+
   attr_accessor :map_type
 
   def initialize(*args)
     super
-    
+
     @article = "an"
     @generic = "area"
     @map_type = :rooms
   end
-  
+
   def render_map(player, position, map_rows = 10, map_columns = 10)
     if @map_type == :rooms
       return render_rooms(player, position, map_rows, map_columns)
@@ -32,7 +32,7 @@ class Area < GridContainer
       raise "Invalid map type for area!"
     end
   end
-  
+
   private
   def render_world(player, position, map_rows, map_columns)
     player_room = self.inventory.find_by_id(player.container)
@@ -44,7 +44,7 @@ class Area < GridContainer
       (0..width).step(1) do |screen_column|
         column = screen_column + (position[0] - (map_columns / 2))
         room = self.find_by_position([column , row])
-        
+
         if room.nil?
           rendered += " "
         elsif room.eql? player_room
@@ -57,7 +57,7 @@ class Area < GridContainer
     end
     rendered
   end
-  
+
   def render_rooms(player, position, map_rows, map_columns)
     player_room = self.inventory.find_by_id(player.container)
     return "The current location doesn't appear on any maps." if position.nil?
@@ -72,7 +72,7 @@ class Area < GridContainer
       until column >= width
         border_column = (column % 4 == 0);
         room_column = (column / 4) + (position[0] - (map_rows / 2))
-        
+
         room = self.find_by_position([room_column, room_row])
         here_room = (room != nil && row < height - 1 && column < width - 1)
         west = self.find_by_position([room_column - 1, room_row])
@@ -80,7 +80,7 @@ class Area < GridContainer
         north =  self.find_by_position([room_column , room_row + 1 ])
         north_room = (column >= width - 1 ? false : north != nil)
         north_west_room = (row >= height - 1 || column >= width - 1 ? false : self.find_by_position([room_column - 1, room_row + 1]) != nil)
-        
+
         if border_row
           if border_column
             if (here_room and north_west_room) or (west_room and north_room)
@@ -157,15 +157,15 @@ class Area < GridContainer
             column += 2
           end
         end
-        
+
         column += 1
       end
       rendered += "\r\n"
     end
-    
+
     rendered
   end
-  
+
   def room_has_nonstandard_exits(room)
     exits = room.exits.map() { |e| e.alt_names[0] }
     exits.each do |exit|
@@ -173,21 +173,21 @@ class Area < GridContainer
     end
     false
   end
-  
+
   def render_room(room, player)
     return "   " if room.nil?
     player_room = self.inventory.find_by_id(player.container)
     has_player = (player_room.eql? room)
-    
+
     me_here = has_player
     other_player_here = (!room.players(true, player).nil?) && (room.players(true, player).length > 0)
     merchants_here = false
     zone_change_here = room_has_nonstandard_exits(room)
-    
+
     up_here = room.exits.map{ |e| e.alt_names[0]}.include?("up")
     down_here = room.exits.map{ |e| e.alt_names[0]}.include?("down")
     mobs_here = (!room.mobs.nil?) && (room.mobs.length > 0)
-    
+
     left_char = " "
     if zone_change_here
       left_char = "<exit>☼</exit>"
@@ -196,7 +196,7 @@ class Area < GridContainer
     elsif down_here
       left_char = "<exit>↓</exit>"
     end
-    
+
     right_char = " "
     if mobs_here
       right_char = "<mob>*</mob>"
@@ -205,12 +205,12 @@ class Area < GridContainer
     elsif other_player_here
       right_char = "<player>☺</player>"
     end
-    
+
     middle_char = " "
     if me_here
       middle_char = "<me>☺</me>"
     end
-    
+
     if (left_char.eql? " ") and (not right_char.eql? " ")
       if mobs_here and merchants_here
         left_char = "<merchant>☻</merchant>"
@@ -222,7 +222,7 @@ class Area < GridContainer
         right_char = "<exit>↓</exit>"
       end
     end
-    
+
     left_char + middle_char + right_char
   end
 end

@@ -6,13 +6,13 @@ Copyright:      2018, Jeffrey Phillips Freeman
 License:        Apache v2
 
     Copyright 2017 - 2018, Jeffrey Phillips Freeman
-    
+
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
     You may obtain a copy of the License at
-    
+
         http://www.apache.org/licenses/LICENSE-2.0
-    
+
     Unless required by applicable law or agreed to in writing, software
     distributed under the License is distributed on an "AS IS" BASIS,
     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -39,62 +39,65 @@ module Aethyr
       #Creates the Manager, starts the EventMachine, and closes everything down when the time comes.
       def initialize(address, port)
         $manager = Manager.new
-        
+
         updateTask = Concurrent::TimerTask.new(execution_interval: ServerConfig.update_rate, timeout_interval: 10) do
           $manager.update_all
         end
         saveTask = Concurrent::TimerTask.new(execution_interval: ServerConfig.save_rate, timeout_interval: 30) do
-          log "Automatic state save."; $manager.save_all
+          log "Automatic state save."
+          $manager.save_all
         end
-        
+
         updateTask.execute
         saveTask.execute
-        
-        listener = server_socket('0.0.0.0', 8888)
-        
+
+        listener = server_socket(address, port)
+
         File.open("logs/server.log", "a") { |f| f.puts "#{Time.now} Server started." }
         log "Server up and running on #{address}:#{port}", 0
-        
+
         players = Set.new()
         loop do
-          did_something = false
           # handle the listener
           #ready, _, _ = IO.select([listener])
           socket, addr_info = listener.accept_nonblock(exception: false)
           if (not socket.nil?) and socket.is_a? Socket
-            did_something = true
             players << handle_client(socket, addr_info)
           end
-          
+
           players.each do |player|
-            recvd = player.display.recv
-            did_something = true unless recvd.nil?
-            player.receive_data(recvd)
+            if player.closed?
+              log "Player #{player} has closed connection, removing from server queue"
+              players.delete(player)
+            else
+              player.receive_data
+            end
           end
-          
-          sleep 0.1 unless did_something
+
+          next_action = $manager.pop_action
+          next_action.action unless next_action.nil?
+
+          # TODO this is a hack to fix a bug from calling resizeterm
+          #check if global refresh is needed
+          need_refresh = false
+          players.each do |player|
+            need_refresh = true if player.display.global_refresh
+          end
+          if need_refresh
+            players.each do |player|
+              player.display.layout
+            end
+            #$manager.find_all("class", Player).each do |player|
+            #  puts "updating display of #{player}"
+            #  player.update_display
+            #end
+          end
+
         end
-        
-#        4.times do # Adjust this number for the pool size
-#          next unless fork.nil? # Parent only calls fork
-#          loop do # Child does this work
-#            handle_client(*listener.accept)
-#          end
-#          return 0
-#        end
 
         clean_up_children
         return 0 # Return code
-        
-#        EventMachine.run do
-#          EventMachine.add_periodic_timer(ServerConfig.update_rate) { $manager.update_all }
-#          if ServerConfig.save_rate and ServerConfig.save_rate > 0
-#            EventMachine.add_periodic_timer(ServerConfig.save_rate * 60) { log "Automatic state save."; $manager.save_all }
-#          end
-#          EventMachine.start_server address, port, PlayerConnection
-#          File.open("logs/server.log", "a") { |f| f.puts "#{Time.now} Server started." }
-#          log "Server up and running on #{address}:#{port}", 0
-#        end
+
       rescue Interrupt => i
         log "Received interrupt: halting", 0
         log i.inspect
@@ -108,7 +111,7 @@ module Aethyr
         $manager.save_all
         log "Objects saved.", Logger::Normal, true
       end
-      
+
       private
       def server_socket(addr, port)
         socket = Socket.new(:INET, :SOCK_STREAM)
@@ -118,18 +121,17 @@ module Aethyr
         puts 'Waiting for connections...'
         socket
       end
-      
+
       def handle_client(socket, addrinfo)
         begin
-          display = Display.new(socket)
-          player = PlayerConnection.new(display, addrinfo)
+          player = PlayerConnection.new(socket, addrinfo)
           puts "Connected: #{addrinfo.inspect}\n"
           return player
         rescue Errno::ECONNRESET, Errno::EPIPE
           puts "       Reset: #{addrinfo.inspect}\n"
         end
       end
-      
+
       def clean_up_children
         loop do
           Process.wait # Gather processes as they exit
@@ -139,75 +141,18 @@ module Aethyr
       rescue SystemCallError
         puts 'All children have exited. Goodbye!'
       end
-      
-#      def process_requests(socket)
-#        begin
-#          # initialize ncurses
-#          scr = Ncurses.newterm("vt100", socket, socket)
-#          Ncurses.set_term(scr)
-#          Ncurses.resizeterm(25, 80)
-#          Ncurses.cbreak           # provide unbuffered input
-#          Ncurses.noecho           # turn off input echoing
-#          Ncurses.nonl             # turn off newline translation
-#
-#          Ncurses.stdscr.intrflush(false) # turn off flush-on-interrupt
-#          Ncurses.stdscr.keypad(true)     # turn on keypad mode
-#
-#          Ncurses.stdscr.addstr("Press a key to continue") # output string
-#          Ncurses.stdscr.getch                             # get a charachter
-#
-#          scr = Ncurses.stdscr
-#
-#          #moving
-#          scr.clear() # clear screen
-#          scr.move(5,5) # move cursor
-#          scr.addstr("move(5,5)")
-#          scr.refresh() # update screen
-#          sleep(2)
-#          scr.move(2,2)
-#          scr.addstr("move(2,2)")
-#          scr.refresh()
-#          sleep(2)
-#          scr.move(10, 2)
-#
-#          # two_borders
-#          # make a new window as tall as the screen and half as wide, in the left half
-#          # of the screen
-#          one = Ncurses::WINDOW.new(0, Ncurses.COLS() / 2, 0, 0)
-#          # make one for the right half
-#          two = Ncurses::WINDOW.new(0, Ncurses.COLS() - (Ncurses.COLS() / 2),
-#                  0, Ncurses.COLS() / 2)
-#          one.border(*([0]*8))
-#          two.border(*([0]*8))
-#          one.move(3,3)
-#          two.move(2,5)
-#          one.addstr("move(3,3)")
-#          two.addstr("move(2,5)")
-#          two.move(5,3)
-#          two.addstr("Press a key to continue")
-#          one.noutrefresh() # copy window to virtual screen, don't update real screen
-#          two.noutrefresh()
-#          Ncurses.doupdate() # update read screen
-#          two.getch()
-#
-#        ensure
-#          Ncurses.echo
-#          Ncurses.nocbreak
-#          Ncurses.nl
-#          Ncurses.endwin
-#        end
-#      end
+
     end
-    
-    def self.main        
+
+    def self.main
           if ARGV[0]
             server_restarts = ARGV[0].to_i
           else
             server_restarts = 0
           end
-        
+
           log "Server restart ##{server_restarts}"
-        
+
           begin
             #result = RubyProf.profile do
             Server.new(ServerConfig.address, ServerConfig.port)
@@ -223,13 +168,13 @@ module Aethyr
               else
                 File.open("logs/server.log", "a+") { |f| f.puts "#{Time.now} Server restart on error or interrupt." }
               end
-        
+
               log "SERVER RESTARTING - Attempting to restart in 10 seconds...press ^C to stop...", Logger::Important
               sleep ServerConfig.restart_delay
               log "RESTARTING SERVER", Logger::Important, true
-        
+
               program_name = ENV["_"] || "ruby"
-        
+
               if $manager and $manager.soft_restart
                 exec("#{program_name} server.rb")
               else

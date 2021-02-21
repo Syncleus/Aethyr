@@ -1,14 +1,13 @@
-require 'observer'
 require 'aethyr/core/util/publisher'
 require 'aethyr/core/util/log'
 require 'aethyr/core/objects/inventory'
 require 'aethyr/core/objects/traits/pronoun'
 require 'aethyr/core/util/guid'
 require 'aethyr/core/objects/info/info'
+require 'aethyr/core/event'
 
 #Base class for all game objects, including players. Should be subclassed to do anything useful.
 class GameObject < Publisher
-  include Observable
   include Pronoun
 
   attr_reader :short_desc, :game_object_id, :alt_names, :generic, :article, :sex, :show_in_look, :actions, :balance, :admin, :manager
@@ -70,11 +69,11 @@ class GameObject < Publisher
     @actions = Set.new
     @admin = false
   end
-  
+
   def flags
     Hash.new @info.flags
   end
-  
+
   def add_flag(new_flag)
     new_flag.negate_flags(@info.flags)
     @info.flags[new_flag.id] = new_flag
@@ -97,11 +96,14 @@ class GameObject < Publisher
   def update
     return if @busy
     @busy = true
-    if self.is_a? Reacts
-      self.alert(Event.new(:Generic, :action => :tick))
+    begin
+      if self.is_a? Reacts
+        self.alert(Event.new(:Generic, :action => :tick))
+      end
+      run
+    ensure
+      @busy = false
     end
-    run
-    @busy = false
   end
 
   #Checks if the GameObject is busy in the GameObject#update method.
@@ -127,12 +129,6 @@ class GameObject < Publisher
   #
   #To be implemented in the subclasses
   def run
-  end
-
-  #Just a way to put an event into the system, nothing more, nothing less.
-  def add_event(event)
-    changed
-    notify_observers(event)
   end
 
   #Basically, this is where hooks for commands would go.
@@ -263,4 +259,3 @@ class GameObject < Publisher
   end
 
 end
-

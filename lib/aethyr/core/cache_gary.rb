@@ -67,7 +67,6 @@ class CacheGary < Gary
       log "Loading #{goid} from storage" , Logger::Ultimate
       begin
         obj = @storage.load_object(goid, self)
-        obj.add_observer(@manager)
       rescue MUDError::NoSuchGOID
         log "Tried to load #{goid}, but it must have been deleted."
         return nil
@@ -78,12 +77,11 @@ class CacheGary < Gary
     end
   end
 
-  #Add object to CacheGary, also adds the Manager as an observer.
+  #Add object to CacheGary.
   def << game_object
     @mutex.synchronize do
       @ghash[game_object.goid] = game_object
       @all_goids << game_object.goid
-      game_object.add_observer(@manager)
     end
   end
 

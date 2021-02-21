@@ -84,11 +84,11 @@ class GridContainer < Container
     @inventory.add(object, position)
     object.container = @game_object_id
   end
-  
+
   def find_by_position(position)
     @inventory.find_by_position(position)
   end
-  
+
   def position game_object
     @inventory.position(game_object)
   end

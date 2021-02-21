@@ -63,16 +63,6 @@ class StorageMachine
       end
     end
 
-    #Yeah, so whatever on this little deal. Probably should do it better later.
-    player.use_color = player.io.use_color if player.io
-    player.color_settings = player.io.color_settings if player.io
-
-    #Okay, this is tricky. We can't serialize the IO object stored in the Player
-    #objects. To get around this (we don't want to store it anyhow), we temporarily
-    #set it to nil, then back to whatever it was.
-    player_connection = player.instance_variable_get(:@player)
-    player.instance_variable_set(:@player, nil)
-
     log "Saving player: #{player.name}"
     store_object(player)
 
@@ -81,7 +71,6 @@ class StorageMachine
     end
 
     log "Player saved: #{player.name}"
-    player.instance_variable_set(:@player, player_connection)
   end
 
   #Sets password for a given player. Accepts player name or player object.
@@ -193,16 +182,10 @@ class StorageMachine
 
   #Recursively stores object and its inventory.
   #
-  #Warning: this temporarily removes the object's observers.
+  #Warning: this temporarily removes the object's subscribers.
   def store_object(object)
 
-    if object.is_a? Observable
-      observers = object.instance_variable_get(:@observer_peers)
-      unless observers.nil?
-        observers = observers.dup
-        object.delete_observers
-      end
-    end
+    volatile_data = object.dehydrate()
 
     open_store("goids", false) do |gd|
       gd[object.goid] = object.class.to_s
@@ -212,10 +195,6 @@ class StorageMachine
       gd[object.goid] = Marshal.dump(object)
     end
 
-    if object.is_a? Observable and not observers.nil?
-      object.instance_variable_set(:@observer_peers, observers)
-    end
-
     if object.respond_to? :equipment
       object.equipment.each do |o|
         store_object(o) unless o.is_a? Player #this shouldn't happen, but who knows
@@ -223,6 +202,8 @@ class StorageMachine
     end
 
     @saved += 1
+
+    object.rehydrate(volatile_data)
 
     log "Stored #{object} # #{object.game_object_id}", Logger::Ultimate
   end
@@ -325,10 +306,8 @@ class StorageMachine
       end
     end
 
-    if object.is_a? Observable
-      fix_observers object
-    end
 
+    object.rehydrate(nil)
     game_objects << object
 
     unless object.container.nil? or game_objects.loaded? object.container
@@ -338,6 +317,7 @@ class StorageMachine
         object.container = ServerConfig.start_room
       end
     end
+
     return object
   end
 
@@ -375,9 +355,8 @@ class StorageMachine
           object = Marshal.load(gd[id])
           log "Loaded #{object}", Logger::Ultimate
           unless object.nil? or (not include_players and object.is_a? Player)
-            if object.is_a? Observable
-              fix_observers object
-            end
+
+            object.rehydrate(nil)
 
             game_objects << object
             objects << object
@@ -498,15 +477,5 @@ class StorageMachine
     end
   end
 
-  #Fixes issue with changes with Observer between Ruby 1.8.7 and 1.9.1
-  def fix_observers object
-    if RUBY_VERSION < "1.9.0"
-      object.instance_variable_set(:@observer_peers, [])
-    else
-      object.instance_variable_set(:@observer_peers, {})
-    end
-  end
-
   public :update_all_objects!
 end
-

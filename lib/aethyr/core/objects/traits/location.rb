@@ -4,7 +4,6 @@ require 'aethyr/core/util/log'
 require 'aethyr/core/objects/inventory'
 require 'aethyr/core/objects/traits/pronoun'
 require 'aethyr/core/util/guid'
-require 'observer'
 require 'aethyr/core/objects/info/info'
 
 module Location
@@ -17,12 +16,12 @@ module Location
       info.terrain.type = terrain_type
     end
   end
-  
+
   def area
     return self if self.is_a? Area
     self.parent_area
   end
-  
+
   def parent_area
     return nil if $manager.nil?
     parent_id = @container
@@ -33,17 +32,17 @@ module Location
     end
     nil
   end
-  
+
   def flags
     collected_flags = self.parent_area.flags unless self.parent_area.nil?
     return info.flags.dup if collected_flags.nil?
-    
+
     self.info.flags.values.each do |f|
       f.negate_flags(collected_flags)
     end
     collected_flags.merge! self.info.flags
   end
-  
+
   def terrain_type
     return info.terrain.type unless info.terrain.type.nil?
     return self.parent_area.terrain_type unless self.parent_area.nil?

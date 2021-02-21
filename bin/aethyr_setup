@@ -87,8 +87,8 @@ def reset_storage
   end
 
   puts "Erasing storage..."
-  FileUtils.rm_rf "storage/", :secure => true
-  FileUtils.mkdir "storage"
+  FileUtils.mkdir "storage"  if not File.exist? "storage/"
+  FileUtils.rm_rf Dir.glob("storage/*"), :secure => true
   FileUtils.mkdir "storage/boards"
   FileUtils.mkdir "storage/admin"
   FileUtils.mkdir "logs" if not File.exist? "logs/"
@@ -131,7 +131,7 @@ def reset_storage
 
   puts "Adding helper reactions..."
 
-  FileUtils.mkdir "lib/aethyr/extensions/reactions" if not File.exist? "lib/aethyr/objects/reactions/"
+  FileUtils.mkdir "lib/aethyr/extensions/reactions" if not File.exist? "lib/aethyr/extensions/reactions/"
 
   File.open "lib/aethyr/extensions/reactions/helper.rx", "w" do |f|
     f.write helper_reactions

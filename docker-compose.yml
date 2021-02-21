@@ -4,10 +4,11 @@ services:
     image: 'borea/aethyr:latest'
     build: .
     ports:
-      - "8888:8888"
+      - "1337:8888"
     volumes:
-      - "$PWD/storage:/usr/src/app/storage" 
-      - "$PWD/conf:/usr/src/app/conf"
-      - "$PWD/lib/aethyr/extensions/reactions:/usr/src/app/lib/aethyr/extensions/reactions"
-      - "$PWD/logs:/usr/src/app/logs"      
+      - "$PWD:/usr/src/app" 
+#      - "$PWD/storage:/usr/src/app/storage" 
+#      - "$PWD/conf:/usr/src/app/conf"
+#      - "$PWD/lib/aethyr/extensions/reactions:/usr/src/app/lib/aethyr/extensions/reactions"
+#      - "$PWD/logs:/usr/src/app/logs"      
     user: "${UID}:${GID}"

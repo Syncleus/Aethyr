@@ -33,11 +33,10 @@ Just run the application with the following command.
 
 == Using Docker
 
-    docker run --rm -i -v "$PWD/storage:/usr/src/app/storage" -v "$PWD/conf:/usr/src/app/conf" -v "$PWD/lib/aethyr/extensions/reactions:/usr/src/app/lib/aethyr/extensions/reactions" -t syncleus/aethyr:git bundle exec ./bin/aethyr_setup
-    docker run -p 8888:8888 -v "$PWD/storage:/usr/src/app/storage" -v "$PWD/conf:/usr/src/app/conf" -v "$PWD/lib/aethyr/extensions/reactions:/usr/src/app/lib/aethyr/extensions/reactions" --rm syncleus/aethyr:git
+    UID=${UID} GID=${GID} docker-compose run --rm -- aethyr bundle exec ./bin/aethyr_setup
+    UID=${UID} GID=${GID} docker-compose up 
 
 == Building image
  
-    docker build -t syncleus/aethyr:git .
-    docker login # if not logged in
-    docker push syncleus/aethyr:git
+    UID=${UID} GID=${GID} docker-compose build
+    UID=${UID} GID=${GID} docker-compose push

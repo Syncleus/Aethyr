@@ -1,7 +1,7 @@
 FROM archlinux/base
 
 RUN pacman -Sy --noconfirm
-RUN pacman -S --noconfirm ruby git
+RUN pacman -S --noconfirm ruby git base-devel glibc
 RUN gem install --no-user-install bundler
 
 # throw errors if Gemfile has been modified since Gemfile.lock

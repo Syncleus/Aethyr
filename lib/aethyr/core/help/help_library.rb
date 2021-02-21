@@ -30,6 +30,9 @@ module Aethyr
         def render_topic(topic)
           redirected_from = ""
           entry = lookup_topic(topic)
+
+            return "Topic #{topic} has no entry, try help with no arguments" if entry.nil?
+
           while entry.redirect? do
             redirected_from = "→ redirected from #{topic}\n\n" if redirected_from.empty?
             entry = lookup_topic(entry.redirect)

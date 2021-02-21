@@ -24,13 +24,6 @@ module Aethyr
 
         output << "(#{output.length} lines shown.)"
       end
-
-      #Looks in player's inventory and room for name.
-      #Then checks at global level for GOID.
-      def find_object(name, event)
-        $manager.find(name, event[:player]) || $manager.find(name, event[:player].container) || $manager.get_object(name)
-      end
-
     end
   end
 end

@@ -1,4 +1,5 @@
 require "aethyr/core/actions/command_action"
+require 'aethyr/core/attributes/blind'
 
 module Aethyr
   module Core
@@ -12,8 +13,19 @@ module Aethyr
           def action
             event = @data
             room = $manager.get_object(@player.container)
-            if @player.blind?
-              @player.output "You cannot see while you are blind."
+
+            # TODO : remove this next line
+            Blind.new(@player)
+
+            blind_data = { :can_look => true }
+            @player.broadcast_from(:pre_look, blind_data)
+
+            if not blind_data[:can_look]
+              if blind_data[:reason].nil?
+                @player.output "You cannot see while you are blind."
+              else
+                @player.output blind_data[:reason]
+              end
             else
               if event[:at]
                 object = room if event[:at] == "here"

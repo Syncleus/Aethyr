@@ -56,7 +56,6 @@ class Player < LivingObject
     @word_wrap = 120
     @page_height = nil
     @deaf = false
-    @blind = false
     @reply_to = nil
     @prompt_shown = false
     @layout = :basic
@@ -122,10 +121,6 @@ class Player < LivingObject
 
   def deaf?
     @deaf
-  end
-
-  def blind?
-    @blind
   end
 
   #Sets balance

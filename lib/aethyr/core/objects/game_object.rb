@@ -28,6 +28,7 @@ class GameObject < Publisher
     @name = name
     #Alternate names for the object
     @alt_names = alt_names
+    @attributes = Hash.new
     #The short description of the object
     @short_desc = short_desc
     #The long, detailed description of the object
@@ -68,6 +69,29 @@ class GameObject < Publisher
     @plural = nil
     @actions = Set.new
     @admin = false
+  end
+
+  def attributes
+    @attributes.clone
+  end
+
+  def attach_attribute(attribute)
+    @attributes[attribute.class] = attribute
+  end
+
+  def detach_attribute(attribute)
+    if attribute.is_a? Class
+      @attributes.delete(attribute)
+    else
+      attribute_to_detach = @attributes[attribute.class]
+      if attribute == attribute_to_detach
+        @attributes.delete(attribute.class)
+      end
+    end
+  end
+
+  def broadcast_from(event, *args)
+    broadcast(event, *args)
   end
 
   def flags

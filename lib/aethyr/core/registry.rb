@@ -16,7 +16,7 @@ module Aethyr
 
             def self.handle(manager)
               @@handlers.each do |handler|
-                manager.subscribe(handler)
+                manager.subscribe(handler, on: :object_added)
               end
               nil
             end

@@ -14,9 +14,6 @@ module Aethyr
             event = @data
             room = $manager.get_object(@player.container)
 
-            # TODO : remove this next line
-            Blind.new(@player)
-
             blind_data = { :can_look => true }
             @player.broadcast_from(:pre_look, blind_data)
 

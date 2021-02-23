@@ -1,14 +1,14 @@
 require 'aethyr/core/util/publisher'
 require 'aethyr/core/util/log'
 require 'aethyr/core/objects/inventory'
-require 'aethyr/core/objects/traits/pronoun'
+require 'aethyr/core/objects/traits/lexicon'
 require 'aethyr/core/util/guid'
 require 'aethyr/core/objects/info/info'
 require 'aethyr/core/event'
 
 #Base class for all game objects, including players. Should be subclassed to do anything useful.
 class GameObject < Publisher
-  include Pronoun
+  include Lexicon
 
   attr_reader :short_desc, :game_object_id, :alt_names, :generic, :article, :sex, :show_in_look, :actions, :balance, :admin, :manager
   attr_accessor :container, :show_in_look, :actions, :pose, :visible, :comment, :movable, :quantity, :info
@@ -37,6 +37,13 @@ class GameObject < Publisher
     @generic = generic
     #The sex of the object
     @sex = sex
+    if @sex == 'm'
+      @gender = Lexicon::Gender::MASCULINE
+    elsif @sex == 'f'
+      @gender = Lexicon::Gender::FEMININE
+    else
+      @gender = Lexicon::Gender::NEUTER
+    end
     #The article of the object ('a','an',etc)
     @article = article
     @visible = true

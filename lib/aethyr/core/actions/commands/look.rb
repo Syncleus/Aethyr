@@ -14,12 +14,12 @@ module Aethyr
             event = @data
             room = $manager.get_object(@player.container)
 
-            blind_data = { :can_look => true }
-            @player.broadcast_from(:pre_look, blind_data)
+            pre_look_data = { :can_look => true }
+            @player.broadcast_from(:pre_look, pre_look_data)
 
-            if not blind_data[:can_look]
-              if blind_data[:reason].nil?
-                @player.output "You cannot see while you are blind."
+            if not pre_look_data[:can_look]
+              if pre_look_data[:reason].nil?
+                @player.output "You cannot see."
               else
                 @player.output blind_data[:reason]
               end

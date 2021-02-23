@@ -1,10 +1,6 @@
 module Aethyr
   module Extend
     module Action
-      def concurrency
-        :single
-      end
-
       def action; end
     end
 

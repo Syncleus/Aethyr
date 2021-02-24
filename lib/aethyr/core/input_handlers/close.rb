@@ -2,7 +2,7 @@ require "aethyr/core/registry"
 require "aethyr/core/input_handlers/command_handler"
 require "aethyr/core/util/direction"
 require "aethyr/core/help/help_entry"
-require "aethyr/core/actions/command_action"
+require "aethyr/core/actions/commands/command_action"
 require "aethyr/core/actions/commands/close"
 
 module Aethyr

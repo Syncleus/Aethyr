@@ -1,4 +1,4 @@
-require "aethyr/core/actions/command_action"
+require "aethyr/core/actions/commands/command_action"
 require 'aethyr/core/objects/attributes/blind'
 
 module Aethyr

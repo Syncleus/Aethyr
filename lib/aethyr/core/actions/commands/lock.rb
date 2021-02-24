@@ -1,4 +1,4 @@
-require "aethyr/core/actions/command_action"
+require "aethyr/core/actions/commands/command_action"
 
 module Aethyr
   module Core
@@ -58,7 +58,7 @@ module Aethyr
               @player.output("You do not have the key to that #{object.name}.")
             end
           end
-          
+
         end
       end
     end

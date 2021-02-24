@@ -1,5 +1,5 @@
 # coding: utf-8
-require "aethyr/core/actions/command_action"
+require "aethyr/core/actions/commands/command_action"
 
 module Aethyr
   module Core

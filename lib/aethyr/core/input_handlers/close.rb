@@ -36,7 +36,7 @@ EOF
           end
 
           def initialize(player)
-            super(player, ["close"], help_entries: CloseHandler.create_help_entries)
+            super(player, ["close", "shut"], help_entries: CloseHandler.create_help_entries)
           end
 
           def self.object_added(data)

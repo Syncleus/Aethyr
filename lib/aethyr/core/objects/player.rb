@@ -56,6 +56,7 @@ class Player < LivingObject
     @word_wrap = 120
     @page_height = nil
     @deaf = false
+    @blind = false
     @reply_to = nil
     @prompt_shown = false
     @layout = :basic
@@ -68,6 +69,10 @@ class Player < LivingObject
     info.skills = { map_skill.id => map_skill, kick_skill.id => kick_skill}
     info.explored_rooms = Set.new [room]
     map_skill.add_xp 750
+  end
+
+  def blind?
+    @blind
   end
 
   def set_connection(new_player)

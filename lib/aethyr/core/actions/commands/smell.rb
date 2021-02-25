@@ -10,7 +10,7 @@ module Aethyr
           end
 
           def action
-            event = @data
+            event = @data.dup
             room = $manager.get_object(@player.container)
             if event[:target].nil?
               if room.info.smell

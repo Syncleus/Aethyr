@@ -260,15 +260,15 @@ module Lexicon
   # For legacy purposes
   def pronoun(type = :normal)
     if type == :normal
-      return noun(false, plurality: Plurality::Singular, gramatical_person: GramaticalPerson::THIRD_PERSON, subjectivity: Subjectivity::SUBJECTIVE )
+      return noun(false, plurality: Plurality::SINGULAR, gramatical_person: GramaticalPerson::THIRD_PERSON, subjectivity: Subjectivity::SUBJECTIVE )
     elsif type == :reflexive
-      return noun(false, plurality: Plurality::Singular, gramatical_person: GramaticalPerson::THIRD_PERSON, relation: Relation::REFLEXIVE )
+      return noun(false, plurality: Plurality::SINGUAR, gramatical_person: GramaticalPerson::THIRD_PERSON, relation: Relation::REFLEXIVE )
     elsif type == :possessive
-      return noun(false, plurality: Plurality::Singular, gramatical_person: GramaticalPerson::THIRD_PERSON, relation: Relation::POSSESSIVE, subjectivity: Subjectivity::SUBJECTIVE )
+      return noun(false, plurality: Plurality::SINGULAR, gramatical_person: GramaticalPerson::THIRD_PERSON, relation: Relation::POSSESSIVE, subjectivity: Subjectivity::SUBJECTIVE )
     elsif type == :objective
-      return noun(false, plurality: Plurality::Singular, gramatical_person: GramaticalPerson::THIRD_PERSON, subjectivity: Subjectivity::OBJECTIVE )
+      return noun(false, plurality: Plurality::SINGULAR, gramatical_person: GramaticalPerson::THIRD_PERSON, subjectivity: Subjectivity::OBJECTIVE )
     elsif type == :obj_poss
-      return noun(false, plurality: Plurality::Singular, gramatical_person: GramaticalPerson::THIRD_PERSON, relation: Relation::POSSESSIVE, subjectivity: Subjectivity::OBJECTIVE )
+      return noun(false, plurality: Plurality::SINGULAR, gramatical_person: GramaticalPerson::THIRD_PERSON, relation: Relation::POSSESSIVE, subjectivity: Subjectivity::OBJECTIVE )
     else
       raise ArgumentError "Unrecognized typed #{type}"
     end

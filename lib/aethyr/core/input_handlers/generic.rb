@@ -3,7 +3,6 @@ require "aethyr/core/actions/commands/listen"
 require "aethyr/core/actions/commands/smell"
 require "aethyr/core/actions/commands/taste"
 require "aethyr/core/actions/commands/write"
-require "aethyr/core/actions/commands/deleteme"
 require "aethyr/core/actions/commands/who"
 require "aethyr/core/actions/commands/date"
 require "aethyr/core/actions/commands/time"
@@ -128,17 +127,6 @@ EOF
 
 
 
-            command = "deleteme"
-            see_also = nil
-            syntax_formats = ["DELETE ME PLEASE"]
-            aliases = nil
-            content =  <<'EOF'
-Deleting Your Character
-
-In case you ever need to do so, you can remove your character from the game. Quite permanently. You will need to enter your password as confirmation and that's it. You will be wiped out of time and memory.
-
-EOF
-            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
 
 
 
@@ -205,7 +193,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ['date', 'delete', 'feel', 'taste', 'smell', 'sniff', 'lick', 'listen', 'health', 'hunger', 'satiety', 'shut', 'status', 'stat', 'st', 'time', 'typo', 'who', 'write'], help_entries: GenericHandler.create_help_entries)
+            super(player, ['date', 'feel', 'taste', 'smell', 'sniff', 'lick', 'listen', 'health', 'hunger', 'satiety', 'shut', 'status', 'stat', 'st', 'time', 'typo', 'who', 'write'], help_entries: GenericHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -215,8 +203,6 @@ EOF
           def player_input(data)
             super(data)
             case data[:input]
-            when /^delete me please$/i
-              $manager.submit_action(Aethyr::Core::Actions::Deleteme::DeletemeCommand.new(@player, {}))
             when /^(health)$/i
               $manager.submit_action(Aethyr::Core::Actions::Health::HealthCommand.new(@player, {}))
             when /^(satiety|hunger)$/i

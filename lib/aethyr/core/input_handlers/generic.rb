@@ -23,28 +23,6 @@ module Aethyr
           def self.create_help_entries
             help_entries = []
 
-            command = "health"
-            see_also = ["STATUS", "HUNGER"]
-            syntax_formats = ["HEALTH"]
-            aliases = nil
-            content =  <<'EOF'
-Shows you how healthy you are.
-
-You can be:
-	at full health
-	a bit bruised
-	a little beat up
-	slightly injured
-	quite injured
-	slightly wounded
-	wounded in several places
-	heavily wounded
-	bleeding profusely and in serious pain
-	nearly dead
-	dead
-
-EOF
-            help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))
 
 
 
@@ -193,7 +171,7 @@ EOF
 
 
           def initialize(player)
-            super(player, ['date', 'feel', 'taste', 'smell', 'sniff', 'lick', 'listen', 'health', 'hunger', 'satiety', 'shut', 'status', 'stat', 'st', 'time', 'typo', 'who', 'write'], help_entries: GenericHandler.create_help_entries)
+            super(player, ['date', 'feel', 'taste', 'smell', 'sniff', 'lick', 'listen', 'hunger', 'satiety', 'shut', 'status', 'stat', 'st', 'time', 'typo', 'who', 'write'], help_entries: GenericHandler.create_help_entries)
           end
 
           def self.object_added(data)
@@ -203,8 +181,6 @@ EOF
           def player_input(data)
             super(data)
             case data[:input]
-            when /^(health)$/i
-              $manager.submit_action(Aethyr::Core::Actions::Health::HealthCommand.new(@player, {}))
             when /^(satiety|hunger)$/i
               $manager.submit_action(Aethyr::Core::Actions::Satiety::SatietyCommand.new(@player, {}))
             when /^(st|stat|status)$/i

@@ -55,16 +55,16 @@ EOF
               $manager.submit_action(Aethyr::Core::Actions::Setcolor::SetcolorCommand.new(@player, {:option => option}))
             when /^set\s+colors?.*/i
               $manager.submit_action(Aethyr::Core::Actions::Showcolors::ShowcolorsCommand.new(@player, {}))
-            when /^set\s+(\w+)\s*(.*)$/i
-              setting = $1.strip
-              value = $2.strip if $2
-              $manager.submit_action(Aethyr::Core::Actions::Set::SetCommand.new(@player, {:setting => setting, :value => value}))
             when /^set\s+colors?\s+(\w+)\s+(.+)$/i
               option = $1
               color = $2
               $manager.submit_action(Aethyr::Core::Actions::Setcolor::SetcolorCommand.new(@player, {:option => option, :color => color}))
             when /^set\s+password$/i
               $manager.submit_action(Aethyr::Core::Actions::Setpassword::SetpasswordCommand.new(@player, {}))
+            when /^set\s+(\w+)\s*(.*)$/i
+              setting = $1.strip
+              value = $2.strip if $2
+              $manager.submit_action(Aethyr::Core::Actions::Set::SetCommand.new(@player, {:setting => setting, :value => value}))
             end
           end
 

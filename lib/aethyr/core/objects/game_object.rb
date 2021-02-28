@@ -5,10 +5,12 @@ require 'aethyr/core/objects/traits/lexicon'
 require 'aethyr/core/util/guid'
 require 'aethyr/core/objects/info/info'
 require 'aethyr/core/event'
+require 'aethyr/core/util/defaults'
 
 #Base class for all game objects, including players. Should be subclassed to do anything useful.
 class GameObject < Publisher
   include Lexicon
+  include Defaults
 
   attr_reader :short_desc, :game_object_id, :alt_names, :generic, :article, :sex, :show_in_look, :actions, :balance, :admin, :manager
   attr_accessor :container, :show_in_look, :actions, :pose, :visible, :comment, :movable, :quantity, :info
@@ -16,6 +18,16 @@ class GameObject < Publisher
   alias :room :container
   alias :can? :respond_to?
   alias :goid :game_object_id
+
+  Defaults::default(:gender) do
+    if @sex == 'm'
+      Lexicon::Gender::MASCULINE
+    elsif @sex == 'f'
+      Lexicon::Gender::FEMININE
+    else
+      Lexicon::Gender::NEUTER
+    end
+  end
 
   #Creates a new GameObject. Most of this long list of parameters is simply ignored at creation time,
   #because they can all be set later.
@@ -37,13 +49,6 @@ class GameObject < Publisher
     @generic = generic
     #The sex of the object
     @sex = sex
-    if @sex == 'm'
-      @gender = Lexicon::Gender::MASCULINE
-    elsif @sex == 'f'
-      @gender = Lexicon::Gender::FEMININE
-    else
-      @gender = Lexicon::Gender::NEUTER
-    end
     #The article of the object ('a','an',etc)
     @article = article
     @visible = true
@@ -76,6 +81,8 @@ class GameObject < Publisher
     @plural = nil
     @actions = Set.new
     @admin = false
+
+    load_defaults
   end
 
   def attributes

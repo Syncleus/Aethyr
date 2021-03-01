@@ -12,22 +12,23 @@ class GameObject < Publisher
   include Lexicon
   include Defaults
 
-  attr_reader :short_desc, :game_object_id, :alt_names, :generic, :article, :sex, :show_in_look, :actions, :balance, :admin, :manager
+  attr_reader :short_desc, :game_object_id, :alt_names, :generic, :article, :sex, :gender, :show_in_look, :actions, :balance, :admin, :manager
   attr_accessor :container, :show_in_look, :actions, :pose, :visible, :comment, :movable, :quantity, :info
   attr_writer :plural
   alias :room :container
   alias :can? :respond_to?
   alias :goid :game_object_id
 
-  Defaults::default(:gender) do
-    if @sex == 'm'
+  default(:gender) do |this|
+    if this.sex == 'm'
       Lexicon::Gender::MASCULINE
-    elsif @sex == 'f'
+    elsif this.sex == 'f'
       Lexicon::Gender::FEMININE
     else
       Lexicon::Gender::NEUTER
     end
   end
+  default(:visible) { true }
 
   #Creates a new GameObject. Most of this long list of parameters is simply ignored at creation time,
   #because they can all be set later.
@@ -51,7 +52,6 @@ class GameObject < Publisher
     @sex = sex
     #The article of the object ('a','an',etc)
     @article = article
-    @visible = true
     #This is tricky. If @show_in_look is something
     #other than false (or nil), then the object will
     #not show up in the list of objects, but rather this
@@ -83,6 +83,10 @@ class GameObject < Publisher
     @admin = false
 
     load_defaults
+    puts "checking gender for #{@name}"
+    puts @gender
+    puts "and defaults"
+    puts @@defaults
   end
 
   def attributes

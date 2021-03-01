@@ -83,10 +83,6 @@ class GameObject < Publisher
     @admin = false
 
     load_defaults
-    puts "checking gender for #{@name}"
-    puts @gender
-    puts "and defaults"
-    puts @@defaults
   end
 
   def attributes

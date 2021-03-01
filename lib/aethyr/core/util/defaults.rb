@@ -1,14 +1,12 @@
 module Defaults
   @@defaults = {}
 
-  def self.default(attribute_raw, &block)
-    default_exists = @@defaults.key? self.name.to_s
-    local_defaults = default_exists ? @@defaults[self.name.to_s] : []
+  def self.defaults
+    @@defaults
+  end
 
-    attribute = "@".concat(attribute_raw.to_s).to_sym
-
-    local_defaults.push({:attribute => attribute, :block => block})
-    @@defaults[self.name.to_s] = local_defaults if not default_exists
+  def self.included(klazz)
+    klazz.extend(ClassMethods)
   end
 
   def load_defaults
@@ -27,5 +25,38 @@ module Defaults
 
   def set_default(attribute)
     self.set_instance_variable(attribute, yield)
+  end
+
+  module ClassMethods
+    def default(attribute_raw, &block)
+      default_exists = Defaults.defaults.key? self.name.to_s
+      local_defaults = default_exists ? Defaults.defaults[self.name.to_s] : []
+
+      attribute = "@".concat(attribute_raw.to_s).to_sym
+
+      local_defaults.push({:attribute => attribute, :block => block})
+      Defaults.defaults[self.name.to_s] = local_defaults if not default_exists
+    end
+  end
+end
+
+class Foo
+  include Defaults
+  default(:bar) {"foobar"}
+
+  def initialize
+    load_defaults
+  end
+
+  def bar
+    @bar
+  end
+
+  def self.check_df
+    @@defaults
+  end
+
+  def local_df
+    @@defaults
   end
 end

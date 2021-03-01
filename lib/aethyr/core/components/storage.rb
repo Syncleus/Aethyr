@@ -304,6 +304,8 @@ class StorageMachine
           object.equipment.delete(goid)
         end
       end
+
+      object.load_defaults
     end
 
 

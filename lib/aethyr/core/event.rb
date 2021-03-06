@@ -61,18 +61,8 @@ class Event < OpenStruct
   #name must be a symbol which is the same as the module which handles the event.
   #
   #An optional hash can be passed in as well to define attributes.
-  def initialize(type, args = nil)
+  def initialize(**args)
     super args
-    self.type = type
-  end
-
-  #This is the event type. <i>Depreciated.</i>
-  def type
-    @table[:type]
-  end
-
-  def type= value
-    @table[:type] = value
   end
 
   #Retrieve an attribute.

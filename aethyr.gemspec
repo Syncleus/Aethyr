@@ -35,6 +35,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'require_all', '~> 2.0'
   spec.add_dependency 'concurrent-ruby', '~> 1.0'
   spec.add_dependency 'ncursesw', '~> 1.4'
+  spec.add_dependency 'casting', '~> 0.7'
   spec.add_development_dependency 'bundler', '~> 2.0'
   spec.add_development_dependency 'json', '~> 1.8'
   spec.add_development_dependency 'rake', '~> 11.3'

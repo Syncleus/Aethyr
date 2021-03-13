@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     aethyr (1.0.0)
+      casting (~> 0.7)
       concurrent-ruby (~> 1.0)
       eventmachine (~> 1.2)
       methadone (~> 1.9)
@@ -22,6 +23,7 @@ GEM
     ast (2.4.0)
     backports (3.17.1)
     builder (3.2.4)
+    casting (0.7.2)
     childprocess (3.0.0)
     concurrent-ruby (1.1.6)
     contracts (0.16.0)
@@ -90,4 +92,4 @@ DEPENDENCIES
   rubocop (~> 0.82)
 
 BUNDLED WITH
-   2.1.4
+   2.2.11

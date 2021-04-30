@@ -59,7 +59,7 @@ GEM
     rake (11.3.0)
     rdoc (4.3.0)
     require_all (2.0.0)
-    rexml (3.2.4)
+    rexml (3.2.5)
     rspec-expectations (3.9.1)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.9.0)

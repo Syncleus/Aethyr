@@ -10,15 +10,15 @@ module Aethyr
           end
 
           def action
-            event = @data
 
-            room = $manager.get_object(@player.container)
-            player = @player
-            if event[:object].downcase == "here"
-              event[:object] = player.container
-            elsif event[:object] and event[:object].split.first.downcase == "all"
-              log event[:object].split
-              klass = event[:object].split[1]
+
+            room = $manager.get_object(self[:agent].container)
+            player = self[:agent]
+            if self[:object].downcase == "here"
+              self[:object] = player.container
+            elsif self[:object] and self[:object].split.first.downcase == "all"
+              log self[:object].split
+              klass = self[:object].split[1]
               klass.capitalize! unless klass[0,1] == klass[0,1].upcase
               begin
                 klass = Module.const_get klass.to_sym
@@ -39,17 +39,17 @@ module Aethyr
               return
             end
 
-            object = find_object(event[:object], event)
+            object = find_object(self[:object], event)
 
             if object.nil?
-              player.output "Cannot find #{event[:object]} to edit."
+              player.output "Cannot find #{self[:object]} to edit."
               return
             end
 
-            attrib = event[:attribute]
+            attrib = self[:attribute]
 
             if attrib[0,1] != "@"
-              value = event[:value]
+              value = self[:value]
               if value.downcase == "!nothing" or value.downcase == "nil"
                 value = nil
               end
@@ -101,16 +101,16 @@ module Aethyr
               end
             end
 
-            if not object.instance_variables.include? attrib and not object.instance_variables.include? attrib.to_sym and not event[:force]
+            if not object.instance_variables.include? attrib and not object.instance_variables.include? attrib.to_sym and not self[:force]
               player.output "#{object}:No such setting/variable/attribute: #{attrib}"
               return
             else
               current_value = object.instance_variable_get(attrib)
               if current_value.is_a? Array
-                object.instance_variable_set(attrib, event[:value].split(/s*"(.*?)"\s*|\s+/))
-                player.output "Set #{object} attribute #{attrib} to #{event[:value].inspect}"
+                object.instance_variable_set(attrib, self[:value].split(/s*"(.*?)"\s*|\s+/))
+                player.output "Set #{object} attribute #{attrib} to #{self[:value].inspect}"
               else
-                value = event[:value] #for ease
+                value = self[:value] #for ease
                 if value.split.length == 1
                   case value.downcase
                   when "true"

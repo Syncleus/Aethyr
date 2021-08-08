@@ -11,66 +11,66 @@ module Aethyr
           end
 
           def action
-            event = @data
-            room = $manager.get_object(@player.container)
+
+            room = $manager.get_object(self[:agent].container)
 
             pre_look_data = { :can_look => true }
-            @player.broadcast_from(:pre_look, pre_look_data)
+            self[:agent].broadcast_from(:pre_look, pre_look_data)
 
             if not pre_look_data[:can_look]
               if pre_look_data[:reason].nil?
-                @player.output "You cannot see."
+                self[:agent].output "You cannot see."
               else
-                @player.output blind_data[:reason]
+                self[:agent].output blind_data[:reason]
               end
             else
-              if event[:at]
-                object = room if event[:at] == "here"
-                object = object || @player.search_inv(event[:at]) || room.find(event[:at])
+              if self[:at]
+                object = room if self[:at] == "here"
+                object = object || self[:agent].search_inv(self[:at]) || room.find(self[:at])
 
                 if object.nil?
-                  @player.output("Look at what, again?")
+                  self[:agent].output("Look at what, again?")
                   return
                 end
 
                 if object.is_a? Exit
-                  @player.output object.peer
+                  self[:agent].output object.peer
                 elsif object.is_a? Room
-                  @player.output("You are indoors.", true) if object.info.terrain.indoors
-                  @player.output("You are underwater.", true) if object.info.terrain.underwater
-                  @player.output("You are swimming.", true) if object.info.terrain.water
+                  self[:agent].output("You are indoors.", true) if object.info.terrain.indoors
+                  self[:agent].output("You are underwater.", true) if object.info.terrain.underwater
+                  self[:agent].output("You are swimming.", true) if object.info.terrain.water
 
-                  @player.output "You are in a place called #{room.name} in #{room.area ? room.area.name : "an unknown area"}.", true
+                  self[:agent].output "You are in a place called #{room.name} in #{room.area ? room.area.name : "an unknown area"}.", true
                   if room.area
-                    @player.output "The area is generally #{describe_area(room.area)} and this spot is #{describe_area(room)}."
+                    self[:agent].output "The area is generally #{describe_area(room.area)} and this spot is #{describe_area(room)}."
                   elsif room.info.terrain.room_type
-                    @player.output "Where you are standing is considered to be #{describe_area(room)}."
+                    self[:agent].output "Where you are standing is considered to be #{describe_area(room)}."
                   else
-                    @player.output "You are unsure about anything else concerning the area."
+                    self[:agent].output "You are unsure about anything else concerning the area."
                   end
-                elsif @player == object
-                  @player.output "You look over yourself and see:\n#{@player.instance_variable_get("@long_desc")}", true
-                  @player.output object.show_inventory
+                elsif self[:agent] == object
+                  self[:agent].output "You look over yourself and see:\n#{self[:agent].instance_variable_get("@long_desc")}", true
+                  self[:agent].output object.show_inventory
                 else
-                  @player.output object.long_desc
+                  self[:agent].output object.long_desc
                 end
-              elsif event[:in]
-                object = room.find(event[:in])
-                object = @player.inventory.find(event[:in]) if object.nil?
+              elsif self[:in]
+                object = room.find(self[:in])
+                object = self[:agent].inventory.find(self[:in]) if object.nil?
 
                 if object.nil?
-                  @player.output("Look inside what?")
+                  self[:agent].output("Look inside what?")
                 elsif not object.can? :look_inside
-                  @player.output("You cannot look inside that.")
+                  self[:agent].output("You cannot look inside that.")
                 else
                   object.look_inside(event)
                 end
               else
                 if not room.nil?
-                  look_text = room.look(@player)
-                  @player.output(look_text)
+                  look_text = room.look(self[:agent])
+                  self[:agent].output(look_text)
                 else
-                  @player.output "Nothing to look at."
+                  self[:agent].output "Nothing to look at."
                 end
               end
             end

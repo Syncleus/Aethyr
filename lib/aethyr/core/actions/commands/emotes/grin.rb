@@ -10,31 +10,31 @@ module Aethyr
           end
 
           def action
-            event = @data
 
-            room = $manager.get_object(@player.container)
-            player = @player
+
+            room = $manager.get_object(self[:agent].container)
+            player = self[:agent]
 
             make_emote event, player, room do
 
               no_target do
                 to_player 'You grin widely, flashing all your teeth.'
                 to_other "#{player.name} grins widely, flashing all #{player.pronoun(:possessive)} teeth."
-                to_deaf_other event[:to_other]
+                to_deaf_other self[:to_other]
               end
 
               self_target do
                 to_player "You grin madly at yourself."
                 to_other "#{player.name} grins madly at #{event.target.pronoun(:reflexive)}."
-                to_deaf_other event[:to_other]
+                to_deaf_other self[:to_other]
               end
 
               target do
                 to_player "You give #{event.target.name} a wide grin."
                 to_target "#{player.name} gives you a wide grin."
-                to_deaf_target event[:to_target]
+                to_deaf_target self[:to_target]
                 to_other "#{player.name} gives #{event.target.name} a wide grin."
-                to_deaf_other event[:to_other]
+                to_deaf_other self[:to_other]
               end
 
             end

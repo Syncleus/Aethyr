@@ -10,10 +10,10 @@ module Aethyr
           end
 
           def action
-            event = @data
 
-            room = $manager.get_object(@player.container)
-            player = @player
+
+            room = $manager.get_object(self[:agent].container)
+            player = self[:agent]
             board = find_board(event, room)
 
             if board.nil?
@@ -21,7 +21,7 @@ module Aethyr
               return
             end
 
-            post = board.get_post event[:post_id]
+            post = board.get_post self[:post_id]
             if post.nil?
               player.output "No such posting here."
               return
@@ -31,7 +31,7 @@ module Aethyr
               player.info.boards = {}
             end
 
-            player.info.boards[board.goid] = event[:post_id].to_i
+            player.info.boards[board.goid] = self[:post_id].to_i
 
             player.output board.show_post(post, player.word_wrap || 80)
           end

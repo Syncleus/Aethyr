@@ -10,37 +10,37 @@ module Aethyr
           end
 
           def action
-            event = @data
 
-            room = $manager.get_object(@player.container)
-            player = @player
-            if event[:command].nil?
+
+            room = $manager.get_object(self[:agent].container)
+            player = self[:agent]
+            if self[:command].nil?
               player.output "What do you want to do with the log?"
               return
             else
-              command = event[:command].downcase
+              command = self[:command].downcase
             end
 
             case command
             when /^players?$/
-              if event[:value]
-                lines = event[:value].to_i
+              if self[:value]
+                lines = self[:value].to_i
               else
                 lines = 10
               end
 
               player.output tail('logs/player.log', lines)
             when 'server'
-              if event[:value]
-                lines = event[:value].to_i
+              if self[:value]
+                lines = self[:value].to_i
               else
                 lines = 10
               end
 
               player.output tail('logs/server.log', lines)
             when 'system'
-              if event[:value]
-                lines = event[:value].to_i
+              if self[:value]
+                lines = self[:value].to_i
               else
                 lines = 10
               end

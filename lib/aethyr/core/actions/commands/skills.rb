@@ -11,11 +11,11 @@ module Aethyr
           end
 
           def action
-            event = @data
+
             box_width = 25
             box_work_width = box_width - 2
-            width = @player.word_wrap
-            width = 200 if @player.word_wrap.nil?
+            width = self[:agent].word_wrap
+            width = 200 if self[:agent].word_wrap.nil?
             boxes_per_row = width / box_width
 
             box_top = "┌" + ("─" * box_work_width) + "┐\n"
@@ -24,7 +24,7 @@ module Aethyr
             output = ""
             text_format = "%-#{box_work_width}.#{box_work_width}s"
             text_format_right = "%#{box_work_width}.#{box_work_width}s"
-            @player.info.skills.each do |id, skill|
+            self[:agent].info.skills.each do |id, skill|
 
               output += box_top
 
@@ -54,7 +54,7 @@ module Aethyr
 
               output += box_bottom + "\n"
             end
-            @player.output(output)
+            self[:agent].output(output)
           end
 
           private

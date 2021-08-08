@@ -10,9 +10,9 @@ module Aethyr
           end
 
           def action
-            event = @data
-            room = $manager.get_object(@player.container)
-            object = expand_direction(event[:object])
+
+            room = $manager.get_object(self[:agent].container)
+            object = expand_direction(self[:object])
             object = player.search_inv(object) || $manager.find(object, room)
 
             if object.nil?

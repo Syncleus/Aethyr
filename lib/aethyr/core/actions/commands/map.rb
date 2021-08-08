@@ -10,9 +10,9 @@ module Aethyr
           end
 
           def action
-            event = @data
-            room = $manager.get_object(@player.container)
-            @player.output(room.area.render_map(@player, room.area.position(room)))
+
+            room = $manager.get_object(self[:agent].container)
+            self[:agent].output(room.area.render_map(self[:agent], room.area.position(room)))
           end
         end
       end

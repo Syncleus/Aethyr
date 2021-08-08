@@ -10,26 +10,26 @@ module Aethyr
           end
 
           def action
-            event = @data
-            object = @player.search_inv(event[:target])
+
+            object = self[:agent].search_inv(self[:target])
 
             if object.nil?
-              @player.output "What do you wish to write on?"
+              self[:agent].output "What do you wish to write on?"
               return
             end
 
             if not object.info.writable
-              @player.output "You cannot write on #{object.name}."
+              self[:agent].output "You cannot write on #{object.name}."
               return
             end
 
-            @player.output "You begin to write on #{object.name}."
+            self[:agent].output "You begin to write on #{object.name}."
 
-            @player.editor(object.readable_text || [], 100) do |data|
+            self[:agent].editor(object.readable_text || [], 100) do |data|
               unless data.nil?
                 object.readable_text = data
               end
-              @player.output "You finish your writing."
+              self[:agent].output "You finish your writing."
             end
           end
         end

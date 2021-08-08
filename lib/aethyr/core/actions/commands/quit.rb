@@ -10,8 +10,8 @@ module Aethyr
           end
 
           def action
-            event = @data
-            $manager.drop_player @player
+
+            $manager.drop_player self[:agent]
           end
         end
       end

@@ -10,14 +10,14 @@ module Aethyr
           end
 
           def action
-            event = @data
 
-            room = $manager.get_object(@player.container)
-            player = @player
-            event[:setting].downcase!
-            case event[:setting]
+
+            room = $manager.get_object(self[:agent].container)
+            player = self[:agent]
+            self[:setting].downcase!
+            case self[:setting]
             when 'wordwrap'
-              value = event[:value]
+              value = self[:value]
               if player.word_wrap.nil?
                 player.output("Word wrap is currently off.", true)
               else
@@ -43,7 +43,7 @@ module Aethyr
                 end
               end
             when 'pagelength', "page_length"
-              value = event[:value]
+              value = self[:value]
               if player.page_height.nil?
                 player.output("Pagination is currently off.", true)
               else
@@ -77,7 +77,7 @@ module Aethyr
                 player.output("Set description to:\r\n#{player.long_desc}")
               end
             when "layout"
-              case event[:value].downcase
+              case self[:value].downcase
               when "basic"
                 player.layout = :basic
               when "partial"
@@ -90,7 +90,7 @@ module Aethyr
                 player.output "#{value} is not a valid layout please set one of the following: basic, partial, full, wide."
               end
             else
-              player.output "No such setting: #{event[:setting]}"
+              player.output "No such setting: #{self[:setting]}"
             end
           end
 

@@ -10,19 +10,19 @@ module Aethyr
           end
 
           def action
-            event = @data
-            target = $manager.find event[:target]
+
+            target = $manager.find self[:target]
             unless target and target.is_a? Player
-              @player.output "That person is not available."
+              self[:agent].output "That person is not available."
               return
             end
 
-            if target == @player
-              @player.output "Talking to yourself?"
+            if target == self[:agent]
+              self[:agent].output "Talking to yourself?"
               return
             end
 
-            phrase = event[:message]
+            phrase = self[:message]
 
             last_char = phrase[-1..-1]
 
@@ -33,9 +33,9 @@ module Aethyr
             phrase[0,1] = phrase[0,1].upcase
             phrase = phrase.strip.gsub(/\s{2,}/, ' ')
 
-            @player.output "You tell #{target.name}, <tell>\"#{phrase}\"</tell>"
-            target.output "#{@player.name} tells you, <tell>\"#{phrase}\"</tell>"
-            target.reply_to = @player.name
+            self[:agent].output "You tell #{target.name}, <tell>\"#{phrase}\"</tell>"
+            target.output "#{self[:agent].name} tells you, <tell>\"#{phrase}\"</tell>"
+            target.reply_to = self[:agent].name
           end
 
           #Reply to a tell.

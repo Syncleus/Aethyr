@@ -10,10 +10,10 @@ module Aethyr
           end
 
           def action
-            event = @data
-            @player.output("You are #{@player.health}.")
-            @player.output("You are feeling #{@player.satiety}.")
-            @player.output "You are currently #{@player.pose || 'standing up'}."
+
+            self[:agent].output("You are #{self[:agent].health}.")
+            self[:agent].output("You are feeling #{self[:agent].satiety}.")
+            self[:agent].output "You are currently #{self[:agent].pose || 'standing up'}."
           end
           #Fill something.
         end

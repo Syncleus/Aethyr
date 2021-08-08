@@ -10,13 +10,13 @@ module Aethyr
           end
 
           def action
-            event = @data
-            unless @player.reply_to
-              @player.output "There is no one to reply to."
+
+            unless self[:agent].reply_to
+              self[:agent].output "There is no one to reply to."
               return
             end
 
-            event[:target] = @player.reply_to
+            self[:target] = self[:agent].reply_to
 
             action_tell(event)
           end

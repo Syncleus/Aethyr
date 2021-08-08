@@ -10,10 +10,10 @@ module Aethyr
           end
 
           def action
-            event = @data
 
-            room = $manager.get_object(@player.container)
-            player = @player
+
+            room = $manager.get_object(self[:agent].container)
+            player = self[:agent]
             make_emote event, player, room do
               no_target do
                 to_player "\"Uh...\" you say, staring blankly."

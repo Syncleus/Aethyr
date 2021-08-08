@@ -10,12 +10,11 @@ module Aethyr
           end
 
           def action
-            event = @data.dup
-            room = $manager.get_object(@player.container)
+            room = $manager.get_object(self[:agent].container)
 
-            phrase = event[:phrase]
-            target = event[:target] && room.find(event[:target])
-            prefix = event[:pre]
+            phrase = self[:phrase]
+            target = self[:target] && room.find(self[:target])
+            prefix = self[:pre]
 
             if prefix
               prefix << ", "
@@ -24,13 +23,13 @@ module Aethyr
             end
 
             if phrase.nil?
-              @player.output("Huh?")
+              self[:agent].output("Huh?")
               return
-            elsif event[:target] and target.nil?
-              @player.output("Say what to whom?")
+            elsif self[:target] and target.nil?
+              self[:agent].output("Say what to whom?")
               return
-            elsif target and target == @player
-              @player.output "Talking to yourself again?"
+            elsif target and target == self[:agent]
+              self[:agent].output "Talking to yourself again?"
               return
             elsif target
               to_clause = " to #{target.name}"
@@ -51,7 +50,7 @@ module Aethyr
               rvoice = "frowns and "
               pvoice = "frown and "
             when /:D$/
-              rvoice = "laughs as #{@player.pronoun} "
+              rvoice = "laughs as #{self[:agent].pronoun} "
               pvoice = "laugh as you "
             else
               rvoice = ""
@@ -78,30 +77,30 @@ module Aethyr
 
             phrase = "<say>\"#{phrase}#{ender}\"</say>"
 
-            event[:message_type] = :chat
-            event[:target] = target
+            self[:message_type] = :chat
+            self[:target] = target
             if target and pvoice == "ask"
-              event[:to_target] = prefix + "#{@player.name} #{rvoice} you, #{phrase}"
-              event[:to_player] = prefix + "you #{pvoice} #{target.name}, #{phrase}"
-              event[:to_other] = prefix + "#{@player.name} #{rvoice} #{target.name}, #{phrase}"
-              event[:to_blind_target] = "Someone asks, #{phrase}"
-              event[:to_blind_other] = "Someone asks, #{phrase}"
-              event[:to_deaf_target] = "#{@player.name} seems to be asking you something."
-              event[:to_deaf_other] = "#{@player.name} seems to be asking #{target.name} something."
+              self[:to_target] = prefix + "#{self[:agent].name} #{rvoice} you, #{phrase}"
+              self[:to_player] = prefix + "you #{pvoice} #{target.name}, #{phrase}"
+              self[:to_other] = prefix + "#{self[:agent].name} #{rvoice} #{target.name}, #{phrase}"
+              self[:to_blind_target] = "Someone asks, #{phrase}"
+              self[:to_blind_other] = "Someone asks, #{phrase}"
+              self[:to_deaf_target] = "#{self[:agent].name} seems to be asking you something."
+              self[:to_deaf_other] = "#{self[:agent].name} seems to be asking #{target.name} something."
             elsif target
-              event[:to_target] = prefix + "#{@player.name} #{rvoice} to you, #{phrase}"
-              event[:to_player] = prefix + "you #{pvoice} to #{target.name}, #{phrase}"
-              event[:to_other] = prefix + "#{@player.name} #{rvoice} to #{target.name}, #{phrase}"
-              event[:to_blind_target] = "Someone #{rvoice}, #{phrase}"
-              event[:to_blind_other] = "Someone #{rvoice}, #{phrase}"
-              event[:to_deaf_target] = "You see #{@player.name} say something to you."
-              event[:to_deaf_other] = "You see #{@player.name} say something to #{target.name}."
+              self[:to_target] = prefix + "#{self[:agent].name} #{rvoice} to you, #{phrase}"
+              self[:to_player] = prefix + "you #{pvoice} to #{target.name}, #{phrase}"
+              self[:to_other] = prefix + "#{self[:agent].name} #{rvoice} to #{target.name}, #{phrase}"
+              self[:to_blind_target] = "Someone #{rvoice}, #{phrase}"
+              self[:to_blind_other] = "Someone #{rvoice}, #{phrase}"
+              self[:to_deaf_target] = "You see #{self[:agent].name} say something to you."
+              self[:to_deaf_other] = "You see #{self[:agent].name} say something to #{target.name}."
             else
-              event[:to_player] = prefix + "you #{pvoice}, #{phrase}"
-              event[:to_other] = prefix + "#{@player.name} #{rvoice}, #{phrase}"
-              event[:to_blind_other] = "Someone #{rvoice}, #{phrase}"
-              event[:to_deaf_target] = "You see #{@player.name} say something."
-              event[:to_deaf_other] = "You see #{@player.name} say something."
+              self[:to_player] = prefix + "you #{pvoice}, #{phrase}"
+              self[:to_other] = prefix + "#{self[:agent].name} #{rvoice}, #{phrase}"
+              self[:to_blind_other] = "Someone #{rvoice}, #{phrase}"
+              self[:to_deaf_target] = "You see #{self[:agent].name} say something."
+              self[:to_deaf_other] = "You see #{self[:agent].name} say something."
             end
 
             room.out_event(event)

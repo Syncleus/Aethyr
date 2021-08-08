@@ -10,8 +10,8 @@ module Aethyr
           end
 
           def action
-            event = @data
-            @player.output $manager.date
+
+            self[:agent].output $manager.date
           end
           #Show who is in the game.
         end

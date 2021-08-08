@@ -10,15 +10,15 @@ module Aethyr
           end
 
           def action
-            event = @data
 
-            room = $manager.get_object(@player.container)
-            player = @player
 
-            object = player.inventory.find(event[:object])
+            room = $manager.get_object(self[:agent].container)
+            player = self[:agent]
+
+            object = player.inventory.find(self[:object])
 
             if object.nil?
-              player.output("What #{event[:object]} are you trying to wear?")
+              player.output("What #{self[:object]} are you trying to wear?")
               return
             elsif object.is_a? Weapon
               player.output "You must wield #{object.name}."
@@ -26,8 +26,8 @@ module Aethyr
             end
 
             if player.wear object
-              event[:to_player] = "You put on #{object.name}."
-              event[:to_other] = "#{player.name} puts on #{object.name}."
+              self[:to_player] = "You put on #{object.name}."
+              self[:to_other] = "#{player.name} puts on #{object.name}."
               room.out_event(event)
             end
           end

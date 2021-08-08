@@ -10,17 +10,17 @@ module Aethyr
           end
 
           def action
-            event = @data
 
-            room = $manager.get_object(@player.container)
-            player = @player
+
+            room = $manager.get_object(self[:agent].container)
+            player = self[:agent]
 
             make_emote event, player, room do
 
               no_target do
                 to_player  "You perform a very graceful curtsey."
                 to_other "#{player.name} curtseys quite gracefully."
-                to_deaf_other event[:to_other]
+                to_deaf_other self[:to_other]
               end
 
               self_target do
@@ -31,7 +31,7 @@ module Aethyr
                 to_player "You curtsey gracefully and respectfully towards #{event.target.name}."
                 to_target "#{player.name} curtseys gracefully and respectfully in your direction."
                 to_other "#{player.name} curtseys gracefully and respectfully towards #{event.target.name}."
-                to_deaf_other event[:to_other]
+                to_deaf_other self[:to_other]
               end
 
             end

@@ -10,10 +10,10 @@ module Aethyr
           end
 
           def action
-            event = @data
 
-            room = $manager.get_object(@player.container)
-            player = @player
+
+            room = $manager.get_object(self[:agent].container)
+            player = self[:agent]
             board = find_board(event, room)
 
             if board.nil?
@@ -25,9 +25,9 @@ module Aethyr
               log board.class
             end
 
-            offset = event[:offset] || 0
+            offset = self[:offset] || 0
             wordwrap = player.word_wrap || 100
-            limit = event[:limit] || player.page_height
+            limit = self[:limit] || player.page_height
 
             player.output board.list_latest(wordwrap, offset, limit)
           end

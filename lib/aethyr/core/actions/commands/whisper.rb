@@ -10,28 +10,28 @@ module Aethyr
           end
 
           def action
-            event = @data
-            room = $manager.get_object(@player.container)
-            object = room.find(event[:to], Player)
+
+            room = $manager.get_object(self[:agent].container)
+            object = room.find(self[:to], Player)
 
             if object.nil?
-              @player.output("To whom are you trying to whisper?")
+              self[:agent].output("To whom are you trying to whisper?")
               return
-            elsif object == @player
-              @player.output("Whispering to yourself again?")
-              event[:to_other] = "#{@player.name} whispers to #{@player.pronoun(:reflexive)}."
-              room.out_event(event, @player)
+            elsif object == self[:agent]
+              self[:agent].output("Whispering to yourself again?")
+              self[:to_other] = "#{self[:agent].name} whispers to #{self[:agent].pronoun(:reflexive)}."
+              room.out_event(event, self[:agent])
               return
             end
 
-            phrase = event[:phrase]
+            phrase = self[:phrase]
 
             if phrase.nil?
-              @player.ouput "What are you trying to whisper?"
+              self[:agent].ouput "What are you trying to whisper?"
               return
             end
 
-            prefix = event[:pre]
+            prefix = self[:pre]
 
             if prefix
               prefix << ", "
@@ -49,12 +49,12 @@ module Aethyr
 
             phrase = ", <say>\"#{phrase}#{ender}\"</say>"
 
-            event[:target] = object
-            event[:to_player] = prefix + "you whisper to #{object.name}#{phrase}"
-            event[:to_target] = prefix + "#{@player.name} whispers to you#{phrase}"
-            event[:to_other] = prefix + "#{@player.name} whispers quietly into #{object.name}'s ear."
-            event[:to_other_blind] = "#{@player.name} whispers."
-            event[:to_target_blind] = "Someone whispers to you#{phrase}"
+            self[:target] = object
+            self[:to_player] = prefix + "you whisper to #{object.name}#{phrase}"
+            self[:to_target] = prefix + "#{self[:agent].name} whispers to you#{phrase}"
+            self[:to_other] = prefix + "#{self[:agent].name} whispers quietly into #{object.name}'s ear."
+            self[:to_other_blind] = "#{self[:agent].name} whispers."
+            self[:to_target_blind] = "Someone whispers to you#{phrase}"
 
             room.out_event(event)
           end

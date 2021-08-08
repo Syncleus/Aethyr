@@ -10,36 +10,35 @@ module Aethyr
           end
 
           def action
-            event = @data.dup
-            room = $manager.get_object(@player.container)
-            exit = room.exit(event[:direction])
+            room = $manager.get_object(self[:agent].container)
+            exit = room.exit(self[:direction])
 
             if exit.nil?
-              @player.output("You cannot go #{event[:direction]}.")
+              self[:agent].output("You cannot go #{self[:direction]}.")
               return
             elsif exit.can? :open and not exit.open?
-              @player.output("That exit is closed. Perhaps you should open it?")
+              self[:agent].output("That exit is closed. Perhaps you should open it?")
               return
             end
 
             new_room = $manager.find(exit.exit_room)
 
             if new_room.nil?
-              @player.output("That exit #{exit.name} leads into the void.")
+              self[:agent].output("That exit #{exit.name} leads into the void.")
               return
             end
 
-            room.remove(@player)
-            new_room.add(@player)
-            @player.container = new_room.game_object_id
-            event[:to_player] = "You move #{event[:direction]}."
-            event[:to_other] = "#{@player.name} leaves #{event[:direction]}."
-            event[:to_blind_other] = "You hear someone leave."
+            room.remove(self[:agent])
+            new_room.add(self[:agent])
+            self[:agent].container = new_room.game_object_id
+            self[:to_player] = "You move #{self[:direction]}."
+            self[:to_other] = "#{self[:agent].name} leaves #{self[:direction]}."
+            self[:to_blind_other] = "You hear someone leave."
 
             room.out_event(event)
-            look_text = new_room.look(@player)
+            look_text = new_room.look(self[:agent])
             out_text = Window.split_message(look_text, 79).join("\n")
-            @player.output(out_text, message_type: :look, internal_clear: true)
+            self[:agent].output(out_text, message_type: :look, internal_clear: true)
           end
         end
       end

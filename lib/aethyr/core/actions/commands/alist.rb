@@ -10,15 +10,15 @@ module Aethyr
           end
 
           def action
-            event = @data
 
-            room = $manager.get_object(@player.container)
-            player = @player
+
+            room = $manager.get_object(self[:agent].container)
+            player = self[:agent]
             objects = nil
-            if event[:match].nil?
+            if self[:match].nil?
               objects = $manager.find_all("class", :GameObject)
             else
-              objects = $manager.find_all(event[:match], event[:attrib])
+              objects = $manager.find_all(self[:match], self[:attrib])
             end
 
             if objects.empty?

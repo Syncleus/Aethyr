@@ -10,12 +10,12 @@ module Aethyr
           end
 
           def action
-            event = @data
 
-            room = $manager.get_object(@player.container)
-            player = @player
 
-            if event[:command] == "reload" and event[:object] and event[:object].downcase == "all"
+            room = $manager.get_object(self[:agent].container)
+            player = self[:agent]
+
+            if self[:command] == "reload" and self[:object] and self[:object].downcase == "all"
               objects = $manager.find_all("class", Reacts)
 
               objects.each do |o|
@@ -23,8 +23,8 @@ module Aethyr
               end
 
               player.output "Updated reactions for #{objects.length} objects."
-            elsif event[:object] and event[:object].split.first.downcase == "all"
-              klass = event[:object].split[1]
+            elsif self[:object] and self[:object].split.first.downcase == "all"
+              klass = self[:object].split[1]
               klass.capitalize! unless klass[0,1] == klass[0,1].upcase
               begin
                 klass = Module.const_get klass.to_sym
@@ -43,40 +43,40 @@ module Aethyr
                 Admin.areaction(e, player, room)
               end
             else
-              if event[:object] == "here"
+              if self[:object] == "here"
                 object = room
               else
-                object = find_object(event[:object], event)
+                object = find_object(self[:object], event)
               end
 
               if object.nil?
-                player.output "Cannot find:#{event[:object]}"
+                player.output "Cannot find:#{self[:object]}"
                 return
-              elsif not object.is_a? Reacts and (event[:command] == "load" or event[:command] == "reload")
+              elsif not object.is_a? Reacts and (self[:command] == "load" or self[:command] == "reload")
                 player.output "Object cannot react, adding react ability."
                 object.extend(Reacts)
               end
 
-              case event[:command]
+              case self[:command]
               when "add"
-                if object.actions.add? event[:action_name]
-                  player.output "Added #{event[:action_name]}"
+                if object.actions.add? self[:action_name]
+                  player.output "Added #{self[:action_name]}"
                 else
                   player.output "Already had a reaction by that name."
                 end
               when "delete"
-                if object.actions.delete? event[:action_name]
-                  player.output "Removed #{event[:action_name]}"
+                if object.actions.delete? self[:action_name]
+                  player.output "Removed #{self[:action_name]}"
                 else
                   player.output "That verb was not associated with this object."
                 end
               when "load"
-                unless File.exist? "objects/reactions/#{event[:file]}.rx"
-                  player.output "No such reaction file - #{event[:file]}"
+                unless File.exist? "objects/reactions/#{self[:file]}.rx"
+                  player.output "No such reaction file - #{self[:file]}"
                   return
                 end
 
-                object.load_reactions event[:file]
+                object.load_reactions self[:file]
                 player.output "Probably loaded reactions."
               when "reload"
                 object.reload_reactions if object.can? :reload_reactions

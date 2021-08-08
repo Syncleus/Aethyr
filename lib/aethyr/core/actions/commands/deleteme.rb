@@ -10,21 +10,21 @@ module Aethyr
           end
 
           def action
-            event = @data
-            if event[:password]
-              if $manager.check_password(@player.name, event[:password])
-                @player.output "This character #{@player.name} will no longer exist."
-                @player.quit
-                $manager.delete_player(@player.name)
+
+            if self[:password]
+              if $manager.check_password(self[:agent].name, self[:password])
+                self[:agent].output "This character #{self[:agent].name} will no longer exist."
+                self[:agent].quit
+                $manager.delete_player(self[:agent].name)
               else
-                @player.output "That password is incorrect. You are allowed to continue existing."
+                self[:agent].output "That password is incorrect. You are allowed to continue existing."
               end
             else
-              @player.output "To confirm your deletion, please enter your password:"
-              @player.io.echo_off
-              @player.expect do |password|
-                @player.io.echo_on
-                event[:password] = password
+              self[:agent].output "To confirm your deletion, please enter your password:"
+              self[:agent].io.echo_off
+              self[:agent].expect do |password|
+                self[:agent].io.echo_on
+                self[:password] = password
                 Generic.deleteme(event)
               end
             end

@@ -10,11 +10,11 @@ module Aethyr
           end
 
           def action
-            event = @data
 
-            room = $manager.get_object(@player.container)
-            player = @player
-            class_name = event[:object]
+
+            room = $manager.get_object(self[:agent].container)
+            player = self[:agent]
+            class_name = self[:object]
 
             class_name[0,1] = class_name[0,1].capitalize
 
@@ -31,16 +31,16 @@ module Aethyr
             end
 
             vars = {}
-            vars[:@name] = event[:name] if event[:name]
-            vars[:@alt_names] = event[:alt_names] if event[:alt_names]
-            vars[:@generic] = event[:generic] if event[:generic]
-            args = event[:args]
+            vars[:@name] = self[:name] if self[:name]
+            vars[:@alt_names] = self[:alt_names] if self[:alt_names]
+            vars[:@generic] = self[:generic] if self[:generic]
+            args = self[:args]
 
             object = $manager.create_object(klass, room, nil, args, vars)
 
             if room
-              event[:to_player] = "Frowning in concentration, you make vague motions with your hands. There is a small flash of light as #{object.name} appears."
-              event[:to_other] = "Frowning in concentration, #{player.name} makes vague motions with #{player.pronoun(:possessive)} hands. There is a small flash of light as #{object.name} appears."
+              self[:to_player] = "Frowning in concentration, you make vague motions with your hands. There is a small flash of light as #{object.name} appears."
+              self[:to_other] = "Frowning in concentration, #{player.name} makes vague motions with #{player.pronoun(:possessive)} hands. There is a small flash of light as #{object.name} appears."
               room.out_event event
             end
 

@@ -10,22 +10,22 @@ module Aethyr
           end
 
           def action
-            event = @data
 
-            room = $manager.get_object(@player.container)
-            player = @player
-            object = find_object(event[:object], event)
+
+            room = $manager.get_object(self[:agent].container)
+            player = self[:agent]
+            object = find_object(self[:object], event)
             if object.nil?
-              player.output "Cannot find #{event[:object]}"
+              player.output "Cannot find #{self[:object]}"
               return
             elsif not object.is_a? Portal
               player.output "That is not a portal."
               return
             end
 
-            value = event[:value]
+            value = self[:value]
 
-            case event[:setting]
+            case self[:setting]
             when "action"
               value.downcase!
               if value == "enter"

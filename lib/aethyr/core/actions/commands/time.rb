@@ -10,8 +10,8 @@ module Aethyr
           end
 
           def action
-            event = @data
-            @player.output $manager.time
+
+            self[:agent].output $manager.time
           end
 
           #Display date.

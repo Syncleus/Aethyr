@@ -10,10 +10,10 @@ module Aethyr
           end
 
           def action
-            event = @data
 
-            room = $manager.get_object(@player.container)
-            player = @player
+
+            room = $manager.get_object(self[:agent].container)
+            player = self[:agent]
             return if not Combat.ready? player
 
             target = (event.target && room.find(event.target)) || room.find(player.last_target)
@@ -29,10 +29,10 @@ module Aethyr
 
             event.target = target
 
-            event[:to_other] = "#{player.name} kicks #{player.pronoun(:possessive)} foot out at #{target.name}."
-            event[:to_target] = "#{player.name} kicks #{player.pronoun(:possessive)} foot at you."
-            event[:to_player] = "You balance carefully and kick your foot out towards #{target.name}."
-            event[:blockable] = true
+            self[:to_other] = "#{player.name} kicks #{player.pronoun(:possessive)} foot out at #{target.name}."
+            self[:to_target] = "#{player.name} kicks #{player.pronoun(:possessive)} foot at you."
+            self[:to_player] = "You balance carefully and kick your foot out towards #{target.name}."
+            self[:blockable] = true
 
             player.balance = false
             player.info.in_combat = true
@@ -40,11 +40,11 @@ module Aethyr
 
             room.out_event event
 
-            event[:action] = :martial_hit
-            event[:combat_action] = :kick
-            event[:to_other] = "#{player.name} kicks #{target.name} with considerable violence."
-            event[:to_target] = "#{player.name} kicks you rather violently."
-            event[:to_player] = "Your kick makes good contact with #{target.name}."
+            self[:action] = :martial_hit
+            self[:combat_action] = :kick
+            self[:to_other] = "#{player.name} kicks #{target.name} with considerable violence."
+            self[:to_target] = "#{player.name} kicks you rather violently."
+            self[:to_player] = "Your kick makes good contact with #{target.name}."
 
             Combat.future_event event
           end

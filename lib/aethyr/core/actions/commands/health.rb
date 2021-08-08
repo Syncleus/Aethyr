@@ -10,8 +10,8 @@ module Aethyr
           end
 
           def action
-            event = @data
-            @player.output "You are #{@player.health}."
+
+            self[:agent].output "You are #{self[:agent].health}."
           end
           #Display hunger.
         end

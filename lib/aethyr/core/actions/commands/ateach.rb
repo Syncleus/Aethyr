@@ -10,11 +10,11 @@ module Aethyr
           end
 
           def action
-            event = @data
 
-            room = $manager.get_object(@player.container)
-            player = @player
-            object = find_object(event[:target], event)
+
+            room = $manager.get_object(self[:agent].container)
+            player = self[:agent]
+            object = find_object(self[:target], event)
             if object.nil?
               player.output "Teach who what where?"
               return

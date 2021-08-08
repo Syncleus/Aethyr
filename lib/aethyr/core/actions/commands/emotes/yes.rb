@@ -10,10 +10,10 @@ module Aethyr
           end
 
           def action
-            event = @data
 
-            room = $manager.get_object(@player.container)
-            player = @player
+
+            room = $manager.get_object(self[:agent].container)
+            player = self[:agent]
             make_emote event, player, room do
 
               no_target do
@@ -24,14 +24,14 @@ module Aethyr
               self_target do
                 to_player  "You nod in agreement with yourself."
                 to_other "#{player.name} nods at #{player.pronoun(:reflexive)} strangely."
-                to_deaf_other event[:to_other]
+                to_deaf_other self[:to_other]
               end
 
               target do
                 to_player  "You nod in agreement with #{event.target.name}."
                 to_target "#{player.name} nods in your direction, agreeing."
                 to_other "#{player.name} nods in agreement with #{event.target.name}."
-                to_deaf_other event[:to_other]
+                to_deaf_other self[:to_other]
               end
             end
 

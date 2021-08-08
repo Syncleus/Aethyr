@@ -10,7 +10,7 @@ module Aethyr
           end
 
           def action
-            event = @data
+
             players = $manager.find_all("class", Player)
             output = ["The following people are visiting Aethyr:"]
             players.sort_by {|p| p.name}.each do |playa|
@@ -18,7 +18,7 @@ module Aethyr
               output << "#{playa.name} - #{room.name if room}"
             end
 
-            @player.output output
+            self[:agent].output output
           end
           #Delete your player.
         end

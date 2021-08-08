@@ -10,15 +10,15 @@ module Aethyr
           end
 
           def action()
-            event = @data
-            room = $manager.get_object(@player.container)
-            object = expand_direction(event[:object])
-            object = @player.search_inv(object) || $manager.find(object, room)
+
+            room = $manager.get_object(self[:agent].container)
+            object = expand_direction(self[:object])
+            object = self[:agent].search_inv(object) || $manager.find(object, room)
 
             if object.nil?
-              @player.output("Close what?")
+              self[:agent].output("Close what?")
             elsif not object.can? :open
-              @player.output("You cannot close #{object.name}.")
+              self[:agent].output("You cannot close #{object.name}.")
             else
               object.close(event)
             end

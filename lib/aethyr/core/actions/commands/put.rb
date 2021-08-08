@@ -10,38 +10,38 @@ module Aethyr
           end
 
           def action
-            event = @data
-            room = $manager.get_object(@player.container)
-            item = @player.inventory.find(event[:item])
+
+            room = $manager.get_object(self[:agent].container)
+            item = self[:agent].inventory.find(self[:item])
 
             if item.nil?
-              if response = @player.equipment.worn_or_wielded?(event[:item])
-                @player.output response
+              if response = self[:agent].equipment.worn_or_wielded?(self[:item])
+                self[:agent].output response
               else
-                @player.output "You do not seem to have a #{event[:item]}."
+                self[:agent].output "You do not seem to have a #{self[:item]}."
               end
 
               return
             end
 
-            container = @player.search_inv(event[:container]) || $manager.find(event[:container], room)
+            container = self[:agent].search_inv(self[:container]) || $manager.find(self[:container], room)
 
             if container.nil?
-              @player.output("There is no #{event[:container]} in which to put #{item.name}.")
+              self[:agent].output("There is no #{self[:container]} in which to put #{item.name}.")
               return
             elsif not container.is_a? Container
-              @player.output("You cannot put anything in #{container.name}.")
+              self[:agent].output("You cannot put anything in #{container.name}.")
               return
             elsif container.can? :open and container.closed?
-              @player.output("You need to open #{container.name} first.")
+              self[:agent].output("You need to open #{container.name} first.")
               return
             end
 
-            @player.inventory.remove(item)
+            self[:agent].inventory.remove(item)
             container.add(item)
 
-            event[:to_player] = "You put #{item.name} in #{container.name}."
-            event[:to_other] = "#{@player.name} puts #{item.name} in #{container.name}"
+            self[:to_player] = "You put #{item.name} in #{container.name}."
+            self[:to_other] = "#{self[:agent].name} puts #{item.name} in #{container.name}"
 
             room.out_event(event)
           end

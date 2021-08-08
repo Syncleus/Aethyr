@@ -10,10 +10,10 @@ module Aethyr
           end
 
           def action
-            event = @data
 
-            room = $manager.get_object(@player.container)
-            player = @player
+
+            room = $manager.get_object(self[:agent].container)
+            player = self[:agent]
             board = find_board(event, room)
 
             if board.nil?
@@ -26,7 +26,7 @@ module Aethyr
             player.expect do |subj|
               player.editor do |message|
                 unless message.nil?
-                  post_id = board.save_post(player, subj, event[:reply_to], message)
+                  post_id = board.save_post(player, subj, self[:reply_to], message)
                   player.output "You have written post ##{post_id}."
                   if board.announce_new
                     area = $manager.get_object(board.container).area

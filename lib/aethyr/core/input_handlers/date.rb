@@ -39,7 +39,7 @@ EOF
             super(data)
             case data[:input]
             when /^date$/i
-              $manager.submit_action(Aethyr::Core::Actions::Date::DateCommand.new(@player, {}))
+              $manager.submit_action(Aethyr::Core::Actions::Date::DateCommand.new(@player, ))
             end
           end
         end

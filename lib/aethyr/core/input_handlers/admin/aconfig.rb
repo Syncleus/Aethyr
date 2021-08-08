@@ -37,11 +37,11 @@ EOF
             case data[:input]
             when /^aconfig(\s+reload)?$/i
               setting = "reload" if $1
-              $manager.submit_action(Aethyr::Core::Actions::Aconfig::AconfigCommand.new(@player, {:setting => setting}))
+              $manager.submit_action(Aethyr::Core::Actions::Aconfig::AconfigCommand.new(@player, :setting => setting))
             when /^aconfig\s+(\w+)\s+(.*)$/i
               setting = $1
               value = $2
-              $manager.submit_action(Aethyr::Core::Actions::Aconfig::AconfigCommand.new(@player, {:setting => setting, :value => value}))
+              $manager.submit_action(Aethyr::Core::Actions::Aconfig::AconfigCommand.new(@player, :setting => setting, :value => value))
             end
           end
 

@@ -39,7 +39,7 @@ EOF
               out_dir = $1
               in_dir = opposite_dir($1)
               name = $2
-              $manager.submit_action(Aethyr::Core::Actions::Acroom::AcroomCommand.new(@player, {:out_dir => out_dir, :in_dir => in_dir, :name => name}))
+              $manager.submit_action(Aethyr::Core::Actions::Acroom::AcroomCommand.new(@player, :out_dir => out_dir, :in_dir => in_dir, :name => name))
             end
           end
 

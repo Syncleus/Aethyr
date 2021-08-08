@@ -39,7 +39,7 @@ EOF
             super(data)
             case data[:input]
             when /^time$/i
-              $manager.submit_action(Aethyr::Core::Actions::Time::TimeCommand.new(@player, {}))
+              $manager.submit_action(Aethyr::Core::Actions::Time::TimeCommand.new(@player, ))
             end
           end
         end

@@ -36,10 +36,10 @@ EOF
             super(data)
             case data[:input]
             when /^alook$/i
-              $manager.submit_action(Aethyr::Core::Actions::Alook::AlookCommand.new(@player, {}))
+              $manager.submit_action(Aethyr::Core::Actions::Alook::AlookCommand.new(@player, ))
             when /^alook\s+(.*)$/i
               at = $1
-              $manager.submit_action(Aethyr::Core::Actions::Alook::AlookCommand.new(@player, {:at => at}))
+              $manager.submit_action(Aethyr::Core::Actions::Alook::AlookCommand.new(@player, :at => at))
             end
           end
 

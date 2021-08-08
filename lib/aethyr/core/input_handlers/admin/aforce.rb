@@ -38,7 +38,7 @@ EOF
             when /^aforce\s+(.*?)\s+(.*)$/i
               target = $1
               command = $2
-              $manager.submit_action(Aethyr::Core::Actions::Aforce::AforceCommand.new(@player, {:target => target, :command => command}))
+              $manager.submit_action(Aethyr::Core::Actions::Aforce::AforceCommand.new(@player, :target => target, :command => command))
             end
           end
 

@@ -37,7 +37,7 @@ EOF
             super(data)
             case data[:input]
             when /^(feel)(\s+(.+))?$/i
-              $manager.submit_action(Aethyr::Core::Actions::Feel::FeelCommand.new(@player, { :target => $3}))
+              $manager.submit_action(Aethyr::Core::Actions::Feel::FeelCommand.new(@player,  :target => $3))
             end
           end
         end

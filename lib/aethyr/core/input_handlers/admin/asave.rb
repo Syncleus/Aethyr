@@ -36,7 +36,7 @@ EOF
             super(data)
             case data[:input]
             when /^asave$/i
-              $manager.submit_action(Aethyr::Core::Actions::Asave::AsaveCommand.new(@player, {}))
+              $manager.submit_action(Aethyr::Core::Actions::Asave::AsaveCommand.new(@player, ))
             end
           end
 

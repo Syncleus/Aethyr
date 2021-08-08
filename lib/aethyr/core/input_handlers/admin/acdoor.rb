@@ -37,11 +37,11 @@ EOF
             case data[:input]
             when /^acdoor\s+(\w+)$/i
               direction = $1
-              $manager.submit_action(Aethyr::Core::Actions::Acdoor::AcdoorCommand.new(@player, {:direction => direction}))
+              $manager.submit_action(Aethyr::Core::Actions::Acdoor::AcdoorCommand.new(@player, :direction => direction))
             when /^acdoor\s+(\w+)\s+(.*)$/i
               direction = $1.strip
               exit_room = $2.strip
-              $manager.submit_action(Aethyr::Core::Actions::Acdoor::AcdoorCommand.new(@player, {:direction => direction, :exit_room => exit_room}))
+              $manager.submit_action(Aethyr::Core::Actions::Acdoor::AcdoorCommand.new(@player, :direction => direction, :exit_room => exit_room))
             end
           end
 

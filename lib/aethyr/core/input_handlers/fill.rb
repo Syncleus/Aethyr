@@ -37,7 +37,7 @@ EOF
             super(data)
             case data[:input]
             when /^fill\s+(\w+)\s+from\s+(\w+)$/i
-              $manager.submit_action(Aethyr::Core::Actions::Fill::FillCommand.new(@player, { :object => $1, :from => $2}))
+              $manager.submit_action(Aethyr::Core::Actions::Fill::FillCommand.new(@player,  :object => $1, :from => $2))
             end
           end
         end

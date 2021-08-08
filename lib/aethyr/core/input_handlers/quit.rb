@@ -30,7 +30,7 @@ EOF
           def initialize(player)
             super(player, ["quit"], help_entries: QuitHandler.create_help_entries)
           end
-          
+
           def self.object_added(data)
             super(data, self)
           end
@@ -38,12 +38,12 @@ EOF
           def player_input(data)
             case data[:input]
             when /^quit$/i
-              $manager.submit_action(Aethyr::Core::Actions::Quit::QuitCommand.new(@player, {}))
+              $manager.submit_action(Aethyr::Core::Actions::Quit::QuitCommand.new(@player, ))
             end
           end
-          
+
           private
-          
+
 
         end
 

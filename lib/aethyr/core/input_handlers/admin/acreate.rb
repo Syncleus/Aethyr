@@ -38,7 +38,7 @@ EOF
             when /^(ac|acreate)\s+(\w+)\s*(.*)$/i
               object = $2
               name = $3.strip
-              $manager.submit_action(Aethyr::Core::Actions::Acreate::AcreateCommand.new(@player, {:object => object, :name => name}))
+              $manager.submit_action(Aethyr::Core::Actions::Acreate::AcreateCommand.new(@player, :object => object, :name => name))
             end
           end
 

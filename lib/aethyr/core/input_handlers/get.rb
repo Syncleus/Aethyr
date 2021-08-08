@@ -37,9 +37,9 @@ EOF
             super(data)
             case data[:input]
             when /^(get|grab|take)\s+((\w+|\s)*)(\s+from\s+(\w+))/i
-              $manager.submit_action(Aethyr::Core::Actions::Get::GetCommand.new(@player, { :object => $2.strip, :from => $5 }))
+              $manager.submit_action(Aethyr::Core::Actions::Get::GetCommand.new(@player,  :object => $2.strip, :from => $5 ))
             when /^(get|grab|take)\s+(.*)$/i
-              $manager.submit_action(Aethyr::Core::Actions::Get::GetCommand.new(@player, { :object => $2.strip }))
+              $manager.submit_action(Aethyr::Core::Actions::Get::GetCommand.new(@player,  :object => $2.strip ))
             end
           end
 

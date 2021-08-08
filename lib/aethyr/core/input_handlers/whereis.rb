@@ -37,7 +37,7 @@ EOF
             case data[:input]
             when /^whereis\s(.*)$/
               object = $1
-              $manager.submit_action(Aethyr::Core::Actions::Whereis::WhereisCommand.new(@player, {:object => object}))
+              $manager.submit_action(Aethyr::Core::Actions::Whereis::WhereisCommand.new(@player, :object => object))
             end
           end
 

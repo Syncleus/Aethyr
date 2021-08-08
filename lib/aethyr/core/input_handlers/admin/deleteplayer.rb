@@ -37,7 +37,7 @@ EOF
             case data[:input]
             when /^deleteplayer\s+(\w+)$/i
               object = $1.downcase
-              $manager.submit_action(Aethyr::Core::Actions::DeletePlayer::DeletePlayerCommand.new(@player, {:object => object}))
+              $manager.submit_action(Aethyr::Core::Actions::DeletePlayer::DeletePlayerCommand.new(@player, :object => object))
             end
           end
 

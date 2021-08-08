@@ -68,25 +68,25 @@ EOF
             super(data)
             case data[:input]
             when "news"
-              $manager.submit_action(Aethyr::Core::Actions::LatestNews::LatestNewsCommand.new(@player, {}))
+              $manager.submit_action(Aethyr::Core::Actions::LatestNews::LatestNewsCommand.new(@player, ))
             when /^news\s+(read\s+)?(\d+)$/i
               post_id = $2
-              $manager.submit_action(Aethyr::Core::Actions::ReadPost::ReadPostCommand.new(@player, {:post_id => post_id}))
+              $manager.submit_action(Aethyr::Core::Actions::ReadPost::ReadPostCommand.new(@player, :post_id => post_id))
             when /^news\s+reply(\s+to\s+)?\s+(\d+)$/i
               reply_to = $2
-              $manager.submit_action(Aethyr::Core::Actions::WritePost::WritePostCommand.new(@player, {:reply_to => reply_to}))
+              $manager.submit_action(Aethyr::Core::Actions::WritePost::WritePostCommand.new(@player, :reply_to => reply_to))
             when /^news\s+unread/i
-              $manager.submit_action(Aethyr::Core::Actions::ListUnread::ListUnreadCommand.new(@player, {}))
+              $manager.submit_action(Aethyr::Core::Actions::ListUnread::ListUnreadCommand.new(@player, ))
             when /^news\s+last\s+(\d+)/i
               limit = $1.to_i
-              $manager.submit_action(Aethyr::Core::Actions::LatestNews::LatestNewsCommand.new(@player, {:limit => limit}))
+              $manager.submit_action(Aethyr::Core::Actions::LatestNews::LatestNewsCommand.new(@player, :limit => limit))
             when /^news\s+delete\s+(\d+)/i
               post_id = $1
-              $manager.submit_action(Aethyr::Core::Actions::DeletePost::DeletePostCommand.new(@player, {:post_id => post_id}))
+              $manager.submit_action(Aethyr::Core::Actions::DeletePost::DeletePostCommand.new(@player, :post_id => post_id))
             when /^news\s+write$/i
-              $manager.submit_action(Aethyr::Core::Actions::WritePost::WritePostCommand.new(@player, {}))
+              $manager.submit_action(Aethyr::Core::Actions::WritePost::WritePostCommand.new(@player, ))
             when /^news\s+all/i
-              $manager.submit_action(Aethyr::Core::Actions::All::AllCommand.new(@player, {}))
+              $manager.submit_action(Aethyr::Core::Actions::All::AllCommand.new(@player, ))
             end
           end
 

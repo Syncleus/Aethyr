@@ -28,7 +28,7 @@ EOF
           def initialize(player)
             super(player, ["drop"], help_entries: DropHandler.create_help_entries)
           end
-          
+
           def self.object_added(data)
             super(data, self)
           end
@@ -37,10 +37,10 @@ EOF
             super(data)
             case data[:input]
             when /^drop\s+((\w+\s*)*)$/i
-              $manager.submit_action(Aethyr::Core::Actions::Drop::DropCommand.new(@player, { :object => $1.strip }))
+              $manager.submit_action(Aethyr::Core::Actions::Drop::DropCommand.new(@player,  :object => $1.strip ))
             end
           end
-          
+
           private
           #Drops an item from the player's inventory into the room.
 

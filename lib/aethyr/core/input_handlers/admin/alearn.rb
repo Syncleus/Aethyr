@@ -37,7 +37,7 @@ EOF
             case data[:input]
             when /^alearn\s+(\w+)$/i
               skill = $1
-              $manager.submit_action(Aethyr::Core::Actions::Alearn::AlearnCommand.new(@player, {:skill => skill}))
+              $manager.submit_action(Aethyr::Core::Actions::Alearn::AlearnCommand.new(@player, :skill => skill))
             end
           end
 

@@ -36,10 +36,10 @@ EOF
             super(data)
             case data[:input]
             when /^slash$/i
-              $manager.submit_action(Aethyr::Core::Actions::Slash::SlashCommand.new(@player, {}))
+              $manager.submit_action(Aethyr::Core::Actions::Slash::SlashCommand.new(@player, ))
             when /^slash\s+(.*)$/i
               target = $1
-              $manager.submit_action(Aethyr::Core::Actions::Slash::SlashCommand.new(@player, {:target => target}))
+              $manager.submit_action(Aethyr::Core::Actions::Slash::SlashCommand.new(@player, :target => target))
             end
           end
 

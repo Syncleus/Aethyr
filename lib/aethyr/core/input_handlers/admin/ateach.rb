@@ -38,7 +38,7 @@ EOF
             when /^ateach\s+(\w+)\s+(\w+)$/i
               target = $1
               skill = $2
-              $manager.submit_action(Aethyr::Core::Actions::Ateach::AteachCommand.new(@player, {:target => target, :skill => skill}))
+              $manager.submit_action(Aethyr::Core::Actions::Ateach::AteachCommand.new(@player, :target => target, :skill => skill))
             end
           end
 

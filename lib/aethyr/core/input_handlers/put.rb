@@ -37,7 +37,7 @@ EOF
             super(data)
             case data[:input]
             when /^put((\s+(\d+)\s+)|\s+)(\w+)\s+in\s+(\w+)$/i
-              $manager.submit_action(Aethyr::Core::Actions::Put::PutCommand.new(@player, { :item => $4, :count => $3.to_i, :container => $5 }))
+              $manager.submit_action(Aethyr::Core::Actions::Put::PutCommand.new(@player,  :item => $4, :count => $3.to_i, :container => $5 ))
             end
           end
 

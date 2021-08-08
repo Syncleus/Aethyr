@@ -36,7 +36,7 @@ EOF
             super(data)
             case data[:input]
             when /^restart$/i
-              $manager.submit_action(Aethyr::Core::Actions::Restart::RestartCommand.new(@player, {}))
+              $manager.submit_action(Aethyr::Core::Actions::Restart::RestartCommand.new(@player, ))
             end
           end
 

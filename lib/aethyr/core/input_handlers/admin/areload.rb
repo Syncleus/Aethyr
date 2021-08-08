@@ -37,7 +37,7 @@ EOF
             case data[:input]
             when /^areload\s+(.*)$/i
               object = $1
-              $manager.submit_action(Aethyr::Core::Actions::Areload::AreloadCommand.new(@player, {:object => object}))
+              $manager.submit_action(Aethyr::Core::Actions::Areload::AreloadCommand.new(@player, :object => object))
             end
           end
 

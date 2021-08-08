@@ -39,7 +39,7 @@ EOF
             when /^remove\s+(\w+)(\s+from\s+(.*))?$/i
               object = $1
               position = $3
-              $manager.submit_action(Aethyr::Core::Actions::Remove::RemoveCommand.new(@player, {:object => object, :position => position}))
+              $manager.submit_action(Aethyr::Core::Actions::Remove::RemoveCommand.new(@player, :object => object, :position => position))
             end
           end
 

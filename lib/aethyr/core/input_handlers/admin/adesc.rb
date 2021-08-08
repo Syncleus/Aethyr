@@ -39,11 +39,11 @@ EOF
               object = $1
               inroom = true
               desc = $2
-              $manager.submit_action(Aethyr::Core::Actions::Adesc::AdescCommand.new(@player, {:object => object, :inroom => inroom, :desc => desc}))
+              $manager.submit_action(Aethyr::Core::Actions::Adesc::AdescCommand.new(@player, :object => object, :inroom => inroom, :desc => desc))
             when /^adesc\s+(.*?)\s+(.*)$/i
               object = $1
               desc = $2
-              $manager.submit_action(Aethyr::Core::Actions::Adesc::AdescCommand.new(@player, {:object => object, :desc => desc}))
+              $manager.submit_action(Aethyr::Core::Actions::Adesc::AdescCommand.new(@player, :object => object, :desc => desc))
             end
           end
 

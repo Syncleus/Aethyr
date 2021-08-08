@@ -38,7 +38,7 @@ EOF
             when /^(bye)( +([^()]*))?( +((.*)))?$/i
               object = $3
               post = $5
-              $manager.submit_action(Aethyr::Core::Actions::Bye::ByeCommand.new(@player, {:object => object, :post => post}))
+              $manager.submit_action(Aethyr::Core::Actions::Bye::ByeCommand.new(@player, :object => object, :post => post))
             end
           end
 

@@ -46,7 +46,7 @@ EOF
             super(data)
             case data[:input]
             when /^open\s+(\w+)$/i
-              $manager.submit_action(Aethyr::Core::Actions::Open::OpenCommand.new(@player, { :object => $1 }))
+              $manager.submit_action(Aethyr::Core::Actions::Open::OpenCommand.new(@player,  :object => $1 ))
             end
           end
 

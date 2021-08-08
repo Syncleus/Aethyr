@@ -3,11 +3,9 @@ require 'aethyr/core/event'
 module Aethyr
   module Extend
     class Action < Event
-      def initialize(**data)
-        super(**data)
-
-        self.agent = data[:agent]
-        self.target = data[:target]
+      def initialize(agent, **data)
+        data[:agent] = agent
+        super(:action, **data)
       end
 
       def action

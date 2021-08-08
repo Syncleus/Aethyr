@@ -37,7 +37,7 @@ EOF
             super(data)
             case data[:input]
             when /^(taste|lick)(\s+(.+))?$/i
-              $manager.submit_action(Aethyr::Core::Actions::Taste::TasteCommand.new(@player, { :target => $3}))
+              $manager.submit_action(Aethyr::Core::Actions::Taste::TasteCommand.new(@player,  :target => $3))
             end
           end
         end

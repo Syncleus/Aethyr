@@ -66,7 +66,7 @@ EOF
             case data[:input]
             when /^emote\s+(.*)/i
               show = $1
-              $manager.submit_action(Aethyr::Core::Actions::Emote::EmoteCommand.new(@player, {:show => show}))
+              $manager.submit_action(Aethyr::Core::Actions::Emote::EmoteCommand.new(@player, :show => show))
             end
           end
 

@@ -38,7 +38,7 @@ EOF
             when /^(wave)( +([^()]*))?( +((.*)))?$/i
               object = $3
               post = $5
-              $manager.submit_action(Aethyr::Core::Actions::Wave::WaveCommand.new(@player, {:object => object, :post => post}))
+              $manager.submit_action(Aethyr::Core::Actions::Wave::WaveCommand.new(@player, :object => object, :post => post))
             end
           end
 

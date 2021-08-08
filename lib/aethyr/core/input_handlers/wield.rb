@@ -45,7 +45,7 @@ EOF
             when /^wield\s+(.*?)(\s+(\w+))?$/i
               weapon = $1
               side = $3
-              $manager.submit_action(Aethyr::Core::Actions::Wield::WieldCommand.new(@player, {:weapon => weapon, :side => side}))
+              $manager.submit_action(Aethyr::Core::Actions::Wield::WieldCommand.new(@player, :weapon => weapon, :side => side))
             end
           end
 

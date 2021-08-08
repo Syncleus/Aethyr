@@ -36,11 +36,11 @@ EOF
             super(data)
             case data[:input]
             when /^alist$/i
-              $manager.submit_action(Aethyr::Core::Actions::Alist::AlistCommand.new(@player, {}))
+              $manager.submit_action(Aethyr::Core::Actions::Alist::AlistCommand.new(@player, ))
             when /^alist\s+(@\w+|class)\s+(.*)/i
               attrib = $2
               match = $1
-              $manager.submit_action(Aethyr::Core::Actions::Alist::AlistCommand.new(@player, {:attrib => attrib, :match => match}))
+              $manager.submit_action(Aethyr::Core::Actions::Alist::AlistCommand.new(@player, :attrib => attrib, :match => match))
             end
           end
 

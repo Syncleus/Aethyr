@@ -37,7 +37,7 @@ EOF
             case data[:input]
             when /^pose\s+(.*)$/i
               pose = $1.strip
-              $manager.submit_action(Aethyr::Core::Actions::Pose::PoseCommand.new(@player, {:pose => pose}))
+              $manager.submit_action(Aethyr::Core::Actions::Pose::PoseCommand.new(@player, :pose => pose))
             end
           end
 

@@ -36,10 +36,10 @@ EOF
             super(data)
             case data[:input]
             when /^punch$/i
-              $manager.submit_action(Aethyr::Core::Actions::Punch::PunchCommand.new(@player, {}))
+              $manager.submit_action(Aethyr::Core::Actions::Punch::PunchCommand.new(@player, ))
             when /^punch\s+(.*)$/i
               target = $1
-              $manager.submit_action(Aethyr::Core::Actions::Punch::PunchCommand.new(@player, {:target => target}))
+              $manager.submit_action(Aethyr::Core::Actions::Punch::PunchCommand.new(@player, :target => target))
             end
           end
 

@@ -37,7 +37,7 @@ EOF
             case data[:input]
             when /^dodge(\s+(.*))?$/i
               target = $2 if $2
-              $manager.submit_action(Aethyr::Core::Actions::SimpleDodge::SimpleDodgeCommand.new(@player, {:target => target}))
+              $manager.submit_action(Aethyr::Core::Actions::SimpleDodge::SimpleDodgeCommand.new(@player, :target => target))
             end
           end
 

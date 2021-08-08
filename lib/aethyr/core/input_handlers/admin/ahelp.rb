@@ -37,7 +37,7 @@ EOF
             case data[:input]
             when /^ahelp(.*)$/i
               object = $1
-              $manager.submit_action(Aethyr::Core::Actions::Ahelp::AhelpCommand.new(@player, {:object => object}))
+              $manager.submit_action(Aethyr::Core::Actions::Ahelp::AhelpCommand.new(@player, :object => object))
             end
           end
 

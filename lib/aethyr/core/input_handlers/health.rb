@@ -50,7 +50,7 @@ EOF
             super(data)
             case data[:input]
             when /^(health)$/i
-              $manager.submit_action(Aethyr::Core::Actions::Health::HealthCommand.new(@player, {}))
+              $manager.submit_action(Aethyr::Core::Actions::Health::HealthCommand.new(@player, ))
             end
           end
         end

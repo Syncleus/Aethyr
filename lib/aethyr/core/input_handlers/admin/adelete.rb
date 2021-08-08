@@ -37,7 +37,7 @@ EOF
             case data[:input]
             when /^adelete\s+(.*)$/i
               object = $1
-              $manager.submit_action(Aethyr::Core::Actions::Adelete::AdeleteCommand.new(@player, {:object => object}))
+              $manager.submit_action(Aethyr::Core::Actions::Adelete::AdeleteCommand.new(@player, :object => object))
             end
           end
 

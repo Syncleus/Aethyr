@@ -36,7 +36,7 @@ EOF
             super(data)
             case data[:input]
             when /^astatus/i
-              $manager.submit_action(Aethyr::Core::Actions::Astatus::AstatusCommand.new(@player, {}))
+              $manager.submit_action(Aethyr::Core::Actions::Astatus::AstatusCommand.new(@player, ))
             end
           end
 

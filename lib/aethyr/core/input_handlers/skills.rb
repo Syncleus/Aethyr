@@ -38,7 +38,7 @@ EOF
             super(data)
             case data[:input]
             when /^skills$/i
-              $manager.submit_action(Aethyr::Core::Actions::Skills::SkillsCommand.new(@player, {}))
+              $manager.submit_action(Aethyr::Core::Actions::Skills::SkillsCommand.new(@player, ))
             end
           end
         end

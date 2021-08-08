@@ -40,9 +40,9 @@ EOF
             super(data)
             case data[:input]
             when /^lock\s+(.*)$/i
-              $manager.submit_action(Aethyr::Core::Actions::Lock::LockCommand.new(@player, { :object => $1 }))
+              $manager.submit_action(Aethyr::Core::Actions::Lock::LockCommand.new(@player,  :object => $1 ))
             when /^unlock\s+(.*)$/i
-              $manager.submit_action(Aethyr::Core::Actions::Unlock::UnlockCommand.new(@player, { :object => $1 }))
+              $manager.submit_action(Aethyr::Core::Actions::Unlock::UnlockCommand.new(@player,  :object => $1 ))
             end
           end
 
@@ -50,7 +50,7 @@ EOF
 
 
         end
-        
+
         Aethyr::Extend::HandlerRegistry.register_handler(LockingHandler)
       end
     end

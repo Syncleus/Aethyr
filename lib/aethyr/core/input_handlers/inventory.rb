@@ -30,7 +30,7 @@ EOF
           def initialize(player)
             super(player, ["i", "inv", "inventory"], help_entries: InventoryHandler.create_help_entries)
           end
-          
+
           def self.object_added(data)
             super(data, self)
           end
@@ -39,12 +39,12 @@ EOF
             super(data)
             case data[:input]
             when /^(i|inv|inventory)$/i
-              $manager.submit_action(Aethyr::Core::Actions::Inventory::InventoryCommand.new(@player, {}))
+              $manager.submit_action(Aethyr::Core::Actions::Inventory::InventoryCommand.new(@player, ))
             end
           end
-          
+
           private
-          
+
           #Shows the inventory of the player.
 
         end

@@ -38,7 +38,7 @@ EOF
             when /^awatch\s+((start|stop)\s+)?(.*)$/i
               target = $3.downcase if $3
               command = $2.downcase if $2
-              $manager.submit_action(Aethyr::Core::Actions::Awatch::AwatchCommand.new(@player, {:target => target, :command => command}))
+              $manager.submit_action(Aethyr::Core::Actions::Awatch::AwatchCommand.new(@player, :target => target, :command => command))
             end
           end
 

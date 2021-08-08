@@ -37,7 +37,7 @@ EOF
             super(data)
             case data[:input]
             when /^(listen)(\s+(.+))?$/i
-              $manager.submit_action(Aethyr::Core::Actions::Listen::ListenCommand.new(@player, { :target => $3}))
+              $manager.submit_action(Aethyr::Core::Actions::Listen::ListenCommand.new(@player,  :target => $3))
             end
           end
         end

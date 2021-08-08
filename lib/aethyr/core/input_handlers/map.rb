@@ -36,7 +36,7 @@ EOF
             super(data)
             case data[:input]
             when /^(m|map)$/i
-              $manager.submit_action(Aethyr::Core::Actions::Map::MapCommand.new(@player, {}))
+              $manager.submit_action(Aethyr::Core::Actions::Map::MapCommand.new(@player, ))
             end
           end
 

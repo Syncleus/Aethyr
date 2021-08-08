@@ -47,9 +47,9 @@ EOF
             super(data)
             case data[:input]
             when /^go\s+(.*)$/i
-              $manager.submit_action(Aethyr::Core::Actions::Move::MoveCommand.new(@player, {:direction => $1.downcase}))
+              $manager.submit_action(Aethyr::Core::Actions::Move::MoveCommand.new(@player, :direction => $1.downcase))
             when /^(east|west|northeast|northwest|north|southeast|southwest|south|e|w|nw|ne|sw|se|n|s|up|down|u|d|in|out)(\s+\((.*)\))?$/i
-              $manager.submit_action(Aethyr::Core::Actions::Move::MoveCommand.new(@player, {:direction => expand_direction($1), :pre => $3}))
+              $manager.submit_action(Aethyr::Core::Actions::Move::MoveCommand.new(@player, :direction => expand_direction($1), :pre => $3))
             end
           end
 

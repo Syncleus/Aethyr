@@ -49,15 +49,15 @@ EOF
             super(data)
             case data[:input]
             when /^(bug|typo|idea)\s+(\d+)\s+(show|del|add|status)(\s+(.+))?$/i
-              $manager.submit_action(Aethyr::Core::Actions::Issue::IssueCommand.new(@player, { :itype => $1.downcase.to_sym, :issue_id => $2, :option => $3.downcase, :value => $5 }))
+              $manager.submit_action(Aethyr::Core::Actions::Issue::IssueCommand.new(@player,  :itype => $1.downcase.to_sym, :issue_id => $2, :option => $3.downcase, :value => $5 ))
             when /^(bug|typo|idea)\s+(\d+)/i
-              $manager.submit_action(Aethyr::Core::Actions::Issue::IssueCommand.new(@player, { :itype => $1.downcase.to_sym, :option => "show", :issue_id => $2 }))
+              $manager.submit_action(Aethyr::Core::Actions::Issue::IssueCommand.new(@player,  :itype => $1.downcase.to_sym, :option => "show", :issue_id => $2 ))
             when /^(bug|typo|idea)\s+(del|add|show|status)\s+(\d+)(\s+(.+))?/i
-              $manager.submit_action(Aethyr::Core::Actions::Issue::IssueCommand.new(@player, { :itype => $1.downcase.to_sym, :option => $2.downcase, :issue_id => $3, :value => $5 }))
+              $manager.submit_action(Aethyr::Core::Actions::Issue::IssueCommand.new(@player,  :itype => $1.downcase.to_sym, :option => $2.downcase, :issue_id => $3, :value => $5 ))
             when /^(bug|typo|idea)\s+(new|show|del|add|status|list)(\s+(.+))?$/i
-              $manager.submit_action(Aethyr::Core::Actions::Issue::IssueCommand.new(@player, { :itype => $1.downcase.to_sym, :option => $2.downcase, :value => $4 }))
+              $manager.submit_action(Aethyr::Core::Actions::Issue::IssueCommand.new(@player,  :itype => $1.downcase.to_sym, :option => $2.downcase, :value => $4 ))
             when /^(bug|typo|idea)\s+(.*)$/i
-              $manager.submit_action(Aethyr::Core::Actions::Issue::IssueCommand.new(@player, { :itype => $1.downcase.to_sym, :option => "new", :value => $2 }))
+              $manager.submit_action(Aethyr::Core::Actions::Issue::IssueCommand.new(@player,  :itype => $1.downcase.to_sym, :option => "new", :value => $2 ))
             end
           end
 

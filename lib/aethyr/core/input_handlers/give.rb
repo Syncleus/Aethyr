@@ -30,7 +30,7 @@ EOF
           def initialize(player)
             super(player, ["give"], help_entries: GiveHandler.create_help_entries)
           end
-          
+
           def self.object_added(data)
             super(data, self)
           end
@@ -39,12 +39,12 @@ EOF
             super(data)
             case data[:input]
             when /^give\s+((\w+\s*)*)\s+to\s+(\w+)/i
-              $manager.submit_action(Aethyr::Core::Actions::Give::GiveCommand.new(@player, { :item => $2.strip, :to => $3 }))
+              $manager.submit_action(Aethyr::Core::Actions::Give::GiveCommand.new(@player,  :item => $2.strip, :to => $3 ))
             end
           end
-          
+
           private
-          
+
           #Gives an item to someone else.
 
         end

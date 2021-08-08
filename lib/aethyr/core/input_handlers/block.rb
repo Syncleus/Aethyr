@@ -38,7 +38,7 @@ EOF
             case data[:input]
             when /^block(\s+(.*))?$/i
               target = $2
-              $manager.submit_action(Aethyr::Core::Actions::SimpleBlock::SimpleBlockCommand.new(@player, {:target => target}))
+              $manager.submit_action(Aethyr::Core::Actions::SimpleBlock::SimpleBlockCommand.new(@player, :target => target))
             end
           end
 

@@ -1,4 +1,4 @@
-FROM archlinux/base
+FROM archlinux:base-devel
 
 RUN pacman -Sy --noconfirm
 RUN pacman -S --noconfirm ruby git base-devel glibc

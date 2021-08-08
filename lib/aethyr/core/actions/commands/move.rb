@@ -31,11 +31,14 @@ module Aethyr
             room.remove(self[:agent])
             new_room.add(self[:agent])
             self[:agent].container = new_room.game_object_id
-            self[:to_player] = "You move #{self[:direction]}."
-            self[:to_other] = "#{self[:agent].name} leaves #{self[:direction]}."
-            self[:to_blind_other] = "You hear someone leave."
+            room_out_data = {}
+            room_out_data[:player] = self[:agent]
+            room_out_data[:to_player] = "You move #{self[:direction]}."
+            room_out_data[:to_other] = "#{self[:agent].name} leaves #{self[:direction]}."
+            room_out_data[:to_blind_other] = "You hear someone leave."
+            room_out_event = Event.new(room_out_data)
 
-            room.out_event(event)
+            room.out_event(room_out_event)
             look_text = new_room.look(self[:agent])
             out_text = Window.split_message(look_text, 79).join("\n")
             self[:agent].output(out_text, message_type: :look, internal_clear: true)

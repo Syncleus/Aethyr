@@ -153,14 +153,7 @@ class GameObject < Publisher
 
   #Returns plural form of object's name.
   def plural
-    return @plural if @plural
-    if @generic
-      "#{@generic}s"
-    elsif @name
-      "#{@names}s"
-    else
-      "unkowns"
-    end
+    return noun(:proper => true, :plurality => Lexicon::Plurality::PLURAL)
   end
 
   #Run any logic you need (thinking).

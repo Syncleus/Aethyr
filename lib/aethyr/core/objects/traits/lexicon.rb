@@ -218,9 +218,13 @@ module Lexicon
 
   def noun(proper = true, plurality: nil, gramatical_person: nil, relation: nil, subjectivity: nil, quantifier: nil)
     if proper
-      final_noun = @name
+      final_noun = @name ? @name : (@generic ? @generic : "unknown")
       if plurality == Plurality::PLURAL
-        final_noun += 's'
+        if @plural
+          final_noun = @plural
+        else
+          final_noun += 's'
+        end
         final_noun += '\'' if relation == Relation::POSSESSIVE
       elsif relation == Relation::POSSESSIVE
         final_nount += '\'s'

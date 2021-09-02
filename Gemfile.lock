@@ -57,7 +57,7 @@ GEM
       ast (~> 2.4.0)
     rainbow (3.0.0)
     rake (11.3.0)
-    rdoc (4.3.0)
+    rdoc (6.3.2)
     require_all (2.0.0)
     rexml (3.2.4)
     rspec-expectations (3.9.1)
@@ -86,7 +86,7 @@ DEPENDENCIES
   bundler (~> 2.0)
   json (~> 1.8)
   rake (~> 11.3)
-  rdoc (~> 4.2)
+  rdoc (~> 6.3)
   rubocop (~> 0.82)
 
 BUNDLED WITH

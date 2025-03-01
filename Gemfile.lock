@@ -46,7 +46,7 @@ GEM
     ffi (1.12.2)
     gherkin (5.1.0)
     jaro_winkler (1.5.4)
-    json (1.8.6)
+    json (2.3.1)
     methadone (1.9.5)
       bundler
     multi_json (1.14.1)
@@ -84,7 +84,7 @@ DEPENDENCIES
   aethyr!
   aruba (~> 0.14)
   bundler (~> 2.0)
-  json (~> 1.8)
+  json (~> 2.3)
   rake (~> 11.3)
   rdoc (~> 4.2)
   rubocop (~> 0.82)

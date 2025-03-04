@@ -89,24 +89,24 @@ class Display
     if @layout_type == :wide && @height >= 60 && @width >= 300
       @windows[:quick_bar].create(height: 3, y: @height - 5)
       @windows[:map].create(height: @height / 2 + 1, width: 166)
-      @windows[:look].create(height: @height / 2 - 3, width: 83, y: @height / 2)
-      @windows[:main].create(height: @height / 2 - 3, width: 83, x: 83, y: @height / 2)
+      @windows[:look].create(height: @height / 2 - 4, width: 83, y: @height / 2)
+      @windows[:main].create(height: @height / 2 - 4, width: 83, x: 83, y: @height / 2)
       @windows[:chat].create(height: @height - 4, width: @width - 249, x: 166)
       @windows[:status].create(height: @height - 4, x: @width - 83)
     elsif (@layout_type == :full || @layout_type == :wide) && @height >= 60 && @width >= 249
       @windows[:quick_bar].create(height: 3, y: @height - 5)
       @windows[:map].create(height: @height / 2 + 1, width: 166)
-      @windows[:look].create(height: @height / 2 - 3, width: 83, y: @height / 2)
-      @windows[:main].create(height: @height / 2 - 3, width: 83, x: 83, y: @height / 2)
+      @windows[:look].create(height: @height / 2 - 4, width: 83, y: @height / 2)
+      @windows[:main].create(height: @height / 2 - 4, width: 83, x: 83, y: @height / 2)
       @windows[:chat].create(height: @height - 4, x: 166)
       @windows[:status].destroy
     elsif (@layout_type == :partial || @layout_type == :full || @layout_type == :wide) && @height >= 60 && @width >= 166
-      @windows[:status].destroy
-      @windows[:chat].destroy
       @windows[:quick_bar].create(height: 3, y: @height - 5)
       @windows[:map].create(height: @height / 2 + 1)
-      @windows[:look].create(height: @height / 2 - 3, width: 83, y: @height / 2)
-      @windows[:main].create(height: @height / 2 - 3, x: 83, y: @height / 2)
+      @windows[:look].create(height: @height / 2 - 4, width: 83, y: @height / 2)
+      @windows[:main].create(height: @height / 2 - 4, x: 83, y: @height / 2)
+      @windows[:status].destroy
+      @windows[:chat].destroy
     else
       @windows[:map].destroy
       @windows[:look].destroy

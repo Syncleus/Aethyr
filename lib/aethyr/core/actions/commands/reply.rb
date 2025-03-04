@@ -10,15 +10,15 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
             unless @player.reply_to
               @player.output "There is no one to reply to."
               return
             end
 
-            event[:target] = @player.reply_to
+            self[:target] = @player.reply_to
 
-            action_tell(event)
+            action_tell(self)
           end
         end
       end

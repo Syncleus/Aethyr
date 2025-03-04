@@ -10,13 +10,13 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
-            if event[:object] and event[:object].split.first.downcase == "all"
-              log event[:object].split
-              klass = event[:object].split[1]
+            if self[:object] and self[:object].split.first.downcase == "all"
+              log self[:object].split
+              klass = self[:object].split[1]
               klass.capitalize! unless klass[0,1] == klass[0,1].upcase
               begin
                 klass = Module.const_get klass.to_sym
@@ -28,7 +28,7 @@ module Aethyr
               objects = $manager.find_all("class", klass)
 
               objects.each do |obj|
-                e = event.dup
+                e = self.dup
                 e[:object] = obj.goid
 
                 Admin.adelete(e, player, room)
@@ -37,10 +37,10 @@ module Aethyr
               return
             end
 
-            object = find_object(event[:object], event)
+            object = find_object(self[:object], self)
 
             if object.nil?
-              player.output "Cannot find #{event[:object]} to delete."
+              player.output "Cannot find #{self[:object]} to delete."
               return
             elsif object.is_a? Player
               player.output "Use DELETEPLAYER to delete players."
@@ -52,9 +52,9 @@ module Aethyr
             $manager.delete_object(object)
 
             if room and room.goid == object.container
-              event[:to_player] = "You casually wave your hand and #{object.name} disappears."
-              event[:to_other] = "With a casual wave of #{player.pronoun(:possessive)} hand, #{player.name} makes #{object.name} disappear."
-              room.out_event event
+              self[:to_player] = "You casually wave your hand and #{object.name} disappears."
+              self[:to_other] = "With a casual wave of #{player.pronoun(:possessive)} hand, #{player.name} makes #{object.name} disappear."
+              room.out_self self
             else
               player.output "You casually wave your hand and #{object.name} disappears."
             end

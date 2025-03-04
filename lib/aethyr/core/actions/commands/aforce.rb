@@ -10,16 +10,16 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
-            object = find_object(event[:target], event)
+            object = find_object(self[:target], self)
             if object.nil?
               player.output "Force who?"
               return
             elsif object.is_a? Player
-              object.handle_input(event[:command])
+              object.handle_input(self[:command])
             else
               player.output "You can only force other players to execute a command."
             end

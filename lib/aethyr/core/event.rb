@@ -61,8 +61,8 @@ class Event < OpenStruct
   #name must be a symbol which is the same as the module which handles the event.
   #
   #An optional hash can be passed in as well to define attributes.
-  def initialize(type, args = nil)
-    super args
+  def initialize(type, **data)
+    super(**data)
     self.type = type
   end
 

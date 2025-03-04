@@ -10,13 +10,13 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
             return unless Combat.ready? player
 
-            target = (event.target && room.find(event.target)) || room.find(player.last_target)
+            target = (self.target && room.find(self.target)) || room.find(player.last_target)
 
             if target.nil?
               player.output "Who are you trying to attack?"
@@ -27,26 +27,26 @@ module Aethyr
 
             player.last_target = target.goid
 
-            event.target = target
+            self.target = target
 
-            event[:to_other] = "#{player.name} swings #{player.pronoun(:possessive)} clenched fist at #{target.name}."
-            event[:to_target] = "#{player.name} swings #{player.pronoun(:possessive)} fist straight towards your face."
-            event[:to_player] = "You clench your hand into a fist and swing it at #{target.name}."
-            event[:blockable] = true
+            self[:to_other] = "#{player.name} swings #{player.pronoun(:possessive)} clenched fist at #{target.name}."
+            self[:to_target] = "#{player.name} swings #{player.pronoun(:possessive)} fist straight towards your face."
+            self[:to_player] = "You clench your hand into a fist and swing it at #{target.name}."
+            self[:blockable] = true
 
             player.balance = false
             player.info.in_combat = true
             target.info.in_combat = true
 
-            room.out_event event
+            room.out_self self
 
-            event[:action] = :martial_hit
-            event[:combat_action] = :punch
-            event[:to_other] = "#{player.name} punches #{target.name} directly in the face."
-            event[:to_target] = "You stagger slightly as #{player.name} punches you in the face."
-            event[:to_player] = "Your fist lands squarely in #{target.name}'s face."
+            self[:action] = :martial_hit
+            self[:combat_action] = :punch
+            self[:to_other] = "#{player.name} punches #{target.name} directly in the face."
+            self[:to_target] = "You stagger slightly as #{player.name} punches you in the face."
+            self[:to_player] = "Your fist lands squarely in #{target.name}'s face."
 
-            Combat.future_event event
+            Combat.future_self self
           end
 
         end

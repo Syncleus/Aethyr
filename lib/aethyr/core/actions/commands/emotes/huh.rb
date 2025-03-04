@@ -10,11 +10,11 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
-            make_emote event, player, room do
+            make_emote self, player, room do
 
               no_target do
                 to_player  "\"Huh?\" you ask, confused."
@@ -26,9 +26,9 @@ module Aethyr
               end
 
               target do
-                to_player "\"Huh?\" you ask #{event.target.name}."
+                to_player "\"Huh?\" you ask #{self.target.name}."
                 to_target "#{player.name} asks, \"Huh?\""
-                to_other "#{player.name} asks #{event.target.name}, \"Huh?\""
+                to_other "#{player.name} asks #{self.target.name}, \"Huh?\""
               end
             end
 

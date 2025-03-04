@@ -10,11 +10,11 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
-            object = find_object(event[:target], event)
+            object = find_object(self[:target], self)
             if object.nil?
               player.output "What mobile do you want to watch?"
               return
@@ -23,7 +23,7 @@ module Aethyr
               return
             end
 
-            case event[:command]
+            case self[:command]
             when "start"
               if object.info.redirect_output_to == player.goid
                 player.output "You are already watching #{object.name}."

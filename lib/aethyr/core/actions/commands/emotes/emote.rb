@@ -10,11 +10,11 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
-            action = event[:show].strip
+            action = self[:show].strip
 
             unless ['!', '.', '?', '"'].include? action[-1..-1]
               action << '.'
@@ -44,10 +44,10 @@ module Aethyr
             end
 
             if show
-              event[:message_type] = :chat
-              event[:to_player] = "You emote: #{show}"
-              event[:to_other] = show
-              room.out_event event
+              self[:message_type] = :chat
+              self[:to_player] = "You emote: #{show}"
+              self[:to_other] = show
+              room.out_self self
             end
           end
 

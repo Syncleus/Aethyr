@@ -10,18 +10,18 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
-            object = find_object(event[:target], event)
+            object = find_object(self[:target], self)
             if object.nil?
-              player.output "Cannot find:#{event[:target]}"
+              player.output "Cannot find:#{self[:target]}"
               return
             end
 
-            object.comment = event[:comment]
-            player.output "Added comment: '#{event[:comment]}'\nto#{object}"
+            object.comment = self[:comment]
+            player.output "Added comment: '#{self[:comment]}'\nto#{object}"
           end
 
         end

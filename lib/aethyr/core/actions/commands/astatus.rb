@@ -10,11 +10,11 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
-            awho(event, player, room)
+            awho(self, player, room)
             total_objects = $manager.game_objects_count
             player.output("Object Counts:" , true)
             $manager.type_count.each do |obj, count|

@@ -10,9 +10,9 @@ module Aethyr
           end
 
           def action
-            event = @data
-            if event[:password]
-              if $manager.check_password(@player.name, event[:password])
+            
+            if self[:password]
+              if $manager.check_password(@player.name, self[:password])
                 @player.output "This character #{@player.name} will no longer exist."
                 @player.quit
                 $manager.delete_player(@player.name)
@@ -24,8 +24,8 @@ module Aethyr
               @player.io.echo_off
               @player.expect do |password|
                 @player.io.echo_on
-                event[:password] = password
-                Generic.deleteme(event)
+                self[:password] = password
+                Generic.deleteme(self)
               end
             end
           end

@@ -10,7 +10,7 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
             $manager.drop_player @player
           end
         end

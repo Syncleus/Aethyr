@@ -11,7 +11,6 @@ module Aethyr
           end
 
           def action
-            event = @data
             room = $manager.get_object(@player.container)
 
             pre_look_data = { :can_look => true }
@@ -24,9 +23,9 @@ module Aethyr
                 @player.output blind_data[:reason]
               end
             else
-              if event[:at]
-                object = room if event[:at] == "here"
-                object = object || @player.search_inv(event[:at]) || room.find(event[:at])
+              if self[:at]
+                object = room if self[:at] == "here"
+                object = object || @player.search_inv(self[:at]) || room.find(self[:at])
 
                 if object.nil?
                   @player.output("Look at what, again?")
@@ -54,16 +53,16 @@ module Aethyr
                 else
                   @player.output object.long_desc
                 end
-              elsif event[:in]
-                object = room.find(event[:in])
-                object = @player.inventory.find(event[:in]) if object.nil?
+              elsif self[:in]
+                object = room.find(self[:in])
+                object = @player.inventory.find(self[:in]) if object.nil?
 
                 if object.nil?
                   @player.output("Look inside what?")
                 elsif not object.can? :look_inside
                   @player.output("You cannot look inside that.")
                 else
-                  object.look_inside(event)
+                  object.look_inside(self)
                 end
               else
                 if not room.nil?

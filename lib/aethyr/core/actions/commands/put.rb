@@ -10,24 +10,24 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
             room = $manager.get_object(@player.container)
-            item = @player.inventory.find(event[:item])
+            item = @player.inventory.find(self[:item])
 
             if item.nil?
-              if response = @player.equipment.worn_or_wielded?(event[:item])
+              if response = @player.equipment.worn_or_wielded?(self[:item])
                 @player.output response
               else
-                @player.output "You do not seem to have a #{event[:item]}."
+                @player.output "You do not seem to have a #{self[:item]}."
               end
 
               return
             end
 
-            container = @player.search_inv(event[:container]) || $manager.find(event[:container], room)
+            container = @player.search_inv(self[:container]) || $manager.find(self[:container], room)
 
             if container.nil?
-              @player.output("There is no #{event[:container]} in which to put #{item.name}.")
+              @player.output("There is no #{self[:container]} in which to put #{item.name}.")
               return
             elsif not container.is_a? Container
               @player.output("You cannot put anything in #{container.name}.")
@@ -40,10 +40,10 @@ module Aethyr
             @player.inventory.remove(item)
             container.add(item)
 
-            event[:to_player] = "You put #{item.name} in #{container.name}."
-            event[:to_other] = "#{@player.name} puts #{item.name} in #{container.name}"
+            self[:to_player] = "You put #{item.name} in #{container.name}."
+            self[:to_other] = "#{@player.name} puts #{item.name} in #{container.name}"
 
-            room.out_event(event)
+            room.out_self(self)
           end
         end
       end

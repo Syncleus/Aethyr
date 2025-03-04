@@ -10,14 +10,14 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
-            make_emote event, player, room do
+            make_emote self, player, room do
               target do
-                to_player "After giving #{event.target.name} a cursory glance, you emit an unimpressed, 'Eh.'"
-                to_other "#{player.name} gives #{event.target.name} a cursory glance and then emits an unimpressed, 'Eh.'"
+                to_player "After giving #{self.target.name} a cursory glance, you emit an unimpressed, 'Eh.'"
+                to_other "#{player.name} gives #{self.target.name} a cursory glance and then emits an unimpressed, 'Eh.'"
                 to_target "#{player.name} gives you a cursory glance and then emits an unimpressed, 'Eh.'"
               end
 

@@ -10,50 +10,50 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
             return unless Combat.ready? player
 
-            target = (event.target && room.find(event.target)) || room.find(player.last_target)
+            target = (self.target && room.find(self.target)) || room.find(player.last_target)
 
             if target == player
               player.output "You cannot block yourself."
               return
             elsif target
-              events = Combat.find_events(:player => target, :target => player, :blockable => true)
+              selfs = Combat.find_selfs(:player => target, :target => player, :blockable => true)
             else
-              events = Combat.find_events(:target => player, :blockable => true)
+              selfs = Combat.find_selfs(:target => player, :blockable => true)
             end
 
-            if events.empty?
+            if selfs.empty?
               player.output "What are you trying to dodge?"
               return
             end
 
             if target.nil?
-              target = events[0].player
+              target = selfs[0].player
             end
 
             player.last_target = target.goid
 
-            b_event = events[0]
+            b_self = selfs[0]
             if rand > 0.5
-              b_event[:action] = :martial_miss
-              b_event[:type] = :MartialCombat
-              b_event[:to_other] = "#{player.name} twists away from #{target.name}'s attack."
-              b_event[:to_player] = "#{player.name} twists away from your attack."
-              b_event[:to_target] = "You manage to twist your body away from #{target.name}'s attack."
+              b_self[:action] = :martial_miss
+              b_self[:type] = :MartialCombat
+              b_self[:to_other] = "#{player.name} twists away from #{target.name}'s attack."
+              b_self[:to_player] = "#{player.name} twists away from your attack."
+              b_self[:to_target] = "You manage to twist your body away from #{target.name}'s attack."
             end
 
-            event[:target] = target
-            event[:to_other] = "#{player.name} attempts to dodge #{target.name}'s attack."
-            event[:to_target] = "#{player.name} attempts to dodge your attack."
-            event[:to_player] = "You attempt to dodge #{target.name}'s attack."
+            self[:target] = target
+            self[:to_other] = "#{player.name} attempts to dodge #{target.name}'s attack."
+            self[:to_target] = "#{player.name} attempts to dodge your attack."
+            self[:to_player] = "You attempt to dodge #{target.name}'s attack."
 
             player.balance = false
-            room.out_event event
+            room.out_self self
           end
 
         end

@@ -10,8 +10,8 @@ module Aethyr
           end
 
           def action
-            event = @data
-            target = $manager.find event[:target]
+            
+            target = $manager.find self[:target]
             unless target and target.is_a? Player
               @player.output "That person is not available."
               return
@@ -22,7 +22,7 @@ module Aethyr
               return
             end
 
-            phrase = event[:message]
+            phrase = self[:message]
 
             last_char = phrase[-1..-1]
 

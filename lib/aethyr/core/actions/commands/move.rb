@@ -10,12 +10,11 @@ module Aethyr
           end
 
           def action
-            event = @data.dup
             room = $manager.get_object(@player.container)
-            exit = room.exit(event[:direction])
+            exit = room.exit(self[:direction])
 
             if exit.nil?
-              @player.output("You cannot go #{event[:direction]}.")
+              @player.output("You cannot go #{self[:direction]}.")
               return
             elsif exit.can? :open and not exit.open?
               @player.output("That exit is closed. Perhaps you should open it?")
@@ -32,11 +31,11 @@ module Aethyr
             room.remove(@player)
             new_room.add(@player)
             @player.container = new_room.game_object_id
-            event[:to_player] = "You move #{event[:direction]}."
-            event[:to_other] = "#{@player.name} leaves #{event[:direction]}."
-            event[:to_blind_other] = "You hear someone leave."
+            self[:to_player] = "You move #{self[:direction]}."
+            self[:to_other] = "#{@player.name} leaves #{self[:direction]}."
+            self[:to_blind_other] = "You hear someone leave."
 
-            room.out_event(event)
+            room.out_self(self)
             look_text = new_room.look(@player)
             out_text = Window.split_message(look_text, 79).join("\n")
             @player.output(out_text, message_type: :look, internal_clear: true)

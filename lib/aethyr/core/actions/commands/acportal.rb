@@ -10,13 +10,13 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
-            object = Admin.acreate(event, player, room)
-            if event[:portal_action] and event[:portal_action].downcase != "enter"
-              object.info.portal_action = event[:portal_action].downcase.to_sym
+            object = Admin.acreate(self, player, room)
+            if self[:portal_action] and self[:portal_action].downcase != "enter"
+              object.info.portal_action = self[:portal_action].downcase.to_sym
             end
           end
 

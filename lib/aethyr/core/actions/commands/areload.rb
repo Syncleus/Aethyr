@@ -10,15 +10,15 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
             begin
-              result = load "#{event[:object]}.rb"
-              player.output "Reloaded #{event[:object]}: #{result}"
+              result = load "#{self[:object]}.rb"
+              player.output "Reloaded #{self[:object]}: #{result}"
             rescue LoadError
-              player.output "Unable to load #{event[:object]}"
+              player.output "Unable to load #{self[:object]}"
             end
           end
 

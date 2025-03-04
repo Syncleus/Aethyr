@@ -10,11 +10,11 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
-            Generic.help(event, player, room)
+            Generic.help(self, player, room)
           end
 
         end

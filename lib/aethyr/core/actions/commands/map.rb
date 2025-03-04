@@ -10,7 +10,7 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
             room = $manager.get_object(@player.container)
             @player.output(room.area.render_map(@player, room.area.position(room)))
           end

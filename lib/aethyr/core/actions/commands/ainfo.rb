@@ -10,17 +10,17 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
-            if event[:object].downcase == "here"
-              event[:object] = player.container
-            elsif event[:object].downcase == "me"
-              event[:object] = player
-            elsif event[:object] and event[:object].split.first.downcase == "all"
-              log event[:object].split
-              klass = event[:object].split[1]
+            if self[:object].downcase == "here"
+              self[:object] = player.container
+            elsif self[:object].downcase == "me"
+              self[:object] = player
+            elsif self[:object] and self[:object].split.first.downcase == "all"
+              log self[:object].split
+              klass = self[:object].split[1]
               klass.capitalize! unless klass[0,1] == klass[0,1].upcase
               begin
                 klass = Module.const_get klass.to_sym
@@ -32,7 +32,7 @@ module Aethyr
               objects = $manager.find_all("class", klass)
 
               objects.each do |obj|
-                e = event.dup
+                e = self.dup
                 e[:object] = obj.goid
 
                 Admin.ainfo(e, player, room)
@@ -41,16 +41,16 @@ module Aethyr
               return
             end
 
-            object = find_object(event[:object], event)
+            object = find_object(self[:object], self)
 
             if object.nil?
-              player.output "What object? #{event[:object]}"
+              player.output "What object? #{self[:object]}"
               return
             end
 
-            case event[:command]
+            case self[:command]
             when "set"
-              value = event[:value] #for ease
+              value = self[:value] #for ease
               if value.split.length == 1
                 if value == "true"
                   value = true
@@ -66,11 +66,11 @@ module Aethyr
                   value = ""
                 end
               end
-              object.info.set(event[:attrib], value)
-              player.output "Set #{event[:attrib]} to #{object.info.get(event[:attrib])}"
+              object.info.set(self[:attrib], value)
+              player.output "Set #{self[:attrib]} to #{object.info.get(self[:attrib])}"
             when "delete"
-              object.info.delete(event[:attrib])
-              player.output "Deleted #{event[:attrib]} from #{object}"
+              object.info.delete(self[:attrib])
+              player.output "Deleted #{self[:attrib]} from #{object}"
             when "show"
               player.output object.info.inspect
             when "clear"

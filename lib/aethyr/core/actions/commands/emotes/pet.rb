@@ -10,12 +10,12 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
 
-            make_emote event, player, room do
+            make_emote self, player, room do
 
               no_target do
                 player.output "Who are you trying to pet?"
@@ -28,12 +28,12 @@ module Aethyr
               end
 
               target do
-                to_player "You pet #{event.target.name} affectionately."
+                to_player "You pet #{self.target.name} affectionately."
                 to_target "#{player.name} pets you affectionately."
-                to_deaf_target event[:to_target]
+                to_deaf_target self[:to_target]
                 to_blind_target "Someone pets you affectionately."
-                to_other "#{player.name} pets #{event.target.name} affectionately."
-                to_deaf_other event[:to_other]
+                to_other "#{player.name} pets #{self.target.name} affectionately."
+                to_deaf_other self[:to_other]
               end
             end
           end

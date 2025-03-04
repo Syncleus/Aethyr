@@ -10,9 +10,9 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
             room = $manager.get_object(@player.container)
-            object = expand_direction(event[:object])
+            object = expand_direction(self[:object])
             object = player.search_inv(object) || $manager.find(object, room)
 
             if object.nil?
@@ -20,7 +20,7 @@ module Aethyr
             elsif not object.can? :open
               player.output("You cannot open #{object.name}.")
             else
-              object.open(event)
+              object.open(self)
             end
           end
         end

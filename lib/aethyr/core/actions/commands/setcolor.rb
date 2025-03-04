@@ -10,21 +10,21 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
-            if event[:option] == "off"
+            if self[:option] == "off"
               player.io.use_color = false
               player.output "Colors disabled."
-            elsif event[:option] == "on"
+            elsif self[:option] == "on"
               player.io.use_color = true
               player.output "Colors enabled."
-            elsif event[:option] == "default"
+            elsif self[:option] == "default"
               player.io.to_default
               player.output "Colors set to defaults."
             else
-              player.output player.io.set_color(event[:option], event[:color])
+              player.output player.io.set_color(self[:option], self[:color])
             end
           end
 

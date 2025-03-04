@@ -10,14 +10,14 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
-            object = find_object(event[:object], event)
+            object = find_object(self[:object], self)
 
             if object.nil?
-              player.output "Could not find #{event[:object]}."
+              player.output "Could not find #{self[:object]}."
               return
             end
 
@@ -34,8 +34,8 @@ module Aethyr
                 player.output "Container for #{object} not found."
               else
                 player.output "#{object} is in #{container}."
-                event[:object] = container.goid
-                whereis(event, player, room)
+                self[:object] = container.goid
+                whereis(self, player, room)
               end
             end
           end

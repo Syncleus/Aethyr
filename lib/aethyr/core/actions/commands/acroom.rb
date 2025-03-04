@@ -10,7 +10,7 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
@@ -22,7 +22,7 @@ module Aethyr
             unless area.nil? or area.map_type.eql? :none
               current_pos = area.position(room)
               new_pos = current_pos.dup
-              case event[:out_dir].downcase.strip
+              case self[:out_dir].downcase.strip
                 when "north"
                   new_pos[1] += 1
                 when "south"
@@ -32,16 +32,16 @@ module Aethyr
                 when "east"
                   new_pos[0] += 1
                 when "northeast"
-                  player.output "Can not create a #{event[:out_dir]} exit in a mappable area at this time"
+                  player.output "Can not create a #{self[:out_dir]} exit in a mappable area at this time"
                   return
                 when "northwest"
-                  player.output "Can not create a #{event[:out_dir]} exit in a mappable area at this time"
+                  player.output "Can not create a #{self[:out_dir]} exit in a mappable area at this time"
                   return
                 when "southeast"
-                  player.output "Can not create a #{event[:out_dir]} exit in a mappable area at this time"
+                  player.output "Can not create a #{self[:out_dir]} exit in a mappable area at this time"
                   return
                 when "southwest"
-                  player.output "Can not create a #{event[:out_dir]} exit in a mappable area at this time"
+                  player.output "Can not create a #{self[:out_dir]} exit in a mappable area at this time"
                   return
                 else
                   new_pos = nil
@@ -54,9 +54,9 @@ module Aethyr
               return
             end
 
-            new_room = $manager.create_object(Room, area, new_pos, nil, :@name => event[:name])
-            out_exit = $manager.create_object(Exit, room, nil, new_room.goid, :@alt_names => [event[:out_dir]])
-            in_exit = $manager.create_object(Exit, new_room, nil, room.goid, :@alt_names => [event[:in_dir]])
+            new_room = $manager.create_object(Room, area, new_pos, nil, :@name => self[:name])
+            out_exit = $manager.create_object(Exit, room, nil, new_room.goid, :@alt_names => [self[:out_dir]])
+            in_exit = $manager.create_object(Exit, new_room, nil, room.goid, :@alt_names => [self[:in_dir]])
 
             player.output "Created: #{new_room}#{new_pos.nil? ? '' : ' @ ' + new_pos_text}"
             player.output "Created: #{out_exit}"
@@ -95,7 +95,7 @@ module Aethyr
             end
 
             if room
-              room.output "There is a small flash of light as a new room appears to the #{event[:out_dir]}."
+              room.output "There is a small flash of light as a new room appears to the #{self[:out_dir]}."
             end
 
           end

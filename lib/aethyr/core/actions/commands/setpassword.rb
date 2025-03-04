@@ -10,16 +10,16 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
-            if event[:new_password]
-              if event[:new_password] !~ /^\w{6,20}$/
+            if self[:new_password]
+              if self[:new_password] !~ /^\w{6,20}$/
                 player.output "Please only use letters and numbers. Password should be between 6 and 20 characters long."
                 return
               else
-                $manager.set_password(player, event[:new_password])
+                $manager.set_password(player, self[:new_password])
                 player.output "Your password has been changed."
               end
             else
@@ -31,8 +31,8 @@ module Aethyr
                   player.io.echo_off
                   player.expect do |password|
                     player.io.echo_on
-                    event[:new_password] = password
-                    Settings.setpassword(event, player, room)
+                    self[:new_password] = password
+                    Settings.setpassword(self, player, room)
                   end
                 else
                   player.output "Sorry, that password is invalid."

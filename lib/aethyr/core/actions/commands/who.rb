@@ -10,7 +10,7 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
             players = $manager.find_all("class", Player)
             output = ["The following people are visiting Aethyr:"]
             players.sort_by {|p| p.name}.each do |playa|

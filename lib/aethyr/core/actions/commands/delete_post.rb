@@ -10,7 +10,7 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
@@ -18,22 +18,22 @@ module Aethyr
 
 
 
-            board = find_board(event, room)
+            board = find_board(self, room)
 
             if board.nil?
               player.output "What newsboard are you talking about?"
               return
             end
 
-            post = board.get_post event[:post_id]
+            post = board.get_post self[:post_id]
 
             if post.nil?
               player.output "No such post."
             elsif post[:author] != player.name
               player.output "You can only delete your own posts."
             else
-              board.delete_post event[:post_id]
-              player.output "Deleted post ##{event[:post_id]}"
+              board.delete_post self[:post_id]
+              player.output "Deleted post ##{self[:post_id]}"
             end
           end
 

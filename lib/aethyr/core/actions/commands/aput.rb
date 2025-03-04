@@ -10,36 +10,36 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
-            if event[:object].is_a? GameObject
-              object = event[:object]
+            if self[:object].is_a? GameObject
+              object = self[:object]
             else
-              event[:object] = player.container if event[:object].downcase == "here"
-              object = find_object(event[:object], event)
+              self[:object] = player.container if self[:object].downcase == "here"
+              object = find_object(self[:object], self)
             end
 
-            container = find_object(event[:in], event)
+            container = find_object(self[:in], self)
 
             if object.nil?
-              player.output "Cannot find #{event[:object]} to move."
+              player.output "Cannot find #{self[:object]} to move."
               return
-            elsif event[:in] == "!world"
+            elsif self[:in] == "!world"
               container = $manager.find object.container
               container.inventory.remove(object) unless container.nil?
               object.container = nil
               player.output "Removed #{object} from any containers."
               return
-            elsif event[:in].downcase == "here"
+            elsif self[:in].downcase == "here"
               container = $manager.find player.container
               if container.nil?
-                player.output "Cannot find #{event[:in]} "
+                player.output "Cannot find #{self[:in]} "
                 return
               end
             elsif container.nil?
-              player.output "Cannot find #{event[:in]} "
+              player.output "Cannot find #{self[:in]} "
               return
             end
 
@@ -48,8 +48,8 @@ module Aethyr
               current_container.inventory.remove(object) if current_container
             end
 
-            unless event[:at] == nil
-              position = event[:at].split('x').map{ |e| e.to_i}
+            unless self[:at] == nil
+              position = self[:at].split('x').map{ |e| e.to_i}
             end
 
             if container.is_a? Inventory
@@ -61,7 +61,7 @@ module Aethyr
               object.container = container.goid
             end
 
-            player.output "Moved #{object} into #{container}#{event[:at] == nil ? '' : ' at ' + event[:at]}"
+            player.output "Moved #{object} into #{container}#{self[:at] == nil ? '' : ' at ' + self[:at]}"
           end
 
         end

@@ -10,11 +10,11 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
-            make_emote event, player, room do
+            make_emote self, player, room do
               no_target do
                 to_player "With a look of uncertainty, you say, \"Er...\""
                 to_other "With a look of uncertainty, #{player.name} says, \"Er...\""

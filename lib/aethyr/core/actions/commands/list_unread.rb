@@ -10,11 +10,11 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
-            board = find_board(event, room)
+            board = find_board(self, room)
 
             if board.nil?
               player.output "There do not seem to be any postings here."

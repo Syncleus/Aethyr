@@ -10,15 +10,15 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
 
-            object = player.equipment.find(event[:object])
+            object = player.equipment.find(self[:object])
 
             if object.nil?
-              player.output("What #{event[:object]} are you trying to remove?")
+              player.output("What #{self[:object]} are you trying to remove?")
               return
             end
 
@@ -32,12 +32,12 @@ module Aethyr
               return
             end
 
-            response = player.remove(object, event[:position])
+            response = player.remove(object, self[:position])
 
             if response
-              event[:to_player] = "You remove #{object.name}."
-              event[:to_other] = "#{player.name} removes #{object.name}."
-              room.out_event(event)
+              self[:to_player] = "You remove #{object.name}."
+              self[:to_other] = "#{player.name} removes #{object.name}."
+              room.out_self(self)
             else
               player.output "Could not remove #{object.name} for some reason."
             end

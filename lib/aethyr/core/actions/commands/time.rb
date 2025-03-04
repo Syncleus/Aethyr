@@ -10,7 +10,7 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
             @player.output $manager.time
           end
 

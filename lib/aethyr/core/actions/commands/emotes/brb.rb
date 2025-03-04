@@ -10,12 +10,12 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
 
-            make_emote event, player, room do
+            make_emote self, player, room do
 
               no_target do
                 to_player "\"I shall return shortly!\" you say to no one in particular."
@@ -28,9 +28,9 @@ module Aethyr
               end
 
               target do
-                to_player "You let #{event.target.name} know you will return shortly."
+                to_player "You let #{self.target.name} know you will return shortly."
                 to_target "#{player.name} lets you know #{player.pronoun} will return shortly."
-                to_other "#{player.name} tells #{event.target.name} that #{player.pronoun} will return shortly."
+                to_other "#{player.name} tells #{self.target.name} that #{player.pronoun} will return shortly."
                 to_blind_other "Someone says, \"I shall return shortly!\""
               end
             end

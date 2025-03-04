@@ -4,9 +4,8 @@ module Aethyr
   module Extend
     class CommandAction < Action
       def initialize(actor, **data)
-        new_data = data.dup
-        new_data[:actor] = actor
-        super(**new_data)
+
+        super(**data)
         @player = actor
       end
 

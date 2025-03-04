@@ -10,13 +10,13 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
             room = $manager.get_object(@player.container)
-            if event[:from].nil?
-              object = $manager.find(event[:object], room)
+            if self[:from].nil?
+              object = $manager.find(self[:object], room)
 
               if object.nil?
-                @player.output("There is no #{event[:object]} to take.")
+                @player.output("There is no #{self[:object]} to take.")
                 return
               elsif not object.movable
                 @player.output("You cannot take #{object.name}.")
@@ -30,11 +30,11 @@ module Aethyr
               object.container = @player.goid
               @player.inventory << object
 
-              event[:to_player] = "You take #{object.name}."
-              event[:to_other] = "#{@player.name} takes #{object.name}."
-              room.out_event(event)
+              self[:to_player] = "You take #{object.name}."
+              self[:to_other] = "#{@player.name} takes #{object.name}."
+              room.out_self(self)
             else
-              from = event[:from]
+              from = self[:from]
               container = $manager.find(from, room)
               @player.inventory.find(from) if container.nil?
 
@@ -49,10 +49,10 @@ module Aethyr
                 return
               end
 
-              object = $manager.find(event[:object], container)
+              object = $manager.find(self[:object], container)
 
               if object.nil?
-                @player.output("There is no #{event[:object]} in the #{container.name}.")
+                @player.output("There is no #{self[:object]} in the #{container.name}.")
                 return
               elsif not object.movable
                 @player.output("You cannot take the #{object.name}.")
@@ -65,9 +65,9 @@ module Aethyr
               container.remove(object)
               @player.inventory.add(object)
 
-              event[:to_player] = "You take #{object.name} from #{container.name}."
-              event[:to_other] = "#{@player.name} takes #{object.name} from #{container.name}."
-              room.out_event(event)
+              self[:to_player] = "You take #{object.name} from #{container.name}."
+              self[:to_other] = "#{@player.name} takes #{object.name} from #{container.name}."
+              room.out_self(self)
             end
           end
         end

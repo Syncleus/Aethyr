@@ -10,10 +10,10 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
             room = $manager.get_object(@player.container)
-            object = @player.search_inv(event[:object]) || room.find(event[:object])
-            from = @player.search_inv(event[:from]) || room.find(event[:from])
+            object = @player.search_inv(self[:object]) || room.find(self[:object])
+            from = @player.search_inv(self[:from]) || room.find(self[:from])
 
             if object.nil?
               @player.output("What would you like to fill?")
@@ -22,7 +22,7 @@ module Aethyr
               @player.output("You cannot fill #{object.name} with liquids.")
               return
             elsif from.nil?
-              @player.output "There isn't any #{event[:from]} around here."
+              @player.output "There isn't any #{self[:from]} around here."
               return
             elsif not from.is_a? LiquidContainer
               @player.output "You cannot fill #{object.name} from #{from.name}."

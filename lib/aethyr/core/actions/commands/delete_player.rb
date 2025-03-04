@@ -10,11 +10,11 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
-            name = event.object
+            name = self.object
             if not $manager.player_exist? name
               player.output "No such player found: #{name}"
               return

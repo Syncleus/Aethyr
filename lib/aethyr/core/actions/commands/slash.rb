@@ -10,7 +10,7 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
@@ -23,7 +23,7 @@ module Aethyr
               return
             end
 
-            target = (event.target && room.find(event.target)) || room.find(player.last_target)
+            target = (self.target && room.find(self.target)) || room.find(player.last_target)
 
             if target.nil?
               player.output "Who are you trying to attack?"
@@ -34,27 +34,27 @@ module Aethyr
 
             player.last_target = target.goid
 
-            event.target = target
+            self.target = target
 
-            event[:to_other] = "#{weapon.name} flashes as #{player.name} swings it at #{target.name}."
-            event[:to_target] = "#{weapon.name} flashes as #{player.name} swings it towards you."
-            event[:to_player] = "#{weapon.name} flashes as you swing it towards #{target.name}."
-            event[:attack_weapon] = weapon
-            event[:blockable] = true
+            self[:to_other] = "#{weapon.name} flashes as #{player.name} swings it at #{target.name}."
+            self[:to_target] = "#{weapon.name} flashes as #{player.name} swings it towards you."
+            self[:to_player] = "#{weapon.name} flashes as you swing it towards #{target.name}."
+            self[:attack_weapon] = weapon
+            self[:blockable] = true
 
             player.balance = false
             player.info.in_combat = true
             target.info.in_combat = true
 
-            room.out_event event
+            room.out_self self
 
-            event[:action] = :weapon_hit
-            event[:combat_action] = :slash
-            event[:to_other] = "#{player.name} slashes across #{target.name}'s torso with #{weapon.name}."
-            event[:to_target] = "#{player.name} slashes across your torso with #{weapon.name}."
-            event[:to_player] = "You slash across #{target.name}'s torso with #{weapon.name}."
+            self[:action] = :weapon_hit
+            self[:combat_action] = :slash
+            self[:to_other] = "#{player.name} slashes across #{target.name}'s torso with #{weapon.name}."
+            self[:to_target] = "#{player.name} slashes across your torso with #{weapon.name}."
+            self[:to_player] = "You slash across #{target.name}'s torso with #{weapon.name}."
 
-            Combat.future_event event
+            Combat.future_self self
 
           end
 

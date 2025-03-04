@@ -10,12 +10,12 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
 
-            make_emote event, player, room do
+            make_emote self, player, room do
 
               no_target do
                 to_other "#{player.name} purses #{player.pronoun(:possessive)} lips thoughtfully and says, \"Hmmm...\""
@@ -28,8 +28,8 @@ module Aethyr
               end
 
               target do
-                to_other "#{player.name} purses #{player.pronoun(:possessive)} lips as #{player.pronoun} looks thoughtfully at #{event.target.name} and says, \"Hmmm...\""
-                to_player "You purse your lips as you look thoughtfully at #{event.target.name} and say, \"Hmmm...\""
+                to_other "#{player.name} purses #{player.pronoun(:possessive)} lips as #{player.pronoun} looks thoughtfully at #{self.target.name} and says, \"Hmmm...\""
+                to_player "You purse your lips as you look thoughtfully at #{self.target.name} and say, \"Hmmm...\""
                 to_target "#{player.name} purses #{player.pronoun(:possessive)} lips as #{player.pronoun} looks thoughtfully at you and says, \"Hmmm...\""
               end
             end

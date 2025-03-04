@@ -10,7 +10,7 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
@@ -29,10 +29,10 @@ module Aethyr
             end
 
             if player.stand
-              event[:to_player] = 'You rise to your feet.'
-              event[:to_other] = "#{player.name} stands up."
-              event[:to_deaf_other] = event[:to_other]
-              room.out_event(event)
+              self[:to_player] = 'You rise to your feet.'
+              self[:to_other] = "#{player.name} stands up."
+              self[:to_deaf_other] = self[:to_other]
+              room.out_self(self)
               object.evacuated_by(player) unless object.nil?
             else
               player.output('You are unable to stand up.')

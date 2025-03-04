@@ -10,13 +10,13 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
-            weapon = player.inventory.find(event[:weapon])
+            weapon = player.inventory.find(self[:weapon])
             if weapon.nil?
-              weapon = player.equipment.find(event[:weapon])
+              weapon = player.equipment.find(self[:weapon])
               if weapon and player.equipment.get_all_wielded.include? weapon
                 player.output "You are already wielding that."
               else
@@ -30,8 +30,8 @@ module Aethyr
               return
             end
 
-            if event[:side]
-              side = event[:side]
+            if self[:side]
+              side = self[:side]
               if side != "right" and side != "left"
                 player.output "Which hand?"
                 return
@@ -48,7 +48,7 @@ module Aethyr
                 player.output "You are unable to wield that."
                 return
               end
-              event[:to_player] = "You grip #{weapon.name} firmly in your #{side} hand."
+              self[:to_player] = "You grip #{weapon.name} firmly in your #{side} hand."
             else
               result = player.equipment.check_wield(weapon)
 
@@ -63,12 +63,12 @@ module Aethyr
                 return
               end
 
-              event[:to_player] = "You firmly grip #{weapon.name} and begin to wield it."
+              self[:to_player] = "You firmly grip #{weapon.name} and begin to wield it."
             end
 
             player.inventory.remove weapon
-            event[:to_other] = "#{player.name} wields #{weapon.name}."
-            room.out_event(event)
+            self[:to_other] = "#{player.name} wields #{weapon.name}."
+            room.out_self(self)
           end
 
         end

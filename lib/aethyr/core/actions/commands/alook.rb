@@ -10,20 +10,20 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
-            if event[:at].nil?
+            if self[:at].nil?
               object = room
-            elsif event[:at].downcase == "here"
+            elsif self[:at].downcase == "here"
               object = $manager.find player.container
             else
-              object = find_object(event[:at], event)
+              object = find_object(self[:at], self)
             end
 
             if object.nil?
-              player.output "Cannot find #{event[:at]} to inspect."
+              player.output "Cannot find #{self[:at]} to inspect."
               return
             end
 

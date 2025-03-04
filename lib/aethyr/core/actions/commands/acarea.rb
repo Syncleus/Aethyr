@@ -10,11 +10,11 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
-            area = $manager.create_object(Area, nil, nil, nil, {:@name => event[:name]})
+            area = $manager.create_object(Area, nil, nil, nil, {:@name => self[:name]})
             player.output "Created: #{area}"
           end
 

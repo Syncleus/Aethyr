@@ -11,7 +11,7 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
             box_width = 25
             box_work_width = box_width - 2
             width = @player.word_wrap

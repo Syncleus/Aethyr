@@ -10,12 +10,12 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
 
-            make_emote event, player, room do
+            make_emote self, player, room do
 
               no_target do
                 to_player "\"I'm back!\" you happily announce."
@@ -28,9 +28,9 @@ module Aethyr
               end
 
               target do
-                to_player "You happily announce your return to #{event.target.name}."
+                to_player "You happily announce your return to #{self.target.name}."
                 to_target "#{player.name} happily announces #{player.pronoun(:possessive)} return to you."
-                to_other "#{player.name} announces #{player.pronoun(:possessive)} return to #{event.target.name}."
+                to_other "#{player.name} announces #{player.pronoun(:possessive)} return to #{self.target.name}."
                 to_blind_other "Someone says, \"I shall return shortly!\""
               end
             end

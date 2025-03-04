@@ -10,8 +10,8 @@ module Aethyr
           end
 
           def action
-            event = @data
-            object = @player.search_inv(event[:target])
+            
+            object = @player.search_inv(self[:target])
 
             if object.nil?
               @player.output "What do you wish to write on?"

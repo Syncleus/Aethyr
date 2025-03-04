@@ -10,15 +10,15 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
             room = $manager.get_object(@player.container)
-            object = @player.inventory.find(event[:object])
+            object = @player.inventory.find(self[:object])
 
             if object.nil?
-              if response = @player.equipment.worn_or_wielded?(event[:object])
+              if response = @player.equipment.worn_or_wielded?(self[:object])
                 @player.output response
               else
-                @player.output "You have no #{event[:object]} to drop."
+                @player.output "You have no #{self[:object]} to drop."
               end
 
               return
@@ -29,10 +29,10 @@ module Aethyr
             object.container = room.goid
             room.add(object)
 
-            event[:to_player] = "You drop #{object.name}."
-            event[:to_other] = "#{@player.name} drops #{object.name}."
-            event[:to_blind_other] = "You hear something hit the ground."
-            room.out_event(event)
+            self[:to_player] = "You drop #{object.name}."
+            self[:to_other] = "#{@player.name} drops #{object.name}."
+            self[:to_blind_other] = "You hear something hit the ground."
+            room.out_self(self)
           end
         end
       end

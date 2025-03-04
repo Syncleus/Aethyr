@@ -10,12 +10,12 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
 
             room = $manager.get_object(@player.container)
             player = @player
 
-            make_emote event, player, room do
+            make_emote self, player, room do
 
               no_target do
                 to_player "You open your mouth in a wide yawn, then exhale loudly."
@@ -25,14 +25,14 @@ module Aethyr
               self_target do
                 to_player "You yawn at how boring you are."
                 to_other "#{player.name} yawns at #{player.pronoun(:reflexive)}."
-                to_deaf_other event[:to_other]
+                to_deaf_other self[:to_other]
               end
 
               target do
-                to_player "You yawn at #{event.target.name}, bored out of your mind."
+                to_player "You yawn at #{self.target.name}, bored out of your mind."
                 to_target "#{player.name} yawns at you, finding you boring."
-                to_other "#{player.name} yawns at how boring #{event.target.name} is."
-                to_deaf_other event[:to_other]
+                to_other "#{player.name} yawns at how boring #{self.target.name} is."
+                to_deaf_other self[:to_other]
               end
             end
 

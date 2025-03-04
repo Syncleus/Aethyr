@@ -10,11 +10,11 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
             room = $manager.get_object(@player.container)
-            object = @player.search_inv(event[:target]) || room.find(event[:target])
+            object = @player.search_inv(self[:target]) || room.find(self[:target])
 
-            if object == @player or event[:target] == "me"
+            if object == @player or self[:target] == "me"
               @player.output "You feel fine."
               return
             elsif object.nil?
@@ -22,16 +22,16 @@ module Aethyr
               return
             end
 
-            event[:target] = object
-            event[:to_player] = "You reach out your hand and gingerly feel #{object.name}. "
+            self[:target] = object
+            self[:to_player] = "You reach out your hand and gingerly feel #{object.name}. "
             if object.info.texture.nil? or object.info.texture == ""
-              event[:to_player] << "#{object.pronoun(:possessive).capitalize} texture is what you would expect."
+              self[:to_player] << "#{object.pronoun(:possessive).capitalize} texture is what you would expect."
             else
-              event[:to_player] << object.info.texture
+              self[:to_player] << object.info.texture
             end
-            event[:to_target] = "#{@player.name} reaches out a hand and gingerly touches you."
-            event[:to_other] = "#{@player.name} reaches out #{@player.pronoun(:possessive)} hand and touches #{object.name}."
-            room.out_event event
+            self[:to_target] = "#{@player.name} reaches out a hand and gingerly touches you."
+            self[:to_other] = "#{@player.name} reaches out #{@player.pronoun(:possessive)} hand and touches #{object.name}."
+            room.out_self self
           end
         end
       end

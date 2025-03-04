@@ -10,12 +10,12 @@ module Aethyr
           end
 
           def action
-            event = @data
+            
             room = $manager.get_object(@player.container)
-            object = @player.search_inv(event[:object]) || room.find(event[:object])
+            object = @player.search_inv(self[:object]) || room.find(self[:object])
 
             if object.nil?
-              @player.output("Unlock what? #{event[:object]}?")
+              @player.output("Unlock what? #{self[:object]}?")
               return
             elsif not object.can? :unlock or not object.lockable?
               @player.output('That object cannot be unlocked.')
@@ -36,20 +36,20 @@ module Aethyr
             if has_key or @player.admin
               status = object.unlock(has_key, @player.admin)
               if status
-                event[:to_player] = "You unlock #{object.name}."
-                event[:to_other] = "#{@player.name} unlocks #{object.name}."
-                event[:to_blind_other] = "You hear the clunk of a lock."
+                self[:to_player] = "You unlock #{object.name}."
+                self[:to_other] = "#{@player.name} unlocks #{object.name}."
+                self[:to_blind_other] = "You hear the clunk of a lock."
 
-                room.out_event(event)
+                room.out_self(self)
 
                 if object.is_a? Door and object.connected?
                   other_side = $manager.find object.connected_to
                   other_side.unlock(has_key)
                   other_room = $manager.find other_side.container
-                  o_event = event.dup
-                  event[:to_other] = "#{other_side.name} unlocks from the other side."
-                  event[:to_blind_other] = "You hear the click of a lock."
-                  other_room.out_event(event)
+                  o_self = self.dup
+                  self[:to_other] = "#{other_side.name} unlocks from the other side."
+                  self[:to_blind_other] = "You hear the click of a lock."
+                  other_room.out_self(self)
                 end
 
                 return

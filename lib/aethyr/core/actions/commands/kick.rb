@@ -38,7 +38,7 @@ module Aethyr
             player.info.in_combat = true
             target.info.in_combat = true
 
-            room.out_self self
+            room.out_event self
 
             self[:action] = :martial_hit
             self[:combat_action] = :kick
@@ -46,7 +46,7 @@ module Aethyr
             self[:to_target] = "#{player.name} kicks you rather violently."
             self[:to_player] = "Your kick makes good contact with #{target.name}."
 
-            Combat.future_self self
+            Combat.future_event self
           end
 
         end

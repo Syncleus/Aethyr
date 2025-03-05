@@ -103,7 +103,7 @@ module Aethyr
               self[:to_deaf_other] = "You see #{@player.name} say something."
             end
 
-            room.out_self(self)
+            room.out_event(self)
           end
         end
       end

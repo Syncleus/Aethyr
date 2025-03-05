@@ -68,7 +68,7 @@ module Aethyr
 
             player.inventory.remove weapon
             self[:to_other] = "#{player.name} wields #{weapon.name}."
-            room.out_self(self)
+            room.out_event(self)
           end
 
         end

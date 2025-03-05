@@ -43,7 +43,7 @@ module Aethyr
             self[:to_player] = "You put #{item.name} in #{container.name}."
             self[:to_other] = "#{@player.name} puts #{item.name} in #{container.name}"
 
-            room.out_self(self)
+            room.out_event(self)
           end
         end
       end

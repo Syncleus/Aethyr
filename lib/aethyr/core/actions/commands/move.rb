@@ -35,7 +35,7 @@ module Aethyr
             self[:to_other] = "#{@player.name} leaves #{self[:direction]}."
             self[:to_blind_other] = "You hear someone leave."
 
-            room.out_self(self)
+            room.out_event(self)
             look_text = new_room.look(@player)
             out_text = Window.split_message(look_text, 79).join("\n")
             @player.output(out_text, message_type: :look, internal_clear: true)

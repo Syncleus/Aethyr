@@ -32,7 +32,7 @@ module Aethyr
             self[:to_player] = "You drop #{object.name}."
             self[:to_other] = "#{@player.name} drops #{object.name}."
             self[:to_blind_other] = "You hear something hit the ground."
-            room.out_self(self)
+            room.out_event(self)
           end
         end
       end

@@ -22,9 +22,9 @@ module Aethyr
               player.output "You cannot block yourself."
               return
             elsif target
-              selfs = Combat.find_selfs(:player => target, :target => player, :blockable => true)
+              selfs = Combat.find_events(:player => target, :target => player, :blockable => true)
             else
-              selfs = Combat.find_selfs(:target => player, :blockable => true)
+              selfs = Combat.find_events(:target => player, :blockable => true)
             end
 
             if selfs.empty?
@@ -38,13 +38,13 @@ module Aethyr
 
             player.last_target = target.goid
 
-            b_self = selfs[0]
+            b_event = selfs[0]
             if rand > 0.5
-              b_self[:action] = :martial_miss
-              b_self[:type] = :MartialCombat
-              b_self[:to_other] = "#{player.name} twists away from #{target.name}'s attack."
-              b_self[:to_player] = "#{player.name} twists away from your attack."
-              b_self[:to_target] = "You manage to twist your body away from #{target.name}'s attack."
+              b_event[:action] = :martial_miss
+              b_event[:type] = :MartialCombat
+              b_event[:to_other] = "#{player.name} twists away from #{target.name}'s attack."
+              b_event[:to_player] = "#{player.name} twists away from your attack."
+              b_event[:to_target] = "You manage to twist your body away from #{target.name}'s attack."
             end
 
             self[:target] = target
@@ -53,7 +53,7 @@ module Aethyr
             self[:to_player] = "You attempt to dodge #{target.name}'s attack."
 
             player.balance = false
-            room.out_self self
+            room.out_event self
           end
 
         end

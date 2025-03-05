@@ -31,7 +31,7 @@ module Aethyr
             end
             self[:to_target] = "#{@player.name} reaches out a hand and gingerly touches you."
             self[:to_other] = "#{@player.name} reaches out #{@player.pronoun(:possessive)} hand and touches #{object.name}."
-            room.out_self self
+            room.out_event self
           end
         end
       end

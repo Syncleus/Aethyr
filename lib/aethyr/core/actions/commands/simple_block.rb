@@ -29,9 +29,9 @@ module Aethyr
               player.output "You cannot block yourself."
               return
             elsif target
-              selfs = Combat.find_selfs(:player => target, :target => player, :blockable => true)
+              selfs = Combat.find_events(:player => target, :target => player, :blockable => true)
             else
-              selfs = Combat.find_selfs(:target => player, :blockable => true)
+              selfs = Combat.find_events(:target => player, :blockable => true)
             end
 
             if selfs.empty?
@@ -45,13 +45,13 @@ module Aethyr
 
             player.last_target = target.goid
 
-            b_self = selfs[0]
+            b_event = selfs[0]
             if rand > 0.5
-              b_self[:action] = :weapon_block
-              b_self[:type] = :WeaponCombat
-              b_self[:to_other] = "#{player.name} deftly blocks #{target.name}'s attack with #{weapon.name}."
-              b_self[:to_player] = "#{player.name} deftly blocks your attack with #{weapon.name}."
-              b_self[:to_target] = "You deftly block #{target.name}'s attack with #{weapon.name}."
+              b_event[:action] = :weapon_block
+              b_event[:type] = :WeaponCombat
+              b_event[:to_other] = "#{player.name} deftly blocks #{target.name}'s attack with #{weapon.name}."
+              b_event[:to_player] = "#{player.name} deftly blocks your attack with #{weapon.name}."
+              b_event[:to_target] = "You deftly block #{target.name}'s attack with #{weapon.name}."
             end
 
             self[:target] = target
@@ -60,7 +60,7 @@ module Aethyr
             self[:to_player] = "You raise your #{weapon.generic} to block #{target.name}'s attack."
 
             player.balance = false
-            room.out_self self
+            room.out_event self
           end
 
         end

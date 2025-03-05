@@ -32,7 +32,7 @@ module Aethyr
               self[:to_player] = 'You rise to your feet.'
               self[:to_other] = "#{player.name} stands up."
               self[:to_deaf_other] = self[:to_other]
-              room.out_self(self)
+              room.out_event(self)
               object.evacuated_by(player) unless object.nil?
             else
               player.output('You are unable to stand up.')

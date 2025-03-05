@@ -29,7 +29,7 @@ module Aethyr
                 self[:to_player] = 'You sit down on the ground.'
                 self[:to_other] = "#{player.name} sits down on the ground."
                 self[:to_deaf_other] = self[:to_other]
-                room.out_self(self)
+                room.out_event(self)
               else
                 player.output('You are unable to sit down.')
               end
@@ -49,7 +49,7 @@ module Aethyr
                 self[:to_player] = "You sit down on #{object.name}."
                 self[:to_other] = "#{player.name} sits down on #{object.name}."
                 self[:to_deaf_other] = self[:to_other]
-                room.out_self(self)
+                room.out_event(self)
               else
                 player.output('You are unable to sit down.')
               end

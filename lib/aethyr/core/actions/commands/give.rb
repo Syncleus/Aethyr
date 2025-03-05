@@ -42,7 +42,7 @@ module Aethyr
             self[:to_target] = "#{player.name} gives you #{item.name}."
             self[:to_other] = "#{player.name} gives #{item.name} to #{receiver.name}."
 
-            room.out_self(self)
+            room.out_event(self)
           end
         end
       end

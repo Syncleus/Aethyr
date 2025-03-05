@@ -32,7 +32,7 @@ module Aethyr
 
               self[:to_player] = "You take #{object.name}."
               self[:to_other] = "#{@player.name} takes #{object.name}."
-              room.out_self(self)
+              room.out_event(self)
             else
               from = self[:from]
               container = $manager.find(from, room)
@@ -67,7 +67,7 @@ module Aethyr
 
               self[:to_player] = "You take #{object.name} from #{container.name}."
               self[:to_other] = "#{@player.name} takes #{object.name} from #{container.name}."
-              room.out_self(self)
+              room.out_event(self)
             end
           end
         end

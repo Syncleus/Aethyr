@@ -31,7 +31,7 @@ module Aethyr
             end
             self[:to_target] = "#{@player.name} licks you, apparently in an attempt to find out your flavor."
             self[:to_other] = "#{@player.name} hesitantly sticks out #{@player.pronoun(:possessive)} tongue and licks #{object.name}."
-            room.out_self self
+            room.out_event self
           end
         end
       end

@@ -18,7 +18,7 @@ module Aethyr
                 self[:to_player] = "You sniff the air, but detect no unusual aromas."
               end
               self[:to_other] = "#{@player.name} sniffs the air."
-              room.out_self self
+              room.out_event self
               return
             end
 
@@ -34,7 +34,7 @@ module Aethyr
                 self[:to_player] << "Meh, not too bad."
                 self[:to_other] = "#{@player.name} sniffs #{@player.pronoun(:possessive)} armpits, then shrugs, apparently unconcerned with #{@player.pronoun(:possessive)} current smell."
               end
-              room.out_self self
+              room.out_event self
               return
             elsif object.nil?
               @player.output "What are you trying to smell?"
@@ -50,7 +50,7 @@ module Aethyr
             end
             self[:to_target] = "#{@player.name} sniffs you curiously."
             self[:to_other] = "#{@player.name} thrusts #{@player.pronoun(:possessive)} nose at #{object.name} and sniffs."
-            room.out_self self
+            room.out_event self
           end
         end
       end

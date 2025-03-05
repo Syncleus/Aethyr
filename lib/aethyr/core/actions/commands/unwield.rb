@@ -47,7 +47,7 @@ module Aethyr
               player.inventory << weapon
               self[:to_player] = "You unwield #{weapon.name}."
               self[:to_other] = "#{player.name} unwields #{weapon.name}."
-              room.out_self(self)
+              room.out_event(self)
             else
               player.output "Could not unwield #{weapon.name}."
             end

@@ -28,7 +28,7 @@ module Aethyr
             if player.wear object
               self[:to_player] = "You put on #{object.name}."
               self[:to_other] = "#{player.name} puts on #{object.name}."
-              room.out_self(self)
+              room.out_event(self)
             end
           end
 

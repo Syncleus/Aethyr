@@ -40,16 +40,15 @@ module Aethyr
                 self[:to_other] = "#{@player.name} unlocks #{object.name}."
                 self[:to_blind_other] = "You hear the clunk of a lock."
 
-                room.out_self(self)
+                room.out_event(self)
 
                 if object.is_a? Door and object.connected?
                   other_side = $manager.find object.connected_to
                   other_side.unlock(has_key)
                   other_room = $manager.find other_side.container
-                  o_self = self.dup
                   self[:to_other] = "#{other_side.name} unlocks from the other side."
                   self[:to_blind_other] = "You hear the click of a lock."
-                  other_room.out_self(self)
+                  other_room.out_event(self)
                 end
 
                 return

@@ -20,7 +20,7 @@ module Aethyr
             elsif object == @player
               @player.output("Whispering to yourself again?")
               self[:to_other] = "#{@player.name} whispers to #{@player.pronoun(:reflexive)}."
-              room.out_self(self, @player)
+              room.out_event(self, @player)
               return
             end
 
@@ -56,7 +56,7 @@ module Aethyr
             self[:to_other_blind] = "#{@player.name} whispers."
             self[:to_target_blind] = "Someone whispers to you#{phrase}"
 
-            room.out_self(self)
+            room.out_event(self)
           end
         end
       end

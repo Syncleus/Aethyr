@@ -37,7 +37,7 @@ module Aethyr
             if response
               self[:to_player] = "You remove #{object.name}."
               self[:to_other] = "#{player.name} removes #{object.name}."
-              room.out_self(self)
+              room.out_event(self)
             else
               player.output "Could not remove #{object.name} for some reason."
             end

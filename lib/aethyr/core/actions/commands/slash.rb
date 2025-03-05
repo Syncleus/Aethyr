@@ -46,7 +46,7 @@ module Aethyr
             player.info.in_combat = true
             target.info.in_combat = true
 
-            room.out_self self
+            room.out_event self
 
             self[:action] = :weapon_hit
             self[:combat_action] = :slash
@@ -54,7 +54,7 @@ module Aethyr
             self[:to_target] = "#{player.name} slashes across your torso with #{weapon.name}."
             self[:to_player] = "You slash across #{target.name}'s torso with #{weapon.name}."
 
-            Combat.future_self self
+            Combat.future_event self
 
           end
 

@@ -54,7 +54,7 @@ module Aethyr
             if room and room.goid == object.container
               self[:to_player] = "You casually wave your hand and #{object.name} disappears."
               self[:to_other] = "With a casual wave of #{player.pronoun(:possessive)} hand, #{player.name} makes #{object.name} disappear."
-              room.out_self self
+              room.out_event self
             else
               player.output "You casually wave your hand and #{object.name} disappears."
             end

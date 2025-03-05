@@ -38,7 +38,7 @@ module Aethyr
             player.info.in_combat = true
             target.info.in_combat = true
 
-            room.out_self self
+            room.out_event self
 
             self[:action] = :martial_hit
             self[:combat_action] = :punch
@@ -46,7 +46,7 @@ module Aethyr
             self[:to_target] = "You stagger slightly as #{player.name} punches you in the face."
             self[:to_player] = "Your fist lands squarely in #{target.name}'s face."
 
-            Combat.future_self self
+            Combat.future_event self
           end
 
         end

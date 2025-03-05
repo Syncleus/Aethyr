@@ -75,21 +75,23 @@ class Event < OpenStruct
     @table[:type] = value
   end
 
-  #Retrieve an attribute.
-  #
-  #Note: it is preferable to use accessor methods instead, like Event.new(:Combat).name
-  def [] index
-    @table[index.to_sym]
-  end
+  # #Retrieve an attribute.
+  # #
+  # #Note: it is preferable to use accessor methods instead, like Event.new(:Combat).name
+  # def [] index
+  #   @table[index.to_sym]
+  # end
 
-  #Set an attribute.
-  #
-  #Note: it is preferable to use accessor methods instead, like Event.new(:Combat).target = "bob"
-  def []= index, value
-    self.new_ostruct_member(index)
-    @table[index.to_sym] = value
-    self
-  end
+  # #Set an attribute.
+  # #
+  # #Note: it is preferable to use accessor methods instead, like Event.new(:Combat).target = "bob"
+  # def []= index, value
+  #   #self.new_ostruct_member(index)
+
+  #   self[index.to_sym] = value
+  #   @table[index.to_sym] = value
+  #   self
+  # end
 
   #Takes a hash and adds them just like initialize does.
   def << args

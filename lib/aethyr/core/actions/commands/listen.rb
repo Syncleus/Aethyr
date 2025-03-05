@@ -20,7 +20,7 @@ module Aethyr
                 self[:to_player] = "You listen carefully but hear nothing unusual."
               end
               self[:to_other] = "A look of concentration forms on #{@player.name}'s face as #{@player.pronoun} listens intently."
-              room.out_self self
+              room.out_event self
               return
             end
 
@@ -43,7 +43,7 @@ module Aethyr
             end
             self[:to_target] = "#{@player.name} listens to you carefully."
             self[:to_other] = "#{@player.name} bends #{@player.pronoun(:possessive)} head towards #{object.name} and listens."
-            room.out_self self
+            room.out_event self
           end
         end
       end

@@ -47,7 +47,7 @@ module Aethyr
               self[:message_type] = :chat
               self[:to_player] = "You emote: #{show}"
               self[:to_other] = show
-              room.out_self self
+              room.out_event self
             end
           end
 

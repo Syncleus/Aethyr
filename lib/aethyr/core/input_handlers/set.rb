@@ -15,7 +15,7 @@ module Aethyr
             help_entries = []
 
             command = "set"
-            see_also = ["WORDWRAP", "PAGELENGTH", "DESCRIPTION", "COLORS"]
+            see_also = ["WORDWRAP", "PAGELENGTH", "DESCRIPTION", "COLORS", "LAYOUT"]
             syntax_formats = ["SET <option> [value]"]
             aliases = nil
             content =  <<'EOF'
@@ -31,6 +31,10 @@ SET COLOR
 To turn off word wrap, use
 
 SET WORDWRAP OFF
+
+To turn on full layout for larger displays, use
+
+SET LAYOUT full
 
 EOF
             help_entries.push(Aethyr::Core::Help::HelpEntry.new(command, content: content, syntax_formats: syntax_formats, see_also: see_also, aliases: aliases))

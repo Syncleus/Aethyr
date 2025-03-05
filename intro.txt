@@ -1,59 +1,59 @@
-                        <earthhigh>/\</earthhigh>
-                        <earthhigh>||</earthhigh>
-                        <earthhigh>||</earthhigh>
-                        <earthhigh>||</earthhigh>
-                        <earthhigh>||</earthhigh>                                               <water>~---~</water>
-                        <earthhigh>||</earthhigh>                                            <water>/===-  -</water>
-                        <earthhigh>||</earthhigh>                   <identifier>;'</identifier>                 <water>/==~- -   -</water>
-                        <earthhigh>||</earthhigh>                <identifier>(/ ('</identifier>              <water>/=----        ~_</water>
-                        <earthhigh>||</earthhigh>             <identifier>' / ;'</identifier>             <water>/=----             \</water>
-     <water>'                <airlow>~==_=~</airlow>          <identifier>'('</identifier>             ~-~~      ~~~~       ~~-</water>
-     <water>\\                <regular>(c<airlow>_</airlow>\_        .i.</regular>             /~--    ~~~--   -~     (</water>
-      <water>`\               <regular>(}<airlow>|</airlow> /       / : \</regular>           / ~~------~     ~~\   (</water>
-      <water>\ '               <regular><airlow>||</airlow>/ \      |<mob>===</mob>|</regular>          /~/             ~~~ \ \(</water>
-      <water>``~\              <regular><airlow>~~</airlow>\  )~.~_ \._./ _~-~</regular>     |`_          ~~-~     )\</water>
-       <water>'-~                 <regular>{  /  ) \___/ (   \</regular>   |` ` _       ~~         '</water>
-       <water>\ -~\                <regular>-<__/  -   -  L~ -;</regular>   \\    \ _ _/</water>
-       <water>`` ~~=\                  <regular>{    :    }\ ,\</regular>    ||   _ :(</water>
-        <water>\  ~~=\__                <regular>\ _/ \_ /  )  }</regular> _//   ( `|'</water>
-        <water>``    , ~\--~=\           <regular>\     /  / _/</regular> / '    (   '</water>
-         <water>\`    } ~ ~~ -~=\   _~_  <regular>/ \ / \ )^ (</regular> // :_  / '</water>
-         <water>|    ,          _~-'   '~~__<regular>-_  / - |</regular>/     \ (</water>
-          <water>\  ,_--_     _/              <regular>\_'---',</regular> -~ .   \</water>
-           <water>)/      /\ / /\   ,~,         <regular>\__ _}</regular>     \_  "~_</water>
-           <water>,      { ( _ )'} ~ - \_    ~\  <regular>(-:-)</regular>       "\   ~</water>
-                  <water>/'' ''  )~ \~_ ~\   )->  <regular>\ :|</regular>    _,       "</water>
-                 <water><roomtitle>(\</roomtitle>  _<roomtitle>/)</roomtitle>''} | \~_ ~  /~(   <regular>| :)</regular>   /          }</water>
-                <water>/``  /;,,/  )= \~__ {{{ '  <regular>\ =(</regular>  ,   ,       ;</water>
-               <water>{<roomtitle>o</roomtitle>_<roomtitle>o</roomtitle> }_/     |v  '~__  _    <regular>)-v|</regular>  "  :       ,"</water>
-               <water>{/"\_)       {_/'  \~__ ~\_ <regular>\\_}</regular> '  {        /~\</water>
-               <important>,/!</important>          <water>'_/    '~__ _-~ <regular>\_'</regular> :  '      ,"  ~</water>
-              <important>(''`</important>                  <water>/,'~___~    | /     ,"  \ ~'</water>
-             <important>'/, )</important>                 <water>(-)  '~____~";     ,"     , }</water>
-           <important>/,')</important>                    <water>/ \         /  ,~-"       '~'</water>
-       <important>(  ''/</important>                     <water>/ ( '       /  /          '~'</water>
-    <important>~ ~  ,, /) ,</important>                 <water>(/( \)      ( -)          /~'</water>
-  <important>(  ~~ )`  ~}</important>                   <news>'</news>  <water>\)</water><news>'</news>     <water>_/ /           ~'</water>
- <important>{ |) /`,--.(  }'</important>                    <news>'</news>     <water>(  /          /~'</water>
-<important>(` ~ ( c|~~| `}   )</important>                        <water>'/:\</water>         <news>,</news><water>'</water>
- <important>~ )/``) )) '|),</important>                          <water>(/ | \)</water>
-  <important>(` (-~(( `~`'  )</important>                        <news>'</news> <water>(/</water> <news>'</news>
-   <important>`~'    )'`')</important>                              <news>'</news>
-     <important>` ``</important>
+                        <raw fg:darkgoldenrod bold>/\</raw fg:darkgoldenrod bold>
+                        <raw fg:darkgoldenrod bold>||</raw fg:darkgoldenrod bold>
+                        <raw fg:darkgoldenrod bold>||</raw fg:darkgoldenrod bold>
+                        <raw fg:darkgoldenrod bold>||</raw fg:darkgoldenrod bold>
+                        <raw fg:darkgoldenrod bold>||</raw fg:darkgoldenrod bold>                                               <raw fg:blue>~---~</raw fg:blue>
+                        <raw fg:darkgoldenrod bold>||</raw fg:darkgoldenrod bold>                                            <raw fg:blue>/===-  -</raw fg:blue>
+                        <raw fg:darkgoldenrod bold>||</raw fg:darkgoldenrod bold>                   <raw fg:magenta bold>;'</raw fg:magenta bold>                 <raw fg:blue>/==~- -   -</raw fg:blue>
+                        <raw fg:darkgoldenrod bold>||</raw fg:darkgoldenrod bold>                <raw fg:magenta bold>(/ ('</raw fg:magenta bold>              <raw fg:blue>/=----        ~_</raw fg:blue>
+                        <raw fg:darkgoldenrod bold>||</raw fg:darkgoldenrod bold>             <raw fg:magenta bold>' / ;'</raw fg:magenta bold>             <raw fg:blue>/=----             \</raw fg:blue>
+     <raw fg:blue>'                <raw fg:white dim>~==_=~</raw fg:white dim>          <raw fg:magenta bold>'('</raw fg:magenta bold>             ~-~~      ~~~~       ~~-</raw fg:blue>
+     <raw fg:blue>\\                <raw fg:white>(c<raw fg:white dim>_</raw fg:white dim>\_        .i.</raw fg:white>             /~--    ~~~--   -~     (</raw fg:blue>
+      <raw fg:blue>`\               <raw fg:white>(}<raw fg:white dim>|</raw fg:white dim> /       / : \</raw fg:white>           / ~~------~     ~~\   (</raw fg:blue>
+      <raw fg:blue>\ '               <raw fg:white><raw fg:white dim>||</raw fg:white dim>/ \      |<raw fg:yellow bold>===</raw fg:yellow bold>|</raw fg:white>          /~/             ~~~ \ \(</raw fg:blue>
+      <raw fg:blue>``~\              <raw fg:white><raw fg:white dim>~~</raw fg:white dim>\  )~.~_ \._./ _~-~</raw fg:white>     |`_          ~~-~     )\</raw fg:blue>
+       <raw fg:blue>'-~                 <raw fg:white>{  /  ) \___/ (   \</raw fg:white>   |` ` _       ~~         '</raw fg:blue>
+       <raw fg:blue>\ -~\                <raw fg:white>-<__/  -   -  L~ -;</raw fg:white>   \\    \ _ _/</raw fg:blue>
+       <raw fg:blue>`` ~~=\                  <raw fg:white>{    :    }\ ,\</raw fg:white>    ||   _ :(</raw fg:blue>
+        <raw fg:blue>\  ~~=\__                <raw fg:white>\ _/ \_ /  )  }</raw fg:white> _//   ( `|'</raw fg:blue>
+        <raw fg:blue>``    , ~\--~=\           <raw fg:white>\     /  / _/</raw fg:white> / '    (   '</raw fg:blue>
+         <raw fg:blue>\`    } ~ ~~ -~=\   _~_  <raw fg:white>/ \ / \ )^ (</raw fg:white> // :_  / '</raw fg:blue>
+         <raw fg:blue>|    ,          _~-'   '~~__<raw fg:white>-_  / - |</raw fg:white>/     \ (</raw fg:blue>
+          <raw fg:blue>\  ,_--_     _/              <raw fg:white>\_'---',</raw fg:white> -~ .   \</raw fg:blue>
+           <raw fg:blue>)/      /\ / /\   ,~,         <raw fg:white>\__ _}</raw fg:white>     \_  "~_</raw fg:blue>
+           <raw fg:blue>,      { ( _ )'} ~ - \_    ~\  <raw fg:white>(-:-)</raw fg:white>       "\   ~</raw fg:blue>
+                  <raw fg:blue>/'' ''  )~ \~_ ~\   )->  <raw fg:white>\ :|</raw fg:white>    _,       "</raw fg:blue>
+                 <raw fg:blue><raw fg:green bold>(\</raw fg:green bold>  _<raw fg:green bold>/)</raw fg:green bold>''} | \~_ ~  /~(   <raw fg:white>| :)</raw fg:white>   /          }</raw fg:blue>
+                <raw fg:blue>/``  /;,,/  )= \~__ {{{ '  <raw fg:white>\ =(</raw fg:white>  ,   ,       ;</raw fg:blue>
+               <raw fg:blue>{<raw fg:green bold>o</raw fg:green bold>_<raw fg:green bold>o</raw fg:green bold> }_/     |v  '~__  _    <raw fg:white>)-v|</raw fg:white>  "  :       ,"</raw fg:blue>
+               <raw fg:blue>{/"\_)       {_/'  \~__ ~\_ <raw fg:white>\\_}</raw fg:white> '  {        /~\</raw fg:blue>
+               <raw fg:red bold>,/!</raw fg:red bold>          <raw fg:blue>'_/    '~__ _-~ <raw fg:white>\_'</raw fg:white> :  '      ,"  ~</raw fg:blue>
+              <raw fg:red bold>(''`</raw fg:red bold>                  <raw fg:blue>/,'~___~    | /     ,"  \ ~'</raw fg:blue>
+             <raw fg:red bold>'/, )</raw fg:red bold>                 <raw fg:blue>(-)  '~____~";     ,"     , }</raw fg:blue>
+           <raw fg:red bold>/,')</raw fg:red bold>                    <raw fg:blue>/ \         /  ,~-"       '~'</raw fg:blue>
+       <raw fg:red bold>(  ''/</raw fg:red bold>                     <raw fg:blue>/ ( '       /  /          '~'</raw fg:blue>
+    <raw fg:red bold>~ ~  ,, /) ,</raw fg:red bold>                 <raw fg:blue>(/( \)      ( -)          /~'</raw fg:blue>
+  <raw fg:red bold>(  ~~ )`  ~}</raw fg:red bold>                   <raw fg:cyan bold>'</raw fg:cyan bold>  <raw fg:blue>\)</raw fg:blue><raw fg:cyan bold>'</raw fg:cyan bold>     <raw fg:blue>_/ /           ~'</raw fg:blue>
+ <raw fg:red bold>{ |) /`,--.(  }'</raw fg:red bold>                    <raw fg:cyan bold>'</raw fg:cyan bold>     <raw fg:blue>(  /          /~'</raw fg:blue>
+<raw fg:red bold>(` ~ ( c|~~| `}   )</raw fg:red bold>                        <raw fg:blue>'/:\</raw fg:blue>         <raw fg:cyan bold>,</raw fg:cyan bold><raw fg:blue>'</raw fg:blue>
+ <raw fg:red bold>~ )/``) )) '|),</raw fg:red bold>                          <raw fg:blue>(/ | \)</raw fg:blue>
+  <raw fg:red bold>(` (-~(( `~`'  )</raw fg:red bold>                        <raw fg:cyan bold>'</raw fg:cyan bold> <raw fg:blue>(/</raw fg:blue> <raw fg:cyan bold>'</raw fg:cyan bold>
+   <raw fg:red bold>`~'    )'`')</raw fg:red bold>                              <raw fg:cyan bold>'</raw fg:cyan bold>
+     <raw fg:red bold>` ``</raw fg:red bold>
 
-                              <earthhigh>Welcome to the</earthhigh>
-<earth>     ..                              s</earth>
-<earth>  :**888H: `: .xH""                 :8      .uef^"      ..</earth>
-<earth> X   `8888k XX888                  .88    :d88E        @L             .u    .</earth>
-<earth>'8hx  48888 ?8888         .u      :888ooo `888E       9888i   .dL   .d88B :@8c</earth>
-<earth>'8888 '8888 `8888      ud8888.  -*8888888  888E .z8k  `Y888k:*888. ="8888f888r</earth>
-<earth> %888>'8888  8888    :888'8888.   8888     888E~?888L   888E  888I   4888>'88"</earth>
-<earth>   "8 '888"  8888    d888 '88%"   8888     888E  888E   888E  888I   4888> '</earth>
-<earth>  .-` X*"    8888    8888.+"      8888     888E  888E   888E  888I   4888></earth>
-<earth>    .xhx.    8888    8888L       .8888Lu=  888E  888E   888E  888I  .d888L .+</earth>
-<earth>  .H88888h.~`8888..  '8888c. .+  ^%888*    888E  888E  x888N>-888'  ^"8888*"</earth>
-<earth> .~  `%88!` '888*~    "88888%      'Y"    m888N= 888`   "88"  888      "Y"</earth>
-<earth>       `"     ""        "YP'               `Y"   888          88F</earth>
-<earth>                                                J88"         98"</earth>
-<earth>                                                @%         ./"</earth>
-<earth>                                              :"          ~`</earth>
+                              <raw fg:darkgoldenrod bold>Welcome to the</raw fg:darkgoldenrod bold>
+<raw fg:darkgoldenrod>     ..                              s</raw fg:darkgoldenrod>
+<raw fg:darkgoldenrod>  :**888H: `: .xH""                 :8      .uef^"      ..</raw fg:darkgoldenrod>
+<raw fg:darkgoldenrod> X   `8888k XX888                  .88    :d88E        @L             .u    .</raw fg:darkgoldenrod>
+<raw fg:darkgoldenrod>'8hx  48888 ?8888         .u      :888ooo `888E       9888i   .dL   .d88B :@8c</raw fg:darkgoldenrod>
+<raw fg:darkgoldenrod>'8888 '8888 `8888      ud8888.  -*8888888  888E .z8k  `Y888k:*888. ="8888f888r</raw fg:darkgoldenrod>
+<raw fg:darkgoldenrod> %888>'8888  8888    :888'8888.   8888     888E~?888L   888E  888I   4888>'88"</raw fg:darkgoldenrod>
+<raw fg:darkgoldenrod>   "8 '888"  8888    d888 '88%"   8888     888E  888E   888E  888I   4888> '</raw fg:darkgoldenrod>
+<raw fg:darkgoldenrod>  .-` X*"    8888    8888.+"      8888     888E  888E   888E  888I   4888></raw fg:darkgoldenrod>
+<raw fg:darkgoldenrod>    .xhx.    8888    8888L       .8888Lu=  888E  888E   888E  888I  .d888L .+</raw fg:darkgoldenrod>
+<raw fg:darkgoldenrod>  .H88888h.~`8888..  '8888c. .+  ^%888*    888E  888E  x888N>-888'  ^"8888*"</raw fg:darkgoldenrod>
+<raw fg:darkgoldenrod> .~  `%88!` '888*~    "88888%      'Y"    m888N= 888`   "88"  888      "Y"</raw fg:darkgoldenrod>
+<raw fg:darkgoldenrod>       `"     ""        "YP'               `Y"   888          88F</raw fg:darkgoldenrod>
+<raw fg:darkgoldenrod>                                                J88"         98"</raw fg:darkgoldenrod>
+<raw fg:darkgoldenrod>                                                @%         ./"</raw fg:darkgoldenrod>
+<raw fg:darkgoldenrod>                                              :"          ~`</raw fg:darkgoldenrod>

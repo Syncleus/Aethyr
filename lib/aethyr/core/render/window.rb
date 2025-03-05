@@ -262,8 +262,10 @@ class Window
       if part.start_with? "<"
         if @use_color
           part.match(/<([\/]{0,1})([^>]*)>/i) do
+            # Only invooked on starting tags
             if ($1.nil?) || ($1.length <= 0)
               color_encode($2)
+            # Only invoked on closing tags </...>
             else
               color_decode($2)
             end
@@ -282,8 +284,8 @@ class Window
   def color_encode(code)
     parent = @color_stack[-1]
     code = code.downcase
-    code = "regular" if code.nil? || code.empty? || @color_settings[code].nil?
     unless code.start_with? "raw "
+      code = "regular" if code.nil? || code.empty? || @color_settings[code].nil?
       result = FormatState.new(@color_settings[code], self.method(:activate_color), parent)
     else
       /raw (?<code>.*)/ =~ code

@@ -296,7 +296,7 @@ class Display
     end
 
     if @windows[:quick_bar].exists?
-      send('this is the quick bar', message_type: :quick_bar, internal_clear: true, add_newline: false)
+      send(Display::generate_progress(20, 0.1, label: "HP: "), message_type: :quick_bar, internal_clear: true, add_newline: false)
     end
 
     if @windows[:status].exists?
@@ -507,5 +507,40 @@ class Display
     end
 
     return nil
+  end
+
+  private
+  def self.generate_progress(width, percentage, style = :vertical_smooth, text_color: "raw fg:white", bar_color: "raw fg:green", label: "")
+    if (style.eql? :horizontal_smooth) or (style.eql? :vertical_smooth)
+      working_space = width - 7
+      block_per = 1.0 / working_space.to_f
+      filled = (working_space * percentage).to_i
+      filled_coverage = filled.to_f * block_per
+      bar = ("█" * filled).to_s
+
+      remaining_coverage = percentage - filled_coverage
+      percent_of_block = remaining_coverage / block_per
+      if percent_of_block >= (7.0 / 8.0)
+        bar += (style.eql?(:horizontal_smooth) ? "▉" : "▇" )
+      elsif percent_of_block >= (6.0 / 8.0)
+        bar += (style.eql?(:horizontal_smooth) ? "▊" : "▆" )
+      elsif percent_of_block >= (5.0 / 8.0)
+        bar += (style.eql?(:horizontal_smooth) ? "▋" : "▅" )
+      elsif percent_of_block >= (4.0 / 8.0)
+        bar += (style.eql?(:horizontal_smooth) ? "▌" : "▄" )
+      elsif percent_of_block >= (3.0 / 8.0)
+        bar += (style.eql?(:horizontal_smooth) ? "▍" : "▃" )
+      elsif percent_of_block >= (2.0 / 8.0)
+        bar += (style.eql?(:horizontal_smooth) ? "▎" : "▂" )
+      elsif percent_of_block >= (1.0 / 8.0)
+        bar += (style.eql?(:horizontal_smooth) ? "▏" : "▁" )
+      end
+
+      bar_format = "%-#{working_space}.#{working_space}s"
+      percent_format = "%-4.4s"
+      percent_text = (percentage * 100.0).to_i.to_s + "%"
+
+      return "<#{text_color}>#{label}[</#{text_color}><#{bar_color}>#{bar_format % bar}</#{bar_color}><#{text_color}>] #{percent_format % percent_text}</#{text_color}>"
+    end
   end
 end

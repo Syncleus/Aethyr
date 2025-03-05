@@ -127,7 +127,7 @@ def reset_storage
   slime = $manager.create_object(Mobile, hole, nil, nil, :@generic => "blue slime", :@short_desc => "A <mob>blue slime</mob> stands here being useless", :@alt_names => ["slime"])
 
 
-  man = $manager.create_object(Mobile, hole, nil, nil, :@generic => "tall man", :@short_desc => "A <mob>tall man</mob> with a <raw fg:orange_4>v<raw fg:red>e</raw fg:red>ry</raw fg:orange_4> long beard stands here placidly.", :@alt_names => ["man"], :@show_in_look => "A <mob>tall man</mob> with a <raw fg:orange_4>v<raw fg:red>e</raw fg:red>ry</raw fg:orange_4> long beard stands here regarding you placidly.", :@sex => "m")
+  man = $manager.create_object(Mobile, hole, nil, nil, :@generic => "tall man", :@short_desc => "A <mob>tall man</mob> with a <raw bold blink>very</raw bold blink> long beard stands here placidly.", :@alt_names => ["man"], :@show_in_look => "A <mob>tall man</mob> with a <raw bold>very</raw bold> long beard stands here regarding you placidly.", :@sex => "m")
 
   puts "Adding helper reactions..."
 

@@ -244,6 +244,7 @@ class Display
       Colors are currently: #{@use_color ? 'Enabled' : 'Disabled'}
       Text                Setting          Color
       -----------------------------------------------
+      Regular             regular          #{@color_settings['regular']}
       Room Title          roomtitle        <roomtitle>#{@color_settings['roomtitle']}</roomtitle>
       Object              object           <object>#{@color_settings['object']}</object>
       Player              player           <player>#{@color_settings['player']}</player>
@@ -269,7 +270,6 @@ class Display
       Earth               earth            <earth>#{@color_settings['earth']}</earth>
       Earth when low      earthlow         <earthlow>#{@color_settings['earthlow']}</earthlow>
       Earth when high     earthhigh        <earthhigh>#{@color_settings['earthhigh']}</earthhigh>
-      Regular             regular          #{@color_settings['regular']}
     CONF
   end
 

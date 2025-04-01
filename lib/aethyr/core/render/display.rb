@@ -202,7 +202,6 @@ class Display
       'editor' => 'fg:cyan',
       'news' => 'fg:cyan bold',
       'identifier' => 'fg:magenta bold',
-      'say' => 'fg:white bold',
       'water' => 'fg:blue',
       'waterlow' => 'fg:blue dim',
       'waterhigh' => 'fg:blue bold',

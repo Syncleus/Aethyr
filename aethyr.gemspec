@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
   spec.version = Aethyr::VERSION
   spec.licenses = ['Apache-2.0']
   spec.authors = ['Jeffrey Phillips Freeman']
-  spec.email = ['jeffrey.freeman@syncleus.com']
+  spec.email = ['the@jeffreyfreeman.me']
 
   spec.summary = %q{The Aethyr MUD Server.}
   spec.description = %q{The Aethyr MUD Server.}
@@ -35,9 +35,10 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'require_all', '~> 2.0'
   spec.add_dependency 'concurrent-ruby', '~> 1.0'
   spec.add_dependency 'ncursesw', '~> 1.4'
-  spec.add_development_dependency 'bundler', '~> 2.0'
+  spec.add_dependency 'gdbm', '~> 2.1'
+  spec.add_development_dependency 'bundler', '~> 2.4'
   spec.add_development_dependency 'json', '~> 1.8'
-  spec.add_development_dependency 'rake', '~> 11.3'
+  spec.add_development_dependency 'rake', '~> 13.2'
   spec.add_development_dependency 'rdoc', '~> 4.2'
   spec.add_development_dependency 'aruba', '~> 0.14'
   spec.add_development_dependency 'rubocop', '~> 0.82'

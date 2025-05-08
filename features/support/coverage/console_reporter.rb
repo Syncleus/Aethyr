@@ -49,6 +49,7 @@ module Coverage
     # @param filters      [Array<String>]   Path prefixes to exclude.
     # @param minimum_cov  [Float]           Fail build if overall coverage
     #                                       drops below this percentage.
+    # @param track_files  [String|Array]    Files to track even if not required.
     #
     # @return [void]
     #
@@ -63,18 +64,20 @@ module Coverage
     #
     def self.install!(formatter:    SimpleCov::Formatter::Console,
                       filters:      %w[/spec/ /test/],
-                      minimum_cov:  90.0)
-      new(formatter, filters, minimum_cov).install
+                      minimum_cov:  90.0,
+                      track_files:  'lib/**/*.rb')
+      new(formatter, filters, minimum_cov, track_files).install
     end
 
     # ------------------------------------------------------------------------
     #  CONSTRUCTOR
     # ------------------------------------------------------------------------
     # rubocop:disable Metrics/ParameterLists
-    def initialize(formatter, filters, minimum_cov)
-      @formatter    = formatter
-      @filters      = filters
-      @minimum_cov  = minimum_cov
+    def initialize(formatter, filters, minimum_cov, track_files)
+      @formatter     = formatter
+      @filters       = filters
+      @minimum_cov   = minimum_cov
+      @track_files   = Array(track_files)
     end
     # rubocop:enable Metrics/ParameterLists
 
@@ -100,6 +103,12 @@ module Coverage
 
         # Exclude noise
         @filters.each { |path| add_filter(path) }
+
+        # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+        # The crucial line – ensure files that never get `require`d still appear
+        # in the report with 0 % coverage.
+        # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+        @track_files.each   { |glob| track_files glob }
       end
     end
     # ------------------------------------------------------------------------

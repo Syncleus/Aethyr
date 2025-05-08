@@ -1,0 +1,19 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+# ░█░█░█▀█░█▀█░█▀▄ █▀▄ █▀█ █▀█ █ █▀▀ █▀█ █▀█
+# ░▀▄▀░█▀█░█▀█░█▀▄ █▀▄ █▄█ █▀▄ █ █▄▄ █▄█ █▀▄
+#
+# Aethyr Experimentation Playground – command-line companion.
+#
+# This extremely thin executable does NOTHING except parse CLI
+# flags/options and delegate *all other* responsibilities to
+# Aethyr::Experiments::CLI (itself a façade over
+# Aethyr::Experiments::Runner).  In keeping with the
+# Single-Responsibility Principle, **all business logic lives
+# elsewhere**.
+
+require "aethyr/experiments/cli"
+
+# Kick off CLI orchestration – control is transferred immediately.
+Aethyr::Experiments::CLI.start(ARGV) 

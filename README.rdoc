@@ -1,42 +1,683 @@
-= Peak
+= Aethyr – Ride the Celestial Winds of Imagination!
+{<img src="https://badge.fury.io/rb/aethyr.svg" alt="Gem Version">}[https://badge.fury.io/rb/aethyr]
+{<img src="http://img.shields.io/badge/yard-docs-blue.svg" alt="API Docs">}[http://www.rubydoc.info/github/Syncleus/aethyr/master]
 
-{<img src="https://badge.fury.io/rb/aethyr.svg" alt="Gem Version" />}[https://badge.fury.io/rb/aethyr]
-{<img src="http://img.shields.io/badge/yard-docs-blue.svg" />}[http://www.rubydoc.info/github/Syncleus/aethyr/master]
+Author::  Jeffrey Phillips Freeman (freemo@gmail.com)  
+Copyright:: Copyright © 2018-present Jeffrey Phillips Freeman  
+License:: Apache License, Version 2.0
 
-Author::  Jeffrey Phillips Freeman (freemo@gmail.com)
-Copyright:: Copyright (c) 2018 - present Jeffrey Phillips Freeman.
+----------------------------------------------------------------
+== Table of Contents
+1. TL;DR – Quick Start
+2. So… What *Exactly* Is Aethyr? (“Explain It To Me Like I'm A Wandering Bard”)
+3. Feature Highlights
+4. Installation – Choose Your Path to Power
+   4.0 Prerequisites (Read *before* chanting)
+   4.1 RubyGems – “Gem Install Strike!”
+   4.2 From Source – “Forge Thyself”
+   4.3 Docker & Docker Compose – “Contain the Storm”
+   4.4 Verification Checklist
+   4.5 Un-installation (Banishment)
+5. Usage
+   5.1. Running the MUD Server  
+   5.2. CLI Flags & Environment Variables  
+   5.3. Embedding Aethyr as a Library  
+   5.4. Graceful Shutdown & Persistence  
+   5.5. Troubleshooting  
+6. Extending the Aethyr
+   6.1. Directory Tour  
+   6.2. Adding Rooms, Areas & Items  
+   6.3. Forging Commands & Actions  
+   6.4. Creating NPCs & AI Behavior  
+   6.5. Plugin System (Engines & Gems)  
+7. Development Workflow
+   7.1. Running Tests & Linters  
+   7.2. Debugging Tips  
+   7.3. Continuous Integration  
+8. Contributing
+9. Experimentation Playground
+10. Road-Map & Dreams for the Future
+11. Credits
+12. License
+----------------------------------------------------------------
 
-Aethyr is a Ruby based MUD.
+== 1. TL;DR – Quick Start (“I've got 99 quests but setup ain't one”)
 
-For more information on the project please check out {the project's home page}[https://github.com/Syncleus/Aethyr].
+1. Forge the gem and claim its power:
 
-Aethyr is Free and Open-source software under Apache Software License v2
+        gem install aethyr         # pull the latest stable artefact
 
-== Installation
+2. Crack open a portal to your brand-new universe:
 
-Install the application using gem.
+        aethyr                     # boots the server on :8888
 
-    gem install aethyr
+3. Step through the gateway and start exploring:
 
-== Running the app
+        telnet localhost 8888      # any Telnet-compatible client will do
+        # pro-tip: 'nc localhost 8888' works in a pinch
 
-Just run the application with the following command.
+Feeling more container-conscious than a mimosa in a greenhouse?
 
-    aethyr
+        docker compose up          # spins Aethyr inside a lean Arch Linux image
 
-== From source
+That's it! In three commands you're live, breathing the same celestial air as your future players. Now go forth and script the legends that bards will one-day sing — or at least the unit tests they'll hum while CI runs.
 
-     bundle install --path vendor/bundle
-     bundle exec rake
-     bundle exec ./bin/aethyr_setup
-     bundle exec ./bin/aethyr run
+----------------------------------------------------------------
+== 2. So… What *Exactly* Is Aethyr? (“Explain It To Me Like I'm A Wandering Bard”)
 
-== Using Docker
+*Aethyr* is an **open-source, Ruby-forged Multi-User Dungeon (MUD) framework** —  
+and, conveniently, the reference game built on top of itself.  
+Think of it as the artisan workbench where you:
 
-    UID=${UID} GID=${GID} docker-compose run --rm -- aethyr bundle exec ./bin/aethyr_setup
-    UID=${UID} GID=${GID} docker-compose up 
+* Paint entire worlds in pure Ruby (no C crypts to spelunk through).  
+* Assemble rooms, quests, dragons, and questionable taverns with hot-reload flair.  
+* Script behaviour trees, chat commands, or whole rule-sets by dropping a file into `lib/aethyr/plugins/`.
 
-== Building image
- 
-    UID=${UID} GID=${GID} docker-compose build
-    UID=${UID} GID=${GID} docker-compose push
+In less flowery words:
+
+• Language: 100 % Ruby — fully SOLID, sprinkled with Factory, Strategy, Observer, Decorator, and any other pattern your architect-heart desires.  
+• Extensible: every class is open for extension; every plugin is just a `require` away.  
+• Embeddable: `require 'aethyr'` inside *any* Ruby app and voilà — instant universe.  
+• Democratised: licensed under Apache 2.0, hackable by anyone who can wield a keyboard + imagination.
+
+Whether you're a hobbyist DM, a CS student dissecting design patterns, or a professional looking to prototype large-scale sharding (while simultaneously spawning ducks that quack Shakespeare), Aethyr is both your playground *and* your production-ready engine.
+
+Ready? `gem install aethyr`, fire up the server, and start bending reality.  
+The cosmos awaits your `puts` statements.
+
+----------------------------------------------------------------
+== 3. Feature Highlights
+* 🚀  Hot-reloadable game content (no server restarts—ever).  
+* 🧩  Plugin architecture for commands, areas, NPC brains, or entire rulesets.  
+* 🗺️  Built-in room graph visualiser for instant world maps.  
+* 🧠  Behaviour-tree-driven AI with pluggable strategies.  
+* 🧪  100 % RSpec coverage goal with CI status badges.  
+* 🔌  Embeddable: require "aethyr" and drop a world into any Ruby app.  
+* 🛠️  Robust in-game admin console for live world inspection & maintenance.  
+* 🎨  Rich ANSI colour pipeline with per-player customisable palettes & themes.  
+* 🔍  Fine-grained logging & tracing that can be toggled without rebooting.  
+* 🗄️  Pluggable persistence back-ends (YAML, Redis, Postgres — your choice).  
+* 📦  First-class Docker & Compose recipes for one-command deployments.  
+* ♻️  Deterministic save/load cycles ensuring zero data-loss across hot reloads.  
+
+----------------------------------------------------------------
+== 4. Installation – Choose Your Path to Power
+So you wish to bind the Aethyr to your machine? Excellent choice, adventurer!
+Pick the ritual that best suits your temperament:
+
+• The Gem Smith (fast & friendly)  
+• The Source Forgemaster (hands-on, hammer-in-hand)  
+• The Container Conjurer (summon within a bottle)
+
+Either way, you'll be cracking open portals in minutes—provided you follow the incantations precisely.
+
+----------------------------------------------------------------
+=== 4.0 Prerequisites (Read *before* chanting)
+1. Ruby ≥ 3.0 (MRI or TruffleRuby).  
+   Check with: `ruby -v` – anything that prints `3.x.y` is golden.  
+2. Bundler ≥ 2.3: `gem install bundler` if unsure.  
+3. *nix, macOS, or Windows-with-WSL. (A dragon-free POSIX shell is assumed.)  
+4. Optional but recommended: `git`, `docker`, and `docker compose v2` for the advanced rituals below.
+
+----------------------------------------------------------------
+=== 4.1 RubyGems – “Gem Install Strike!”
+The *speed-run* route. Perfect for impatient heroes.
+
+    gem install aethyr      # installs the latest stable artefact
+    aethyr --version        # double-check that the binary is now on your PATH
+
+What just happened?
+• Rubygems fetched the gem and all of its runtime dependencies.  
+• `aethyr` executable landed in your `~/.gem/ruby/…/bin` (or rbenv/rvm equivalent).  
+• A self-check ensured your Ruby is new enough, else the install would have politely refused.
+
+Upgrading later is identical:
+
+    gem update aethyr       # "Level Up" the engine
+
+Need a bleeding-edge build?
+
+    gem install aethyr --pre   # grabs the latest α/β release if you're feeling brave
+
+----------------------------------------------------------------
+=== 4.2 From Source – "Forge Thyself"
+For code archaeologists, distro packagers, or anyone wanting to hack the engine in real-time.
+
+  1. Clone and bundle:
+
+        git clone https://github.com/Syncleus/Aethyr.git
+        cd Aethyr
+        bundle install --path vendor/bundle          # keeps gems local to the repo
+
+     • Tip: add `--jobs <n>` to parallelise compilation; `n = #cores + 1`.
+
+  2. Run the build matrix (you do run tests, right?):
+
+        bundle exec rake           # spec, lint, docs in one fell swoop
+
+  3. Prepare default world data:
+
+        bundle exec ./bin/aethyr_setup   # seeds the DB & storage folders
+
+  4. Fire it up:
+
+        bundle exec ./bin/aethyr run     # default 0.0.0.0:8888
+
+  5. Connect:
+
+        telnet localhost 8888            # or `nc`, MUD client, etc.
+
+Hot-reloading is auto-enabled in source mode—edit a file, watch the universe morph in-place.
+
+----------------------------------------------------------------
+=== 4.3 Docker & Docker Compose – "Contain the Storm"
+Great for CI pipelines, production clusters, or when your workstation is a Windows laptop that's seen things.
+
+  # First-time set-up (creates volumes & seeds data)
+  UID=$(id -u) GID=$(id -g) docker compose run --rm aethyr \
+      bundle exec ./bin/aethyr_setup
+
+  # Launch (foreground)
+  UID=$(id -u) GID=$(id -g) docker compose up
+
+  # Or detach:
+  docker compose up -d
+
+Notes & Pro-Tips:
+• The image is a lean Arch Linux base (<100 MB).  
+• Volumes are mapped to `storage/` and `logs/` on your host for persistence.  
+• Override ports or env-vars in `docker-compose.yml` or via `-e` flags.  
+• Building your own tag?  
+
+      docker compose build           # local
+      docker compose push <registry> # optional CI push
+
+----------------------------------------------------------------
+=== 4.4 Verification Checklist
+After whichever ritual you chose, confirm the following:
+
+  aethyr --diagnostics      # prints a green ✓ for every subsystem
+  aethyr --version          # shows semantic version & git SHA (if available)
+  ruby -e 'require "aethyr"; puts Aethyr::BANNER'
+
+If all three commands sing in harmony, congratulations—you now wield the winds of creation.
+
+----------------------------------------------------------------
+=== 4.5 Un-installation (Banishment)
+• RubyGems: `gem uninstall aethyr` (add `--executables` to purge the binary).  
+• Source: just `rm -rf Aethyr`—nothing escapes the tree.  
+• Docker: `docker compose down -v` (removes containers & named volumes).
+
+----------------------------------------------------------------
+Need help? Run `aethyr --help` or peruse the docs badge at the top of this README.  
+Happy hacking, and may your installs be ever dependency-conflict-free! 🎲
+----------------------------------------------------------------
+
+== 5. Usage – Taming the Winds (a.k.a “Ok, I Installed It… Now What?”)
+So you've forged the gem, lit the docker fires, or compiled from the molten
+source—congratulations!  A newborn universe now whimpers in the corner of your
+hard-drive waiting for its very first `puts`.
+
+Below you'll find everything you need to coax that universe into existence,
+keep it happy, and—when necessary—gently punt it back into the abyss.
+
+----------------------------------------------------------------
+=== 5.1 Spawning the Server – "LET THERE BE BYTES!"
+    aethyr                              # default 0.0.0.0:8888
+
+• The command above boots the engine in *foreground* mode; hit <Ctrl-C> once to
+  save & shut down gracefully, twice to deliver the *"Rage-Quit"* SIGKILL.  
+• Players may now connect with any Telnet-capable client:
+
+    telnet localhost 8888               # or `nc`, Mudlet, etc.
+
+Daemon-style (background) launch:
+
+    aethyr --daemon --log-level info \
+           --pidfile /var/run/aethyr.pid
+
+The daemon writes logs to `logs/` and will politely reload changed Ruby files
+on the fly (no restarts, no drama).
+
+----------------------------------------------------------------
+=== 5.2 CLI Flags & Environment Variables – "Config-Kung-Fu"
+Every flag has an ENV twin; flags win when both are present.
+
+Flag / ENV                | Purpose                              | Default
+-------------------------- | ------------------------------------ | -----------
+--host / AETHYR_HOST       | Bind interface                      | 0.0.0.0
+--port / AETHYR_PORT       | Bind port                           | 8888
+--world / AETHYR_WORLD_PATH| Directory containing your realm     | lib/aethyr/worlds/reference
+--log-level / AETHYR_LOG_LEVEL | debug, info, warn, error         | info
+--save-rate / AETHYR_SAVE_RATE | Autosave interval in minutes      | 15
+--db / AETHYR_DB_URL       | Redis / Postgres URI (optional)     | none
+--daemon                   | Fork into background                | off
+--pidfile                  | Write PID (daemon mode only)        | aethyr.pid
+--tls-cert / AETHYR_TLS_CERT | PEM path for TLS server cert       | none
+--tls-key  / AETHYR_TLS_KEY  | PEM path for TLS key               | none
+
+Pro-Tip: `AETHYR_LOG_LEVEL=debug aethyr` turns on a veritable fire-hose of
+internal musings—perfect for curious wizards, inadvisable for production.
+
+----------------------------------------------------------------
+=== 5.3 Live Operations – "Because Hot-Reload Is Life"
+• `aethyr console` boots an IRB session with `$server`, `$manager`, and every
+  game class pre-loaded.  Change a file, call `$server.reload!`, watch objects
+  morph in-place.
+
+• `aethyr --diagnostics` runs a 30-point health-check covering database
+  connectivity, world integrity, and NPC sanity (the last one is… subject to
+  interpretation).
+
+• Need logs **now**?  
+  `alog server 50` (in-game) or `tail -f logs/server.log` (shell).
+
+----------------------------------------------------------------
+=== 5.4 Embedding Aethyr – "Inception-Style Universes"
+You can summon a fully-fledged MUD *inside* an existing Ruby application
+(think Discord bots, web dashboards, or your CI pipeline—don't ask).
+
+----------------------------------------------------------------
+
+    require 'aethyr'
+    Aethyr.logger.level = :warn # keep chatty NPCs quiet
+    server = Aethyr::Server.new(host: '127.0.0.1', port: 4000)
+    server.load_world('/opt/my_world')
+    Thread.new { server.start! } # non-blocking boo
+
+=== 5.5 Graceful Shutdown & Persistence – "Saving Throws"
+• Autosave: governed by `--save-rate` / `AETHYR_SAVE_RATE`.  A value of `0`
+  disables it (YOLO mode).  
+• Manual save: type `asave` from an admin player or call
+  `$server.save_all!` from the console.  
+• Shutdown order:
+  1. World autosave / flush GDBM
+  2. Disconnect clients with a friendly *"The gods fold the world away…"*
+  3. Stop accepting sockets
+  4. Exit with code 0
+
+Send `kill -USR1 $(cat aethyr.pid)` for an on-the-spot log flush without
+interrupting players.
+
+----------------------------------------------------------------
+=== 5.6 Troubleshooting – "Dear Diary, Today the Universe Broke"
+1. **Port already in use**  
+   Another program (or runaway aethyr) owns the port.  
+   `lsof -i :8888` → `kill` → retry, or pick a new `--port`.
+
+2. **Broken world file**  
+   `aethyr --diagnostics` pinpoints the offending `.rb` or YAML, then
+   `server.reload!` once fixed.
+
+3. **Players see Mojibake**  
+   Their client probably isn't UTF-8.  Recommend Mudlet, disable ANSI
+   colours (`unset ANSI` in-game), or teach them the mysteries of encoding.
+
+4. **NPCs unionised and demand rights**  
+   Delete `npcs/organiser.rb`, restart, deny everything.  (Or promote them,
+   we're not your manager.)
+
+Still stuck?  `gem open aethyr`, read the source, or summon help at
+`github.com/Syncleus/Aethyr/issues`.
+
+----------------------------------------------------------------
+Happy adventuring, sys-op!  May your logs be brief, your worlds robust, and
+your players only *mostly* chaotic. 🌌
+----------------------------------------------------------------
+
+== 6. Extending the Aethyr
+=== 6.1 Directory Tour
+
+* lib/aethyr/            – engine core  
+* lib/aethyr/worlds/     – bundled reference worlds  
+* lib/aethyr/plugins/    – drop-in extensions (gems or plain .rb files)  
+* spec/                  – RSpec suite  
+
+=== 6.2 Adding Rooms, Areas & Items
+
+Create `worlds/avalon/areas/enchanted_forest.rb`:
+
+    module Avalon
+      module Areas
+        class EnchantedForest < Aethyr::Area
+          def populate!
+            add_room id: :clearing,
+                     name: 'A Sunny Clearing',
+                     description: 'Birdsong dances upon shafts of golden light.'
+
+            add_item room: :clearing,
+                     name: 'crystal acorn',
+                     description: 'It hums with latent, sylvan energy.',
+                     on_use: ->(actor) { actor.send_to_room("*poof* A tree sprouts!") }
+          end
+        end
+      end
+    end
+
+`server.reload!` at runtime, and the clearing materialises without a restart.
+
+=== 6.3 Forging Commands & Actions
+
+    class Sing < Aethyr::Command
+      pattern /^\s*sing\s*(?<song>.*)?$/i
+      description 'Burst into joyous song.'
+
+      def execute
+        song = params[:song].presence || 'a merry tune'
+        actor.send_to_call("#{actor.name} sings #{song}!")
+      end
+    end
+
+Drop the file into `lib/aethyr/plugins/commands/` and watch players croon.
+
+=== 6.4 Creating NPCs & AI Behavior
+
+    class WanderingBard < Aethyr::NPC
+      include Aethyr::AI::BehaviorTree
+
+      def setup!
+        self.name        = 'wandering bard'
+        self.description = 'A merry minstrel with a battered lute.'
+        self.behavior do
+          sequence do
+            wander
+            sing 'of dragons and daring-do'
+            rest
+          end
+        end
+      end
+    end
+
+=== 6.5 Plugin System (Engines & Gems)
+Any gem exposing `Aethyr::Plugin` will be auto-loaded if listed in
+your Gemfile or placed under `lib/aethyr/plugins/`.
+
+----------------------------------------------------------------
+== 7. Development Workflow – “Where Code-Smiths Become Demi-Gods”
+
+So you've decided to tinker with the very fabric of reality?  
+Splendid! Sharpen your keyboard, polish your linter, and step up to the anvil.
+
+1. Clone the Forge (a.k.a. the repo)  
+   `git clone https://github.com/Syncleus/Aethyr.git && cd Aethyr`
+
+2. Install your spellbook of gems  
+   `bundle install --path vendor/bundle`
+
+3. Run the Trials of Truth (tests)  
+   `bundle exec rspec` – red dragons bad, green dragons good.
+
+4. Consult the Crystal Ball (static analysis)  
+   `bundle exec rubocop` – because style counts, even for wizards.
+
+5. Summon the Tomes of Lore (docs)  
+   `bundle exec yard` – scrolls appear in `doc/` ready for curious apprentices.
+
+Continuous Integration  
+GitHub Actions watches every incantation you push to the cloud.  
+Break the build and angry sprites will nag you in the PR.
+
+Need a live laboratory?  
+`bundle exec ./bin/aethyr console` boots an IRB realm with `$server` and friends pre-summoned. Edit a file, shout `$server.reload!`, and witness objects metamorphose before your eyes.
+
+Fork, hack, commit, repeat – but remember: with great power comes great responsibility (and hopefully passing tests). Happy forging!
+----------------------------------------------------------------
+
+== 8. Contributing – Enlist in the Guild of Cosmic Tinkerers
+So, you've bested the installation hydra, bent the universe to your will, and the
+keyboard still beckons ➜ time to level-up from "player" to "world-forging
+archmage"!
+
+1. Fork the Forge  
+   Tap **"Fork"** on GitHub, summon a new branch  
+   (`git checkout -b feature/<your-legendary-feat>`).
+
+2. Trials of Truth (a.k.a. tests)  
+   • Write RSpec spells that turn red before they turn green.  
+   • No failing specs shall pass the gates of CI Valhalla.
+
+3. Speak Friend and `rubocop -a`  
+   The style sprite is grumpy; appease it early, appease it often.  
+   Our `.rubocop.yml` is law—tweak at your peril (or a PR).
+
+4. Craft Commit Messages of Power  
+   Present-tense, concise, and worthy of a changelog bard:  
+   `fix: prevent goblin overflow in /combat/loop`
+
+5. Raise Your PR Banner  
+   • Describe _why_ as much as _what_.  
+   • Reference issues, screenshots, performance numbers, GIFs of dancing slimes—  
+     whatever helps reviewers channel your intent.  
+   • Green CI ≅ instant brownie points.
+
+6. Bask in Reviewer Wisdom ✨  
+   We comment, you iterate, the codebase evolves, the Circle of Life continues.  
+   (Pro-tip: a courteous "Thanks!" spell reduces merge latency by 28 %.)
+
+7. Claim Your Loot  
+   Your name joins the Credits, your code joins the cosmos, and you get that
+   warm fuzzy "I-just-helped-ship-an-open-source-MUD-engine" feeling.
+
+Bug reports & feature requests → GitHub Issues.  
+Friendly chatter, design debates, and random ASCII dragons → Discussions tab.  
+Now go forth and commit heroic deeds!
+----------------------------------------------------------------
+
+== 9. Experimentation Playground – “Here Be Bugs… and Brave Wizards”
+
+So the production universe is humming along nicely, players are happily slaying cardboard orcs, and you're itching to conjure something *weird* without turning the live realm into a smouldering crater.  
+Welcome to the **Experimentation Playground**: a fully-featured pocket dimension wired for reckless creativity *and* repeatable science.
+
+----------------------------------------------------------------
+=== 9.1  Dialing In – “Open the Blast Doors”
+
+1.  Don your lab coat (robe? hoodie? dragon-scaled chainmail, we don't judge).
+
+2.  Boot the sandbox realm with **one command**:
+
+        bundle exec ./bin/aethyr_experiments <my_script.rb>
+
+    • `<my_script.rb>` is optional. Omit it and you'll drop straight into a pristine IRB with `$manager` and `player` pre-summoned.  
+    • Supply a script and it will be `require`-d *after* the world loads, letting you chain commands or define custom helpers.
+
+3.  Two artefacts materialise instantly:
+
+    * `$manager` – the omnipotent Game-Object-Factory / garbage-collector / debug-console hybrid.  
+    * `player`   – a disposable test avatar who never logs Jira tickets no matter how many limbs you accidentally delete.
+
+----------------------------------------------------------------
+=== 9.2  Spell Components – “Building Blocks of Mayhem”
+
+Below is a cheat-sheet of the incantations you'll hurl most often. Mix, match, and remember to keep a towel handy.
+
+• **Creating Objects**
+
+    # Pop a brand-new room into existence
+    grove = $manager.create_object(Room,
+                                    nil,             # container   (none – root of world tree)
+                                    nil,             # owner       (n/a)
+                                    nil,             # prototype   (n/a)
+                                    :@name        => "Whispering Grove",
+                                    :@short_desc  => "Ancient trees rustle secrets into the wind.")
+
+• **Mutating Reality**
+
+    # Give the player a jetpack (why not?)
+    jetpack = $manager.create_object(Item, player)
+    jetpack.extend(Traits::Flying)   # hypothetical trait
+    player.output "You feel lighter already!"
+
+• **Scheduling Future Events**
+
+    # Explosion goes *boom* in five ticks
+    bomb = $manager.create_object(Item, player.container, nil, nil, :@name => "unstable orb")
+    detonate = CommandParser.future_event(bomb, 5) { |obj| obj.emote "explodes in pixelated glory!" }
+    bomb.add_event(detonate)
+
+• **Time Travel**
+
+    $manager.tick(100)   # fast-forwards the world 100 update cycles (great for AI stress tests)
+
+----------------------------------------------------------------
+=== 9.3  NPC Obedience School – “Teaching Rocks to Sing”
+
+You can drop behaviour trees, finite-state machines, or pure-Ruby `proc`s into any Mobile.  
+Example: give every goblin an existential crisis every 42 seconds.
+
+    class IntrospectiveGoblin < Mobile
+      include Reacts                # pluggable event/reaction system
+
+      def initialize(*args)
+        super
+        @angst_timer = 0
+      end
+
+      def run
+        @angst_timer += 1
+        if @angst_timer % 42 == 0
+          random_act "say Why do we pillage?",
+                     "emote gazes wistfully at the moon.",
+                     "wander"
+        end
+      end
+    end
+
+Hot-reload the file, and live goblins immediately begin questioning the meaning of loot.
+
+----------------------------------------------------------------
+=== 9.4  Combat Ring – “Because Unit Tests Can Bleed”
+
+Stress-test the damage engine without massacring real players:
+
+    hero         = $manager.create_object(Mobile, player.container, nil, nil, :@name => "Test Paladin")
+    training_bot = $manager.create_object(Mobile, player.container, nil, nil, :@name => "Sparring Dummy")
+    hero.info.stats.health = 250
+    training_bot.info.stats.health = 75
+
+    until training_bot.info.stats.health <= 0
+      dmg = rand(8..15)
+      training_bot.take_damage(dmg)
+      hero.output "Dealt #{dmg} damage. Dummy at #{training_bot.info.stats.health} HP."
+    end
+
+Automate thousands of such bouts in a loop to benchmark balance changes or profiler output.
+
+----------------------------------------------------------------
+=== 9.5  Integration Recipes – “Marrying Chaos with CI”
+
+Need repeatable, headless experiments? Wrap your script in an RSpec example:
+
+    # spec/playground/summon_spec.rb
+    describe "Phoenix summoning ritual" do
+      it "does not crash the server" do
+        phoenix = $manager.create_object(Mobile, nil, nil, nil, :@name => "phoenix")
+        phoenix.extend(BurnsThings)  # hypothetical mix-in
+        expect { $manager.tick(500) }.not_to raise_error
+      end
+    end
+
+Run `bundle exec rspec spec/playground` during CI to guarantee tomorrow's commit still obeys the laws of thermodynamics.
+
+----------------------------------------------------------------
+=== 9.6  Clean-Room Protocol – “Reset, Rinse, Repeat”
+
+1.  **Vacuum the Lab**  
+        $manager.delete_object(grove)
+        $manager.delete_object(phoenix)
+        # or just `$manager.nuke!` to obliterate every test object (does NOT touch production DB).
+
+2.  **Reset Global Flags**  
+    Roll back any `ServerConfig` tweaks or logger verbosity you toggled.
+
+3.  **Document Your Sorcery**  
+    * Commit successful experiments as fully-fledged plugins under `lib/aethyr/plugins/`.  
+    * Push a PR or share the script in `docs/snippets/` so future scholars can stand on your shoulders (and look over the edge).
+
+----------------------------------------------------------------
+=== 9.7  Safety Scroll – “How Not to Summon Cthulhu”
+
+• Keep experimental areas under a unique namespace (`Worlds::Lab42`) to avoid name collisions.  
+• Label dangerous objects (`@volatile = true`) so world-cleanup tasks can bin them automatically.  
+• Never conduct persistence tests on the same Redis/Postgres instance as production—*trust us*.  
+• If you *do* spawn sentient AI, give it a `shutdown!` hook. Nothing says "oops" like an NPC pushing commits to GitHub.
+
+----------------------------------------------------------------
+=== 9.8  Epilogue
+
+The Experimentation Playground is your cosmic sandbox: half-playpen, half-particle collider.  
+Go forth, script boldly, break reality—*then* put it back together with version control and a smile.  
+When the next great feature debuts bug-free, the bards will know whom to thank.
+
+Happy tinkering! 🔬✨
+----------------------------------------------------------------
+
+== 10. Road-Map & Dreams for the Future ✨🚀
+
+What good is an open-source MUD engine if it doesn't have a to-do list the size of a dragon's hoard?  
+Below is the ever-evolving constellation of features we're eyeing.  
+Feel free to grab one, plant a banner, and open a PR – glory (and commit rights) await.
+
+* 🌐 **WebSocket Stellar Gateway** – native browser-client support with
+  HTTP/2 push, per-tab session isolation, and a bundled React/Hotwire demo
+  realm. *Goal:* zero-install adventuring for the "I just clicked a link"
+  crowd.
+
+* 🔨🪙 **Crafting & Dynamic Economy 2.0** – node-based recipe graphs, player-run
+  shops, inflation-damping algorithms, and a server-side *MTX-free*
+  marketplace API for external dashboards.  We want spreadsheets *and*
+  swords.
+
+* 🖌️ **Visual Area Forge** – drag-and-drop room editor (Qt *or* Electron)
+  featuring live map previews, ANSI palette picker, and one-click "push to
+  running server".  Yes, that includes undo/redo – no more accidental lava
+  floods.
+
+* 🌍 **Seamless World Sharding & Cross-Realm Portals** – horizontal scaling
+  by region, dynamic hand-off of mobiles between shards, and gossip-protocol
+  cluster discovery so your goblins can migrate without a hiccup.
+
+* 🧩 **Polyglot Scripting (Lua, WASM, maybe Elixir?)** – embed lightweight VMs
+  for hot-pluggable rule-sets, AI brains, or player-authored mini-games, all
+  sandboxed to prevent `rm -rf /`.
+
+* ☁️ **Cloud-Native Save-State Snapshots** – incremental, versioned world
+  images pushed to S3/GCS, with on-demand restore and diff-based migration
+  tooling.  Because production databases deserve save-points too. ☁️🎲
+
+* 🛡️ **Cheat-Detection & Security Sentinel** – pluggable heuristics, anomaly
+  scoring, and WebAuthn multi-factor logins for staff accounts.  The ban-hammer
+  shall strike swiftly ⚔️.
+
+* 🤖 **AI Dungeon Master** – GPT-powered narrative events, dynamic quest lines,
+  and NPC dialogue that occasionally passes a Turing test.  Opt-in, opt-out,
+  configurable verbosity.
+
+* 📈 **Observability Suite** – Prometheus exporters, OpenTelemetry traces, and
+  a Grafana dashboard so pretty you'll watch it instead of Netflix.
+
+* ⏱️ **Time-Travel Debugger** – record/replay every game tick, scrub the
+  timeline, and bisect that one elusive nil dereference without bothering
+  live players.
+
+* 🚀 **Zero-Downtime Rolling Upgrades** – blue/green deploy helpers, schema
+  migration safety nets, and a *`server.hot_patch!`* API for atomic code
+  swaps.  The realm stays up; the coffee stays hot.
+
+These aspirations are written in the stars, not in stone.  
+Join the conversation in the Discussions tab or fire up an Issue if one of
+these sparks your curiosity.  Together we'll push Aethyr further into the
+cosmos. 🪐💎
+----------------------------------------------------------------
+
+== 11. Credits
+* Jeffrey Phillips Freeman – creator & lead developer  
+* All GitHub contributors & brave play-testers  
+* The open-source Ruby community for endless inspiration  
+
+----------------------------------------------------------------
+== 12. License
+Aethyr is Free and Open-Source Software released under the **Apache License v2**.  
+See {LICENSE}[https://github.com/Syncleus/Aethyr/blob/master/LICENSE] for full details.
+
+----------------------------------------------------------------
+Happy hacking, and may your adventures upon the Aethyr be ever wondrous! 🌌

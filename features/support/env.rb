@@ -1,5 +1,14 @@
+# frozen_string_literal: true
 require 'aruba/cucumber'
 require 'methadone/cucumber'
+
+# ---------------------------------------------------------------------------
+# SimpleCov bootstrap (only when invoked via the :coverage Rake task)
+# ---------------------------------------------------------------------------
+if ENV['AETHYR_COVERAGE'] && !defined?(SimpleCov)
+  require 'coverage/console_reporter'
+  Coverage::ConsoleReporter.install!
+end
 
 ENV['PATH'] = "#{File.expand_path(File.dirname(__FILE__) + '/../../bin')}#{File::PATH_SEPARATOR}#{ENV['PATH']}"
 LIB_DIR = File.join(File.expand_path(File.dirname(__FILE__)), '..', '..', 'lib')

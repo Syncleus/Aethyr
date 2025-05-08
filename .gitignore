@@ -10,3 +10,4 @@ nbproject/
 lib/aethyr/extensions/reactions/
 .bundle/
 vendor/
+/coverage/

@@ -39,6 +39,8 @@ require 'cucumber/rake/task'
 gem 'rdoc' # we need the installed RDoc gem, not the system one
 require 'rdoc/task'
 
+require_relative 'features/support/coverage/rake_task'
+
 include Rake::DSL
 
 Bundler::GemHelper.install_tasks
@@ -65,4 +67,9 @@ Rake::RDocTask.new do |rd|
 end
 
 task :default => [:test, :features]
+
+# ---------------------------------------------------------------------------
+# Coverage task – run `rake coverage` for an end-to-end SimpleCov summary
+# ---------------------------------------------------------------------------
+Coverage::RakeTask.new   # uses defaults declared in the class
 

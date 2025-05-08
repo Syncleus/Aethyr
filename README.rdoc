@@ -401,16 +401,24 @@ Splendid! Sharpen your keyboard, polish your linter, and step up to the anvil.
 1. Clone the Forge (a.k.a. the repo)  
    `git clone https://github.com/Syncleus/Aethyr.git && cd Aethyr`
 
-2. Install your spellbook of gems  
+2. Install your spellbook of gems
    `bundle install --path vendor/bundle`
 
 3. Run the Trials of Truth (tests)  
    `bundle exec rspec` – red dragons bad, green dragons good.
 
-4. Consult the Crystal Ball (static analysis)  
+4. Bathe in the Forges of Coverage  
+   `bundle exec rake coverage` – executes the *entire* test-matrix (**unit**,  
+   Cucumber *and* any additional test tasks) under SimpleCov's console  
+   formatter and fails if overall coverage drops below the configured  
+   threshold (90 % by default).  
+   • No environment variables are required; the task bootstraps everything  
+     automatically via `Coverage::RakeTask` found in `lib/coverage/rake_task.rb`.
+
+5. Consult the Crystal Ball (static analysis)  
    `bundle exec rubocop` – because style counts, even for wizards.
 
-5. Summon the Tomes of Lore (docs)  
+6. Summon the Tomes of Lore (docs)  
    `bundle exec yard` – scrolls appear in `doc/` ready for curious apprentices.
 
 Continuous Integration  

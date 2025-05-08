@@ -42,11 +42,11 @@ EOF
             super(data)
             case data[:input]
             when /^(l|look)$/i
-              $manager.submit_action(Aethyr::Core::Actions::Look::LookCommand.new(@player, {}))
+              $manager.submit_action(Aethyr::Core::Actions::Look::LookCommand.new(@player))
             when /^(l|look)\s+(in|inside)\s+(.*)$/i
-              $manager.submit_action(Aethyr::Core::Actions::Look::LookCommand.new(@player, { :in => $3 }))
+              $manager.submit_action(Aethyr::Core::Actions::Look::LookCommand.new(@player, :in => $3))
             when /^(l|look)\s+(.*)$/i
-              $manager.submit_action(Aethyr::Core::Actions::Look::LookCommand.new(@player, { :at => $2 }))
+              $manager.submit_action(Aethyr::Core::Actions::Look::LookCommand.new(@player, :at => $2))
             end
           end
         end

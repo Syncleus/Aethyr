@@ -138,6 +138,10 @@ class Guid
   end
 end
 
+# ------------------------------------------------------------------
+# Embedded Test::Unit harness – not executed inside cucumber runs
+# ------------------------------------------------------------------
+# :nocov:
 if __FILE__ == $0
   require 'test/unit'
 
@@ -173,3 +177,4 @@ if __FILE__ == $0
     end
   end
 end
+# :nocov:

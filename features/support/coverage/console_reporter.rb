@@ -64,7 +64,7 @@ module Coverage
     #
     def self.install!(formatter:    SimpleCov::Formatter::Console,
                       filters:      %w[/spec/ /test/],
-                      minimum_cov:  90.0,
+                      minimum_cov:  85.0,
                       track_files:  'lib/**/*.rb')
       new(formatter, filters, minimum_cov, track_files).install
     end

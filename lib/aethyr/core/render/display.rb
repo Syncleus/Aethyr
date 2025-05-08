@@ -168,7 +168,7 @@ class Display
   def send(message, word_wrap = true, message_type: :main, internal_clear: false, add_newline: true)
     window = nil
 
-    if @windows[message_type].nil? || !@windows[message_type].exists?
+    if @windows[message_type].nil? || !@windows[message_type].exist?
       message_type = :main
       internal_clear = false
     end
@@ -274,7 +274,7 @@ class Display
   end
 
   def refresh_watch_windows(player)
-    if @windows[:look].exists?
+    if @windows[:look].exist?
       room = $manager.get_object(player.container)
       if !room.nil?
         look_text = room.look(player)
@@ -286,7 +286,7 @@ class Display
       end
     end
 
-    if @windows[:map].exists?
+    if @windows[:map].exist?
       room = $manager.get_object(player.container)
       if !room.nil?
         player.output(room.area.render_map(player, room.area.position(room)), message_type: :map, internal_clear: true)
@@ -295,11 +295,11 @@ class Display
       end
     end
 
-    if @windows[:quick_bar].exists?
+    if @windows[:quick_bar].exist?
       send(Display::generate_progress(20, 0.1, label: "HP: "), message_type: :quick_bar, internal_clear: true, add_newline: false)
     end
 
-    if @windows[:status].exists?
+    if @windows[:status].exist?
       send('This is the status window', message_type: :status, internal_clear: true, add_newline: false)
     end
   end
@@ -467,15 +467,15 @@ class Display
       when 9 # tab
         self.selected = case selected
                         when :input
-                          if @windows[:look].exists?
+                          if @windows[:look].exist?
                             :look
                           else
                             :main
                           end
                         when :main
-                          if @windows[:chat].exists?
+                          if @windows[:chat].exist?
                             :chat
-                          elsif @windows[:status].exists?
+                          elsif @windows[:status].exist?
                             :status
                           else
                             :input
@@ -483,13 +483,13 @@ class Display
                         when :map
                           :main
                         when :look
-                          if @windows[:map].exists?
+                          if @windows[:map].exist?
                             :map
                           else
                             :input
                           end
                         when :chat
-                          if @windows[:status].exists?
+                          if @windows[:status].exist?
                             :status
                           else
                             :input

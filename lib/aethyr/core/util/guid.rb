@@ -60,9 +60,9 @@ else
 
     def initialize
       if !@@random_device
-        if File.exists? "/dev/urandom"
+        if File.exist? "/dev/urandom"
           @@random_device = File.open "/dev/urandom", "r"
-        elsif File.exists? "/dev/random"
+        elsif File.exist? "/dev/random"
           @@random_device = File.open "/dev/random", "r"
         else
           raise RuntimeError, "Can't find random device"

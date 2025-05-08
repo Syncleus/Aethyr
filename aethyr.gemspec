@@ -30,7 +30,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_dependency 'wisper', '~> 2.0'
-  spec.add_dependency 'methadone', '~> 1.9'
+  spec.add_dependency 'methadone', '~> 2.0'
   spec.add_dependency 'eventmachine', '~> 1.2'
   spec.add_dependency 'require_all', '~> 2.0'
   spec.add_dependency 'concurrent-ruby', '~> 1.0'

@@ -14,12 +14,12 @@ class Window
     @use_color = false
     @color_settings = color_settings
     @color_stack = []
-    @exists = false
+    @exist = false
     @paginate = paginate
   end
 
-  def exists?
-    return @exists
+  def exist?
+    return @exist
   end
 
   def create(width: 0, height: 0, x: 0, y: 0)
@@ -33,7 +33,7 @@ class Window
     @y = y
 
     destroy
-    @exists = true
+    @exist = true
     @window_border = Ncurses::WINDOW.new(@height, @width, @y, @x)
     @window_border_height = @window_border.getmaxy - 2
     @window_border_width = @window_border.getmaxx - 2
@@ -57,7 +57,7 @@ class Window
   end
 
   def destroy
-    @exists = false
+    @exist = false
     Ncurses.delwin(@window_border) unless @window_border.nil?
     @window_border = nil
     @window_text = nil

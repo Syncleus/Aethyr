@@ -92,11 +92,26 @@ module Coverage
       # -- 1. Lazy-load dependencies -------------------------------------------------
       require 'simplecov'           # main gem
       require 'simplecov-console'   # ANSI colour formatter (used by default)
+      require 'simplecov-html'       # ensures HTML formatter
+      require_relative 'plain_text_formatter'        # NEW
 
-      # -- 2. Configure (Builder pattern) -------------------------------------------
-      SimpleCov.formatter = @formatter
+      # --------------------------------------------------------------------
+      # 1. Build our formatter *stack* (pass CLASSES – MultiFormatter will
+      #    instantiate them for every run)
+      # --------------------------------------------------------------------
+      formatter_stack = [
+        @formatter,                           # colourised console output  – already a class
+        SimpleCov::Formatter::HTMLFormatter,  # full HTML report
+        Coverage::PlainTextFormatter          # plain-text file formatter  – CLASS, not instance
+      ]
+
+      SimpleCov.formatter =
+        SimpleCov::Formatter::MultiFormatter.new(formatter_stack)
+
+      # --------------------------------------------------------------------
+      # 2. Standard SimpleCov configuration (unchanged)
+      # --------------------------------------------------------------------
       SimpleCov.minimum_coverage(@minimum_cov)
-
       SimpleCov.start do
         # Record branch coverage when supported (Ruby ≥ 2.5)
         enable_coverage :branch if SimpleCov.respond_to?(:enable_coverage)
@@ -108,7 +123,7 @@ module Coverage
         # The crucial line – ensure files that never get `require`d still appear
         # in the report with 0 % coverage.
         # <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-        @track_files.each   { |glob| track_files glob }
+        @track_files.each   { |glob| track_files(glob) }
       end
     end
     # ------------------------------------------------------------------------

@@ -39,7 +39,7 @@ EOF
               object = "exit"
               alt_names = [$1.strip]
               args = [$2.strip]
-              $manager.submit_action(Aethyr::Core::Actions::Acreate::AcreateCommand.new(@player, {:object => object, :alt_names => alt_names, :args => args}))
+              $manager.submit_action(Aethyr::Core::Actions::Acreate::AcreateCommand.new(@player, :object => object, :alt_names => alt_names, :args => args))
             end
           end
 

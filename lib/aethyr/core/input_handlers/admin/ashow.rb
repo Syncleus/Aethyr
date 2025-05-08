@@ -38,7 +38,7 @@ EOF
             when /^ashow\s+(.*)$/i
               object = $1
               hide = false
-              $manager.submit_action(Aethyr::Core::Actions::Ahide::AhideCommand.new(@player, {:object => object, :hide => hide}))
+              $manager.submit_action(Aethyr::Core::Actions::Ahide::AhideCommand.new(@player, :object => object, :hide => hide))
             end
           end
 

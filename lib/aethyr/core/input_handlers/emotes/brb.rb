@@ -38,7 +38,7 @@ EOF
             when /^(brb)( +([^()]*))?( +((.*)))?$/i
               object = $3
               post = $5
-              $manager.submit_action(Aethyr::Core::Actions::Brb::BrbCommand.new(@player, {:object => object, :post => post}))
+              $manager.submit_action(Aethyr::Core::Actions::Brb::BrbCommand.new(@player, :object => object, :post => post))
             end
           end
 

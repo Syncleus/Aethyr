@@ -39,16 +39,16 @@ EOF
               object = $1
               command = "load"
               file = $2
-              $manager.submit_action(Aethyr::Core::Actions::Areaction::AreactionCommand.new(@player, {:object => object, :command => command, :file => file}))
+              $manager.submit_action(Aethyr::Core::Actions::Areaction::AreactionCommand.new(@player, :object => object, :command => command, :file => file))
             when /^areact\s+(reload|clear|show)\s+(.*?)$/i
               object = $2
               command = $1
-              $manager.submit_action(Aethyr::Core::Actions::Areaction::AreactionCommand.new(@player, {:object => object, :command => command}))
+              $manager.submit_action(Aethyr::Core::Actions::Areaction::AreactionCommand.new(@player, :object => object, :command => command))
             when /^areact\s+(add|delete)\s+(.*?)\s+(\w+)$/i
               object = $2
               command = $1
               action_name = $3
-              $manager.submit_action(Aethyr::Core::Actions::Areaction::AreactionCommand.new(@player, {:object => object, :command => command, :action_name => action_name}))
+              $manager.submit_action(Aethyr::Core::Actions::Areaction::AreactionCommand.new(@player, :object => object, :command => command, :action_name => action_name))
             end
           end
 

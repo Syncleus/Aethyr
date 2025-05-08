@@ -71,9 +71,9 @@ EOF
             super(data)
             case data[:input]
             when /^say\s+(\((.*?)\)\s*)?(.*)$/i
-              $manager.submit_action(Aethyr::Core::Actions::Say::SayCommand.new(@player, { :phrase => $3, :pre => $2 }))
+              $manager.submit_action(Aethyr::Core::Actions::Say::SayCommand.new(@player,  :phrase => $3, :pre => $2 ))
             when /^sayto\s+(\w+)\s+(\((.*?)\)\s*)?(.*)$/i
-              $manager.submit_action(Aethyr::Core::Actions::Say::SayCommand.new(@player, {:target => $1, :phrase => $4, :pre => $3 }))
+              $manager.submit_action(Aethyr::Core::Actions::Say::SayCommand.new(@player, :target => $1, :phrase => $4, :pre => $3 ))
             end
           end
 

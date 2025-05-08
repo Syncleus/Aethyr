@@ -39,7 +39,7 @@ EOF
               object = $1
               setting = $2.downcase
               value = $3.strip
-              $manager.submit_action(Aethyr::Core::Actions::Portal::PortalCommand.new(@player, {:object => object, :setting => setting, :value => value}))
+              $manager.submit_action(Aethyr::Core::Actions::Portal::PortalCommand.new(@player, :object => object, :setting => setting, :value => value))
             end
           end
 

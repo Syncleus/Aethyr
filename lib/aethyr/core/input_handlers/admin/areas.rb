@@ -36,7 +36,7 @@ EOF
             super(data)
             case data[:input]
             when /^areas$/i
-              $manager.submit_action(Aethyr::Core::Actions::Areas::AreasCommand.new(@player, {}))
+              $manager.submit_action(Aethyr::Core::Actions::Areas::AreasCommand.new(@player, ))
             end
           end
 

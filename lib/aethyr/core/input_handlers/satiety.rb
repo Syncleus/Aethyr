@@ -53,7 +53,7 @@ EOF
             super(data)
             case data[:input]
             when /^(satiety|hunger)$/i
-              $manager.submit_action(Aethyr::Core::Actions::Satiety::SatietyCommand.new(@player, {}))
+              $manager.submit_action(Aethyr::Core::Actions::Satiety::SatietyCommand.new(@player, ))
             end
           end
         end

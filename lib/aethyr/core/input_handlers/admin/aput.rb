@@ -39,11 +39,11 @@ EOF
               object = $1
               in_var = $2
               at = $3
-              $manager.submit_action(Aethyr::Core::Actions::Aput::AputCommand.new(@player, {:object => object, :in => in_var, :at => at}))
+              $manager.submit_action(Aethyr::Core::Actions::Aput::AputCommand.new(@player, :object => object, :in => in_var, :at => at))
             when /^aput\s+(.*?)\s+in\s+(.*?)$/i
               object = $1
               in_var = $2
-              $manager.submit_action(Aethyr::Core::Actions::Aput::AputCommand.new(@player, {:object => object, :in => in_var}))
+              $manager.submit_action(Aethyr::Core::Actions::Aput::AputCommand.new(@player, :object => object, :in => in_var))
             end
           end
 

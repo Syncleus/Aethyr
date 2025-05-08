@@ -39,7 +39,7 @@ EOF
             super(data)
             case data[:input]
             when /^(i|inv|inventory)$/i
-              $manager.submit_action(Aethyr::Core::Actions::Inventory::InventoryCommand.new(@player, {}))
+              $manager.submit_action(Aethyr::Core::Actions::Inventory::InventoryCommand.new(@player, ))
             end
           end
           

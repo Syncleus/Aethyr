@@ -45,7 +45,7 @@ EOF
             super(data)
             case data[:input]
             when /^whisper\s+(\w+)\s+(\((.*?)\)\s*)?(.*)$/i
-              $manager.submit_action(Aethyr::Core::Actions::Whisper::WhisperCommand.new(@player, { :to => $1, :phrase => $4, :pre => $3 }))
+              $manager.submit_action(Aethyr::Core::Actions::Whisper::WhisperCommand.new(@player,  :to => $1, :phrase => $4, :pre => $3 ))
             end
           end
 

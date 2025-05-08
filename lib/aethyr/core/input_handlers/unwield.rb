@@ -43,7 +43,7 @@ EOF
             case data[:input]
             when /^unwield(\s+(.*))?$/i
               weapon = $2
-              $manager.submit_action(Aethyr::Core::Actions::Unwield::UnwieldCommand.new(@player, {:weapon => weapon}))
+              $manager.submit_action(Aethyr::Core::Actions::Unwield::UnwieldCommand.new(@player, :weapon => weapon))
             end
           end
 

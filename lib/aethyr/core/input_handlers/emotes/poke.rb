@@ -38,7 +38,7 @@ EOF
             when /^(poke)( +([^()]*))?( +((.*)))?$/i
               object = $3
               post = $5
-              $manager.submit_action(Aethyr::Core::Actions::Poke::PokeCommand.new(@player, {:object => object, :post => post}))
+              $manager.submit_action(Aethyr::Core::Actions::Poke::PokeCommand.new(@player, :object => object, :post => post))
             end
           end
 

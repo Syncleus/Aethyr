@@ -36,7 +36,7 @@ EOF
             super(data)
             case data[:input]
             when /^awho/i
-              $manager.submit_action(Aethyr::Core::Actions::Awho::AwhoCommand.new(@player, {}))
+              $manager.submit_action(Aethyr::Core::Actions::Awho::AwhoCommand.new(@player, ))
             end
           end
 

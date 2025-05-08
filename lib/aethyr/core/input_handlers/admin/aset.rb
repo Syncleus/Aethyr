@@ -39,19 +39,19 @@ EOF
               object = $1
               attribute = $2
               value = $3
-              $manager.submit_action(Aethyr::Core::Actions::Aset::AsetCommand.new(@player, {:object => object, :attribute => attribute, :value => value}))
+              $manager.submit_action(Aethyr::Core::Actions::Aset::AsetCommand.new(@player, :object => object, :attribute => attribute, :value => value))
             when /^aset!\s+(.+?)\s+(@\w+|smell|feel|texture|taste|sound|listen)\s+(.*)$/i
               object = $1
               attribute = $2
               value = $3
               force = true
-              $manager.submit_action(Aethyr::Core::Actions::Aset::AsetCommand.new(@player, {:object => object, :attribute => attribute, :value => value, :force => force}))
+              $manager.submit_action(Aethyr::Core::Actions::Aset::AsetCommand.new(@player, :object => object, :attribute => attribute, :value => value, :force => force))
             when /^aset!\s+(.+?)\s+(@\w+|smell|feel|texture|taste|sound|listen)\s+(.*)$/i
               object = $1
               attribute = $2
               value = $3
               force = true
-              $manager.submit_action(Aethyr::Core::Actions::Aset::AsetCommand.new(@player, {:object => object, :attribute => attribute, :value => value, :force => force}))
+              $manager.submit_action(Aethyr::Core::Actions::Aset::AsetCommand.new(@player, :object => object, :attribute => attribute, :value => value, :force => force))
             end
           end
 

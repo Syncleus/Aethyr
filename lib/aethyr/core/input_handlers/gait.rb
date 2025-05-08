@@ -37,7 +37,7 @@ EOF
             case data[:input]
             when /^gait(\s+(.*))?$/i
               phrase = $2 if $2
-              $manager.submit_action(Aethyr::Core::Actions::Gait::GaitCommand.new(@player, {:phrase => phrase}))
+              $manager.submit_action(Aethyr::Core::Actions::Gait::GaitCommand.new(@player, :phrase => phrase))
             end
           end
 

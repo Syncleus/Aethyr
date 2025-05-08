@@ -38,7 +38,7 @@ EOF
             when /^acprop\s+(.*)$/i
               object = "prop"
               generic = $1
-              $manager.submit_action(Aethyr::Core::Actions::Acreate::AcreateCommand.new(@player, {:object => object, :generic => generic}))
+              $manager.submit_action(Aethyr::Core::Actions::Acreate::AcreateCommand.new(@player, :object => object, :generic => generic))
             end
           end
 

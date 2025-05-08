@@ -40,16 +40,16 @@ EOF
               object = $1
               attrib = $2
               value = $4
-              $manager.submit_action(Aethyr::Core::Actions::Ainfo::AinfoCommand.new(@player, {:command => command, :object => object, :attrib => attrib, :value => value}))
+              $manager.submit_action(Aethyr::Core::Actions::Ainfo::AinfoCommand.new(@player, :command => command, :object => object, :attrib => attrib, :value => value))
             when /^ainfo\s+(show|clear)\s+(.*)$/i
               object = $2
               command = $1
-              $manager.submit_action(Aethyr::Core::Actions::Ainfo::AinfoCommand.new(@player, {:object => object, :command => command}))
+              $manager.submit_action(Aethyr::Core::Actions::Ainfo::AinfoCommand.new(@player, :object => object, :command => command))
             when /^ainfo\s+(del|delete)\s+(.+)\s+@((\w|\.|\_)+)$/i
               command = "delete"
               object = $2
               attrib = $3
-              $manager.submit_action(Aethyr::Core::Actions::Ainfo::AinfoCommand.new(@player, {:command => command, :object => object, :attrib => attrib}))
+              $manager.submit_action(Aethyr::Core::Actions::Ainfo::AinfoCommand.new(@player, :command => command, :object => object, :attrib => attrib))
             end
           end
 

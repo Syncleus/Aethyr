@@ -38,7 +38,7 @@ EOF
             when /^(ponder)( +([^()]*))?( +((.*)))?$/i
               object = $3
               post = $5
-              $manager.submit_action(Aethyr::Core::Actions::Ponder::PonderCommand.new(@player, {:object => object, :post => post}))
+              $manager.submit_action(Aethyr::Core::Actions::Ponder::PonderCommand.new(@player, :object => object, :post => post))
             end
           end
 

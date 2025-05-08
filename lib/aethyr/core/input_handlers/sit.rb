@@ -44,7 +44,7 @@ EOF
             case data[:input]
             when /^sit\s+on\s+(.*)$/i, /^sit\s+(.*)$/i, /^sit$/i
               object = $1.strip if $1
-              $manager.submit_action(Aethyr::Core::Actions::Sit::SitCommand.new(@player, {:object => object}))
+              $manager.submit_action(Aethyr::Core::Actions::Sit::SitCommand.new(@player, :object => object))
             end
           end
 

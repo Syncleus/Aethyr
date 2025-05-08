@@ -39,7 +39,7 @@ EOF
             super(data)
             case data[:input]
             when /^give\s+((\w+\s*)*)\s+to\s+(\w+)/i
-              $manager.submit_action(Aethyr::Core::Actions::Give::GiveCommand.new(@player, { :item => $2.strip, :to => $3 }))
+              $manager.submit_action(Aethyr::Core::Actions::Give::GiveCommand.new(@player,  :item => $2.strip, :to => $3 ))
             end
           end
           

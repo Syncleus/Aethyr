@@ -38,7 +38,7 @@ EOF
             when /^(acomm|acomment)\s+(.*?)\s+(.*)$/i
               target = $2
               comment = $3
-              $manager.submit_action(Aethyr::Core::Actions::Acomment::AcommentCommand.new(@player, {:target => target, :comment => comment}))
+              $manager.submit_action(Aethyr::Core::Actions::Acomment::AcommentCommand.new(@player, :target => target, :comment => comment))
             end
           end
 

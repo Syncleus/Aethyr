@@ -38,12 +38,12 @@ EOF
             when /^terrain\s+area\s+(.*)$/i
               target = "area"
               value = $1
-              $manager.submit_action(Aethyr::Core::Actions::Terrain::TerrainCommand.new(@player, {:target => target, :value => value}))
+              $manager.submit_action(Aethyr::Core::Actions::Terrain::TerrainCommand.new(@player, :target => target, :value => value))
             when /^terrain\s+(room|here)\s+(type|indoors|underwater|water)\s+(.*)$/
               target = "room"
               setting = $2.downcase
               value = $3
-              $manager.submit_action(Aethyr::Core::Actions::Terrain::TerrainCommand.new(@player, {:target => target, :setting => setting, :value => value}))
+              $manager.submit_action(Aethyr::Core::Actions::Terrain::TerrainCommand.new(@player, :target => target, :setting => setting, :value => value))
             end
           end
 

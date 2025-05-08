@@ -38,7 +38,7 @@ EOF
             when /^alog\s+(\w+)(\s+(\d+))?$/i
               command = $1
               value = $3.downcase if $3
-              $manager.submit_action(Aethyr::Core::Actions::Alog::AlogCommand.new(@player, {:command => command, :value => value}))
+              $manager.submit_action(Aethyr::Core::Actions::Alog::AlogCommand.new(@player, :command => command, :value => value))
             end
           end
 

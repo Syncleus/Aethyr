@@ -40,7 +40,7 @@ EOF
               alt_names = []
               portal_action = $2
               args = [$4]
-              $manager.submit_action(Aethyr::Core::Actions::Acportal::AcportalCommand.new(@player, {:object => object, :alt_names => alt_names, :portal_action => portal_action, :args => args}))
+              $manager.submit_action(Aethyr::Core::Actions::Acportal::AcportalCommand.new(@player, :object => object, :alt_names => alt_names, :portal_action => portal_action, :args => args))
             end
           end
 

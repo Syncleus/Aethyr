@@ -53,9 +53,9 @@ EOF
             super(data)
             case data[:input]
             when /^tell\s+(\w+)\s+(.*)$/i
-              $manager.submit_action(Aethyr::Core::Actions::Tell::TellCommand.new(@player, {:target => $1, :message => $2 }))
+              $manager.submit_action(Aethyr::Core::Actions::Tell::TellCommand.new(@player, :target => $1, :message => $2 ))
             when /^reply\s+(.*)$/i
-              $manager.submit_action(Aethyr::Core::Actions::Reply::ReplyCommand.new(@player, {:message => $1 }))
+              $manager.submit_action(Aethyr::Core::Actions::Reply::ReplyCommand.new(@player, :message => $1 ))
             end
           end
 

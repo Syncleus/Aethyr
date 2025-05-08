@@ -36,7 +36,7 @@ EOF
             super(data)
             case data[:input]
             when /^write\s+(.*)/i
-              $manager.submit_action(Aethyr::Core::Actions::Write::WriteCommand.new(@player, { :target => $1.strip}))
+              $manager.submit_action(Aethyr::Core::Actions::Write::WriteCommand.new(@player,  :target => $1.strip))
             end
           end
         end

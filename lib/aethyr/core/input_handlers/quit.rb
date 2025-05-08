@@ -38,7 +38,7 @@ EOF
           def player_input(data)
             case data[:input]
             when /^quit$/i
-              $manager.submit_action(Aethyr::Core::Actions::Quit::QuitCommand.new(@player, {}))
+              $manager.submit_action(Aethyr::Core::Actions::Quit::QuitCommand.new(@player, ))
             end
           end
           

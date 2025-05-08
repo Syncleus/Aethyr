@@ -40,7 +40,7 @@ EOF
             super(data)
             case data[:input]
             when /^delete me please$/i
-              $manager.submit_action(Aethyr::Core::Actions::Deleteme::DeletemeCommand.new(@player, {}))
+              $manager.submit_action(Aethyr::Core::Actions::Deleteme::DeletemeCommand.new(@player, ))
             end
           end
         end

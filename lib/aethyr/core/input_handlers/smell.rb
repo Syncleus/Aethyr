@@ -37,7 +37,7 @@ EOF
             super(data)
             case data[:input]
             when /^(smell|sniff)(\s+(.+))?$/i
-              $manager.submit_action(Aethyr::Core::Actions::Smell::SmellCommand.new(@player, { :target => $3}))
+              $manager.submit_action(Aethyr::Core::Actions::Smell::SmellCommand.new(@player,  :target => $3))
             end
           end
         end

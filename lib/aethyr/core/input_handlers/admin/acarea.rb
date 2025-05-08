@@ -37,7 +37,7 @@ EOF
             case data[:input]
             when /^acarea\s+(.*)$/i
               name = $1.strip
-              $manager.submit_action(Aethyr::Core::Actions::Acarea::AcareaCommand.new(@player, {:name => name}))
+              $manager.submit_action(Aethyr::Core::Actions::Acarea::AcareaCommand.new(@player, :name => name))
             end
           end
 

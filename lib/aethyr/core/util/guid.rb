@@ -9,6 +9,10 @@
 #
 # Note from Justin Collins: Thanks, David!
 
+# ------------------------------------------------------------------
+# Windows-specific implementation – ignored from Linux-side coverage
+# ------------------------------------------------------------------
+# :nocov:
 if RUBY_PLATFORM =~ /win|ming/i
   module Guid_Win32_
     require 'Win32API'
@@ -54,6 +58,7 @@ if RUBY_PLATFORM =~ /win|ming/i
       end
     end
   end
+# :nocov:
 else
   module Guid_Unix_
     @@random_device = nil

@@ -24,12 +24,12 @@ def dump_load_path
     end
 end
 
-gem 'json', '~> 1.8.3'
+gem 'json', '~> 2.11'
 
-gem 'bundler', '~> 1.7'
+gem 'bundler', '~> 2.4'
 require 'bundler'
 
-gem 'rake', '~> 11.3.0'
+gem 'rake', '~> 13.2'
 require 'rake/clean'
 require 'rake/testtask'
 

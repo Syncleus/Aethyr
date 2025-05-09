@@ -6,7 +6,7 @@ require 'methadone/cucumber'
 # SimpleCov bootstrap (only when invoked via the :coverage Rake task)
 # ---------------------------------------------------------------------------
 if ENV['AETHYR_COVERAGE'] && !defined?(SimpleCov)
-  require 'coverage/console_reporter'
+  require_relative 'coverage/console_reporter'
   Coverage::ConsoleReporter.install!
 end
 

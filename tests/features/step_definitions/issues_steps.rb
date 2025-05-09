@@ -27,7 +27,7 @@ end
 
 require 'rspec/expectations'           # Provide the `expect` syntax for assertions inside steps.
 require 'fileutils'                    # Utility for creating/cleaning test fixture directories.
-require_relative '../../lib/aethyr/core/issues' # Pull-in the system-under-test.
+require_relative '../../../lib/aethyr/core/issues' # Pull-in the system-under-test.
 
 # --------------------------------------------------------------------------------------------------
 # Domain-specific support classes (used as *Test Doubles*)                                          

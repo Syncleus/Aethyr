@@ -23,7 +23,7 @@ require_relative '../ncurses_stub'  # neutralise native deps early
 #  set by the Rake task (see IntegrationTaskBuilder).
 # -----------------------------------------------------------------------------
 if ENV['AETHYR_COVERAGE_INTEGRATION'] && !defined?(SimpleCov)
-  require 'coverage/console_reporter'
+  require_relative '../../features/support/coverage/console_reporter'
   # Re-use the existing façade but override the output directory so the two
   # coverage phases never overwrite each other.
   Coverage::ConsoleReporter.install!

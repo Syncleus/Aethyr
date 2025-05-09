@@ -82,7 +82,7 @@ safe_require 'ncursesw',           'ncursesw'
 
 # Project-local task libraries.
 safe_require_relative 'lib/aethyr/core/util/config'
-safe_require_relative 'features/support/coverage/rake_task'
+safe_require_relative 'tests/features/support/coverage/rake_task'
 
 # -----------------------------------------------------------------------------
 #  Constants – grouped to prevent top-level namespace pollution.
@@ -125,7 +125,8 @@ class FeaturesTaskBuilder
       # --no-source     : omits feature file listings for brevity
       # -x              : fail fast on first error to save CI cycles
       t.cucumber_opts = [
-        'features',
+        '--require', 'tests/features',
+        'tests/features',
         '--format', 'html', '-o', CUKE_RESULTS,
         '--format', 'pretty', '--no-source', '-x'
       ]
@@ -174,8 +175,8 @@ class IntegrationTaskBuilder
     Cucumber::Rake::Task.new(:integration) do |t|
       # Direct Cucumber to the *integration* feature directory only.
       t.cucumber_opts = [
-        '--require', 'integration',
-        'integration',
+        '--require', 'tests/integration',
+        'tests/integration',
         '--format', 'html', '-o', RESULTS_FILE,
         '--format', 'pretty', '--no-source'
       ]

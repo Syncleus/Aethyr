@@ -123,8 +123,11 @@ class FeaturesTaskBuilder
       # --format html   : machine-consumable report persisted to disk
       # --no-source     : omits feature file listings for brevity
       # -x              : fail fast on first error to save CI cycles
-      t.cucumber_opts = "features --format html -o #{CUKE_RESULTS} " \
-                        '--format pretty --no-source -x'
+      t.cucumber_opts = [
+        'features',
+        '--format', 'html', '-o', CUKE_RESULTS,
+        '--format', 'pretty', '--no-source', '-x'
+      ]
       t.fork = false # Ruby 3.x: forking is unnecessary and slower
     end
   end

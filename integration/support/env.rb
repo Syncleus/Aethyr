@@ -59,5 +59,5 @@ After do
 
   # Kill *all* processes started by Aruba for deterministic teardown, even if
   # a scenario failed midway.
-  stop_processes!
+  stop_all_commands
 end 

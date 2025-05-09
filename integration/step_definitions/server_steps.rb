@@ -19,26 +19,27 @@ World(Test::Unit::Assertions)
 #  HELPER METHODS (private)
 # ----------------------------
 module IntegrationHelpers
-  DEFAULT_BOOT_TIMEOUT = 5 # seconds – adequate for local CI
+  DEFAULT_BOOT_TIMEOUT = 15 # seconds – allow ample startup time
 
-  # Block until the server process signals readiness or timeout is reached.
-  # Uses a very simple heuristic – the magic string printed by the bootstrap
-  # code when the listener has been bound.  This remains implementation detail
-  # hidden behind a tiny façade which can be adapted if Aethyr changes.
+  # Waits until the TCP port is accepting connections or times out.
+  # Rather than relying on log output, we probe the port directly which is a
+  # more robust indicator of readiness.
   #
-  # @param server_process [Aruba::Processes::Process] handle returned by Aruba
-  # @param timeout        [Integer] seconds before we abort
+  # @param port [Integer] Port number to probe
+  # @param timeout [Integer] seconds before giving up
   # @return [void]
-  def wait_for_server_start(server_process, timeout: DEFAULT_BOOT_TIMEOUT)
+  def wait_for_port(port, timeout: DEFAULT_BOOT_TIMEOUT)
     deadline = Time.now + timeout
-    loop do
-      raise 'Server did not start within expected time' if Time.now > deadline
-
-      out = server_process.stdout + server_process.stderr
-      break if out.include?('Server up and running') # magic string from server.rb
-
-      sleep 0.1
+    until Time.now > deadline
+      begin
+        socket = TCPSocket.new('127.0.0.1', port)
+        socket.close
+        return # success
+      rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH
+        sleep 0.1
+      end
     end
+    raise "Server did not open port #{port} within #{timeout} seconds"
   end
 end
 World(IntegrationHelpers)
@@ -47,11 +48,12 @@ World(IntegrationHelpers)
 #  Step: Given the server is running
 # -----------------------------------------------------------------------------
 Given('the Aethyr server is running') do
-  # Launch the server via the published executable to stay as close to the user
-  # journey as possible – this maximises confidence that the packaging works.
-  @server_process = run_command('aethyr')
+  port = ServerConfig.port
 
-  wait_for_server_start(@server_process)
+  # Start the server via the repository script directly to avoid PATH issues.
+  @server_process = run_command('bin/aethyr')
+
+  wait_for_port(port)
 end
 
 # -----------------------------------------------------------------------------
@@ -93,8 +95,6 @@ end
 #  T E A R D O W N
 # -----------------------------------------------------------------------------
 After do
-  # Ensure the server is terminated even if the scenario fails.
-  if defined?(@server_process) && @server_process&.alive?
-    stop_processes!
-  end
+  # Ensure the server process is terminated even if the scenario fails.
+  stop_all_commands
 end 

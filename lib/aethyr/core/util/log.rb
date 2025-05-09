@@ -15,10 +15,44 @@ class Logger
     @max_log_size = max_log_size
   end
 
-  #Log something.
-  def add(msg, log_level = Normal, dump_log = false)
+  # Log an entry to the in-memory buffer and optionally force a buffer dump.
+  #
+  # Parameters
+  # ----------
+  # log_level : Integer
+  #     The severity level of the log.  Higher values correspond to
+  #     less-important messages.  The constants `Ultimate`, `Medium`,
+  #     `Normal`, and `Important` provide convenient severity shortcuts.
+  # msg : String, nil
+  #     The formatted message to be logged.  If `nil` and a block is
+  #     given, the block will be executed and the returned value will be
+  #     used as the message.  If both are `nil`, the call is ignored.
+  # progname : String, nil
+  #     A short label generally indicating which subsystem produced the
+  #     log entry.  Present only for compatibility with the standard
+  #     Ruby ::Logger API – it is currently ignored by this implementation.
+  # dump_log : Boolean
+  #     When `true`, forces a call to `dump` immediately after the log
+  #     entry is added.
+  #
+  # Notes
+  # -----
+  # This signature mirrors the standard Ruby `Logger#add` API to make it
+  # easier for consumers and tooling to interoperate.  The additional
+  # keyword `dump_log` provides explicit control over flushing behaviour
+  # without overloading positional arguments.
+  def add(log_level, msg = nil, progname = nil, dump_log: false)
 
-    if log_level <= ServerConfig[:log_level]
+    # Lazily evaluate the message from an optional block when not
+    # explicitly supplied – keeping the call semantics consistent with
+    # ::Logger#add.
+    msg = yield if msg.nil? && block_given?
+
+    # Guard against cases where no meaningful message was supplied even
+    # after evaluating the block.
+    return if msg.nil?
+
+    if ServerConfig[:log_level] && log_level <= ServerConfig[:log_level]
       $stderr.puts msg
 
       @entries << msg
@@ -52,7 +86,11 @@ class Logger
     GC.start
   end
 
-  alias :<< :add
+  # Convenience operator so callers can use `$LOG << "message"` which
+  # will log at the default `Normal` severity.
+  def <<(msg)
+    add(Normal, msg)
+  end
 end
 
 unless Object.respond_to? :log, true
@@ -61,9 +99,14 @@ unless Object.respond_to? :log, true
 
     #Log a message and optionally force writing to disk.
     def log(msg, log_level = Logger::Normal, dump_log = false)
+      # Construct a consistent timestamped log message.
       logmsg = "[#{Time.now.strftime("%x %X")} #{self.class}#{(defined? GameObject and self.is_a? GameObject) ? " #{self.name}" : ""}]: " + msg.to_s
+
       $LOG ||= Logger.new
-      $LOG.add(logmsg, log_level, dump_log)
+
+      # The new signature expects the severity first followed by the
+      # message.
+      $LOG.add(log_level, logmsg, nil, dump_log: dump_log)
     end
 
     private :log

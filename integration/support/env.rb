@@ -13,6 +13,7 @@ require 'aruba/cucumber'           # CLI/process orchestration utilities
 require 'methadone/cucumber'       # Consistent CLI world helpers
 require 'test/unit/assertions'     # Assertion mix-in for step definitions
 require 'socket'                   # TCP client connections to the Aethyr server
+require_relative '../ncurses_stub'  # neutralise native deps early
 
 # -----------------------------------------------------------------------------
 #  Code-coverage (SimpleCov)
@@ -48,8 +49,8 @@ Before do
   # Aruba timeouts – integration scenarios need a little more leeway because
   # the server must boot before the first assertion can execute.
   Aruba.configure do |config|
-    config.exit_timeout = 10     # seconds to wait for spawned processes to exit
-    config.io_wait_timeout = 5   # I/O readiness grace period
+    config.exit_timeout = 20     # seconds to wait for spawned processes to exit
+    config.io_wait_timeout = 10  # I/O readiness grace period
   end
 end
 

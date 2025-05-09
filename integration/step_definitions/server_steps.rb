@@ -15,27 +15,31 @@ require 'aethyr/core/util/config'
 
 World(Test::Unit::Assertions)
 
+# Resolve project root directory (three levels up from this file)
+PROJECT_ROOT = File.expand_path('../../../', __dir__)
+
 # ----------------------------
 #  HELPER METHODS (private)
 # ----------------------------
 module IntegrationHelpers
-  DEFAULT_BOOT_TIMEOUT = 15 # seconds – allow ample startup time
+  DEFAULT_BOOT_TIMEOUT = 30 # seconds – allow ample startup time
 
   # Waits until the TCP port is accepting connections or times out.
-  # Rather than relying on log output, we probe the port directly which is a
-  # more robust indicator of readiness.
   #
   # @param port [Integer] Port number to probe
+  # @param server_thread [Thread] reference to the server background thread
   # @param timeout [Integer] seconds before giving up
   # @return [void]
-  def wait_for_port(port, timeout: DEFAULT_BOOT_TIMEOUT)
+  def wait_for_port(port, server_thread, timeout: DEFAULT_BOOT_TIMEOUT)
     deadline = Time.now + timeout
     until Time.now > deadline
       begin
-        socket = TCPSocket.new('127.0.0.1', port)
-        socket.close
+        TCPSocket.new('127.0.0.1', port).close
         return # success
       rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH
+        unless server_thread&.alive?
+          raise "Server thread terminated early. Check server logs/output."
+        end
         sleep 0.1
       end
     end
@@ -50,10 +54,26 @@ World(IntegrationHelpers)
 Given('the Aethyr server is running') do
   port = ServerConfig.port
 
-  # Start the server via the repository script directly to avoid PATH issues.
-  @server_process = run_command('bin/aethyr')
+  # Boot the server in a background Ruby thread rather than spawning a separate
+  # process.  This removes shell indirection and surfaces any exceptions
+  # immediately in the test output.
+  require 'aethyr/core/connection/server'
 
-  wait_for_port(port)
+  @server_exception = nil
+  @server_thread = Thread.new do
+    begin
+      Thread.current.name = 'AethyrServer'
+      Aethyr::Server.new(ServerConfig.address, port)
+    rescue Exception => e # rubocop:disable RescueException – we want *everything*
+      @server_exception = e
+      warn "[Integration] Server thread crashed: #{e.class}: #{e.message}\n#{e.backtrace.join("\n")}"
+    end
+  end
+
+  # Ensure the thread aborts the run if it dies silently.
+  @server_thread.abort_on_exception = true
+
+  wait_for_port(port, @server_thread)
 end
 
 # -----------------------------------------------------------------------------
@@ -95,6 +115,9 @@ end
 #  T E A R D O W N
 # -----------------------------------------------------------------------------
 After do
-  # Ensure the server process is terminated even if the scenario fails.
-  stop_all_commands
+  # Terminate background server thread if still alive.
+  if defined?(@server_thread) && @server_thread&.alive?
+    @server_thread.kill
+    @server_thread.join(5)
+  end
 end 

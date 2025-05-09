@@ -11,3 +11,4 @@ lib/aethyr/extensions/reactions/
 .bundle/
 vendor/
 /coverage/
+/tmp/

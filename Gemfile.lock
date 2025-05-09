@@ -6,6 +6,7 @@ PATH
       concurrent-ruby (~> 1.0)
       eventmachine (~> 1.2)
       gdbm (~> 2.1)
+      logger (~> 1.5)
       methadone (~> 2.0)
       ncursesw (~> 1.4)
       require_all (~> 2.0)
@@ -70,6 +71,7 @@ GEM
     ffi (1.17.2-x86_64-linux-musl)
     gdbm (2.1.0)
     json (2.11.3)
+    logger (1.7.0)
     methadone (2.0.2)
       bundler
     mini_mime (1.1.5)

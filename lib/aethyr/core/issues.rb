@@ -1,4 +1,5 @@
 require 'date'
+require 'gdbm'
 
 #Generic module for storing and manipulating issues
 #like ideas, bugs, and typos

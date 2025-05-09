@@ -12,3 +12,4 @@ lib/aethyr/extensions/reactions/
 vendor/
 /coverage/
 /tmp/
+/.cursor/

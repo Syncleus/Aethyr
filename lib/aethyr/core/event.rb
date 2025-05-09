@@ -98,7 +98,25 @@ class Event < OpenStruct
     unless args.nil?
       args.each do |k,v|
         @table[k.to_sym] = v
-        new_ostruct_member(k)
+        # ------------------------------------------------------------------
+        # Ruby 3.3+ removed the private `OpenStruct#new_ostruct_member` helper
+        # that earlier versions used to create dynamic accessors.  To keep
+        # backward-/forward-compatibility we detect its presence at runtime
+        # and fall back to an explicit `define_singleton_method` strategy
+        # when necessary (Open/Closed Principle – the public contract of
+        # Event remains unchanged regardless of upstream evolution).
+        # ------------------------------------------------------------------
+        if respond_to?(:new_ostruct_member, true)
+          # Older Rubies – delegate to the original helper.
+          send(:new_ostruct_member, k)
+        else
+          # Newer Rubies – eagerly install reader & writer on the *singleton*
+          # class so that later calls like `event.target` still work.
+          singleton_class.class_eval do
+            define_method(k) { @table[k.to_sym] }
+            define_method("#{k}=") { |val| @table[k.to_sym] = val }
+          end
+        end
       end
     end
     self

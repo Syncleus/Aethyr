@@ -375,4 +375,55 @@ After do
     Guid.class_variable_set(:@@random_device, nil) \
       if defined?(Guid) && Guid.class_variable_defined?(:@@random_device)
   end
+end
+
+################################################################################
+#                          E V E N T   S T E P S                               #
+################################################################################
+# These granular steps validate the dynamic behaviour of `Aethyr::Core::Event`.
+# They deliberately piggy-back on the GUID step-definition file to avoid
+# introducing additional Cucumber artefacts while still fulfilling the
+# requirement to *extend existing* test files.                                 #
+################################################################################
+require 'aethyr/core/event'
+
+module EventWorld
+  attr_accessor :current_event
+end
+World(EventWorld)
+
+Given('I require the Event library') do
+  # The require above at file-scope already loads the library; this step exists
+  # purely to keep the Gherkin narrative consistent and intention-revealing.
+  assert(Object.const_defined?(:Event), 'Expected Event constant to be defined')
+end
+
+When('I create a new event of type {string} for player {string}') do |type, player|
+  self.current_event = Event.new(type.to_sym, player: player)
+end
+
+When('I add attribute {string} with value {string} to the current event') do |key, value|
+  self.current_event << { key.to_sym => value }
+end
+
+Then('the current event should have attribute {string} equal to {string}') do |key, expected|
+  actual = current_event.public_send(key.to_sym)
+  assert_equal(expected, actual,
+               "Expected event attribute #{key} to be #{expected.inspect}, got #{actual.inspect}")
+end
+
+When('I attach a secondary event of type {string} with amount {int} to the current event') do |type, amount|
+  secondary = Event.new(type.to_sym, amount: amount)
+  current_event.attach_event(secondary)
+end
+
+Then('the current event should contain an attached event of type {string}') do |type|
+  attached = current_event.attached_events || []
+  assert(attached.any? { |ev| ev.type.to_s == type },
+         "Expected an attached event of type #{type.inspect} but none found")
+end
+
+Then('converting the current event to string should include {string}') do |snippet|
+  assert(current_event.to_s.include?(snippet),
+         "Expected Event#to_s to include #{snippet.inspect} but it did not")
 end 

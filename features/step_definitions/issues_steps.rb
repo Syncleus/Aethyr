@@ -16,6 +16,13 @@
 require 'simplecov'                    # Run code-coverage *before* any application code is required.
 SimpleCov.start do
   add_filter '/features/'              # Ignore the Cucumber test-suite itself from coverage numbers.
+  # Allow full-suite coverage by *not* excluding library files beyond the
+  # feature directory itself.  This ensures the final HTML report reflects
+  # execution across the entire codebase instead of only issues.rb.
+
+  # Track everything under lib/ so that new files introduced in the future are
+  # automatically included in the statistics.
+  track_files 'lib/**/*.rb'
 end
 
 require 'rspec/expectations'           # Provide the `expect` syntax for assertions inside steps.
@@ -191,4 +198,8 @@ end
 Then(/^the access result should be nil$/) do
   # Direct assertion when expecting a literal nil result from `check_access`.
   expect(last_result).to be_nil
+end
+
+Then(/^the last result should be "([^"]*)"$/) do |expected|
+  expect(last_result).to eq(expected)
 end 

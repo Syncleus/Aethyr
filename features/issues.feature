@@ -46,4 +46,16 @@ Feature: Issue registry lifecycle assurance
     And I add an issue of type "bug" reported by "Bob" with report "Button misaligned"
     When I list issues of type "bug" for reporter "Alice"
     Then the filtered list should include "Alice"
-    And the filtered list should not include "Bob" 
+    And the filtered list should not include "Bob"
+
+  Scenario: Access non-existent issue denies retrieval
+    When player "Eve" who is not admin tries to access issue "42" of type "bug"
+    Then the access result should be "There is no bug with that number."
+
+  Scenario: Show non-existent issue
+    When I show issue "99" of type "bug"
+    Then the show result should include "No such bug"
+
+  Scenario: Delete non-existent issue
+    When I delete issue "99" of type "bug"
+    Then the last result should be "No such bug with id 99." 

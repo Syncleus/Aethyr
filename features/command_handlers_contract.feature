@@ -99,3 +99,17 @@ Feature: CommandHandler contract compliance
       | acomm |
       | acexit |
       | acdoor |
+
+  Scenario: HandlerRegistry registers handlers uniquely and subscribes a manager
+    Given the HandlerRegistry is cleared
+    And a dummy command handler class exists
+    When I register the dummy handler
+    And I register the dummy handler again
+    Then the handler registry should contain exactly 1 handler
+    When the handler registry handles a stub manager
+    Then the stub manager should have exactly 1 subscription for the dummy handler
+
+  Scenario: Registering a nil handler raises an error
+    Given the HandlerRegistry is cleared
+    When I attempt to register a nil handler
+    Then a RuntimeError should be raised with message "Bad handler!"

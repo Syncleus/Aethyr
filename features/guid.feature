@@ -63,3 +63,12 @@ Feature: Globally-Unique Identifiers (GUID)
     When I generate 2 GUIDs
     Then each GUID should match the canonical GUID pattern
     And all GUIDs should be unique 
+
+  Scenario: Event supports dynamic attributes and attachment chaining
+    Given I require the Event library
+    When I create a new event of type "combat" for player "Alice"
+    And I add attribute "target" with value "Goblin" to the current event
+    Then the current event should have attribute "target" equal to "Goblin"
+    When I attach a secondary event of type "damage" with amount 10 to the current event
+    Then the current event should contain an attached event of type "damage"
+    And converting the current event to string should include "target=Goblin" 

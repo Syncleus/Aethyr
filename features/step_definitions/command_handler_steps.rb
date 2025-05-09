@@ -259,4 +259,128 @@ Then('processing a sample command should not raise an exception') do
   ) do
     handler.player_input(input: sample_input)
   end
+end
+
+###############################################################################
+#                      H A N D L E R   R E G I S T R Y   S T E P S            #
+###############################################################################
+# The scenarios added to `command_handlers_contract.feature` exercise the
+# public surface of `Aethyr::Extend::HandlerRegistry`.  The tiny additions
+# below reuse the existing test-harness utilities (player, StubManager, etc.)
+# while avoiding any new global state – thus maintaining isolation between
+# unrelated scenarios.                                                          
+###############################################################################
+require 'set'
+require 'aethyr/core/registry'
+
+# Shared scratch-space for the newly introduced steps.
+module RegistryWorld
+  attr_accessor :dummy_handler_class, :registry_manager_stub
+end
+World(RegistryWorld)
+
+# -----------------------------------------------------------------------------
+# Given – reset the global registry so that each scenario starts from the same
+#         pristine state.  We *intentionally* reach into the class-variable to
+#         guarantee full branch-coverage of the public API (SRP lets us keep
+#         this intrusive reflection inside the test-suite only).
+# -----------------------------------------------------------------------------
+Given('the HandlerRegistry is cleared') do
+  Aethyr::Extend::HandlerRegistry.class_variable_set(:@@handlers, Set.new)
+end
+
+# -----------------------------------------------------------------------------
+# Given – dynamically define a minimal concrete CommandHandler subclass so that
+#         we can register it without coupling the test to any production file.
+# -----------------------------------------------------------------------------
+Given('a dummy command handler class exists') do
+  # Avoid redefining the constant when scenarios run multiple times.
+  unless Object.const_defined?(:DummyContractHandler)
+    Object.const_set(:DummyContractHandler, Class.new(Aethyr::Extend::CommandHandler) do
+      # Provide a no-op implementation that still honours the constructor
+      # signature expected by CommandHandler.
+      def initialize(player, *args, **kwargs)
+        super(player, [], *args, help_entries: [], **kwargs)
+      end
+
+      # Advertise a single command so that other contract checks continue to
+      # pass even if this class is used elsewhere in the suite.
+      def commands
+        [:dummy]
+      end
+    end)
+  end
+
+  self.dummy_handler_class = Object.const_get(:DummyContractHandler)
+end
+
+# -----------------------------------------------------------------------------
+# When – register the previously defined dummy handler through the public API.
+# -----------------------------------------------------------------------------
+When('I register the dummy handler') do
+  Aethyr::Extend::HandlerRegistry.register_handler(dummy_handler_class)
+end
+
+# -----------------------------------------------------------------------------
+# When – attempt to register the *same* handler once again.
+# -----------------------------------------------------------------------------
+When('I register the dummy handler again') do
+  Aethyr::Extend::HandlerRegistry.register_handler(dummy_handler_class)
+end
+
+# -----------------------------------------------------------------------------
+# Then – ensure the registry contains exactly one unique entry.
+# -----------------------------------------------------------------------------
+Then('the handler registry should contain exactly {int} handler') do |count|
+  handlers = Aethyr::Extend::HandlerRegistry.get_handlers
+  assert_equal(count, handlers.size, "Expected exactly #{count} handler(s) but found #{handlers.size}")
+end
+
+# -----------------------------------------------------------------------------
+# When – drive the `#handle` callback using a purpose-built StubManager capable
+#         of recording `#subscribe` invocations made by the registry.
+# -----------------------------------------------------------------------------
+When('the handler registry handles a stub manager') do
+  # Lightweight stub mimicking the public #subscribe interface expected by the
+  # registry whilst capturing any callback invocations for later assertions.
+  class RegistryTestManager
+    attr_reader :subscriptions
+    def initialize
+      @subscriptions = []
+    end
+    def subscribe(handler, on:)
+      @subscriptions << [handler, on]
+    end
+  end
+
+  self.registry_manager_stub = RegistryTestManager.new
+  Aethyr::Extend::HandlerRegistry.handle(registry_manager_stub)
+end
+
+# -----------------------------------------------------------------------------
+# Then – verify *exactly* the expected subscription has been recorded.
+# -----------------------------------------------------------------------------
+Then('the stub manager should have exactly {int} subscription for the dummy handler') do |count|
+  subs = registry_manager_stub.subscriptions.select { |klass, _| klass == dummy_handler_class }
+  assert_equal(count, subs.size,
+               "Expected #{count} subscription(s) for #{dummy_handler_class} but found #{subs.size}")
+end
+
+# -----------------------------------------------------------------------------
+# When – attempt to register a nil handler to exercise the guard-clause branch.
+# -----------------------------------------------------------------------------
+When('I attempt to register a nil handler') do
+  # Capture any raised exception for later validation using the custom helper.
+  @raised_exception = assert_raises(RuntimeError) do
+    Aethyr::Extend::HandlerRegistry.register_handler(nil)
+  end
+end
+
+# -----------------------------------------------------------------------------
+# Then – leverage the helper from features/support/assertions.rb to confirm the
+#         precise exception message.
+# -----------------------------------------------------------------------------
+Then('a RuntimeError should be raised with message {string}') do |expected_message|
+  assert(@raised_exception, 'Expected an exception to have been captured')
+  assert_equal(expected_message, @raised_exception.message)
 end 

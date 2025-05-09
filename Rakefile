@@ -150,6 +150,37 @@ class CoverageTaskBuilder
     Coverage::RakeTask.new # the TaskLib defines the :coverage command
   end
 end
+
+class IntegrationTaskBuilder
+  include Rake::DSL
+  include BuildConstants
+
+  RESULTS_FILE = 'integration_results.html'
+
+  # Public: Install a dedicated Cucumber task for integration testing.
+  # Separate artefacts ensure unit and integration phases do not overlap.
+  def install
+    CLEAN << RESULTS_FILE
+
+    # Signal integration coverage upfront so the environment is inherited by
+    # the Cucumber process. The rake process is the parent of the Cucumber
+    # runner therefore this single assignment suffices.
+    ENV['AETHYR_COVERAGE_INTEGRATION'] = '1'
+
+    Cucumber::Rake::Task.new(:integration) do |t|
+      # Direct Cucumber to the *integration* feature directory only.
+      t.cucumber_opts = [
+        '--require', 'integration',
+        'integration',
+        '--format', 'html', '-o', RESULTS_FILE,
+        '--format', 'pretty', '--no-source'
+      ]
+
+      # Avoid fail-fast so every scenario runs regardless of earlier failures.
+      t.fork = false
+    end
+  end
+end
 # rubocop:enable Style/Documentation
 
 # -----------------------------------------------------------------------------
@@ -171,6 +202,7 @@ module Build
     FeaturesTaskBuilder.new.install
     DocsTaskBuilder.new.install
     CoverageTaskBuilder.new.install
+    IntegrationTaskBuilder.new.install
 
     desc 'Run unit tests and cucumber features (default)'
     task default: %i[test features]

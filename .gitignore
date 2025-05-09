@@ -13,3 +13,4 @@ vendor/
 /coverage/
 /tmp/
 /.cursor/
+integration_results.html

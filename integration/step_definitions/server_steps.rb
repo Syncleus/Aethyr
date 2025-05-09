@@ -24,6 +24,19 @@ PROJECT_ROOT = File.expand_path('../../../', __dir__)
 module IntegrationHelpers
   DEFAULT_BOOT_TIMEOUT = 30 # seconds – allow ample startup time
 
+  # Dynamically finds an available TCP port on localhost by binding to port 0.
+  # The operating system selects an ephemeral port automatically which is then
+  # released immediately after discovery.
+  #
+  # @return [Integer] A currently unused TCP port number guaranteed to be
+  #   available at the moment of invocation.
+  def find_free_port
+    server = TCPServer.new('127.0.0.1', 0)
+    port = server.addr[1]
+    server.close
+    port
+  end
+
   # Waits until the TCP port is accepting connections or times out.
   #
   # @param port [Integer] Port number to probe
@@ -52,7 +65,18 @@ World(IntegrationHelpers)
 #  Step: Given the server is running
 # -----------------------------------------------------------------------------
 Given('the Aethyr server is running') do
-  port = ServerConfig.port
+  # Dynamically allocate a free port to avoid clashes with other services or
+  # concurrently running test suites.  This eliminates the risk of `EADDRINUSE`
+  # errors which would otherwise occur if the default port (usually 8888) is
+  # already occupied.
+  port = find_free_port
+
+  # Inject the dynamically chosen port into the in-memory configuration so that
+  # all subsequent calls to `ServerConfig.port` within this process reflect the
+  # new value.  We deliberately avoid `ServerConfig[:port]=` because that method
+  # persists the change to disk which is undesirable during transient test
+  # execution.
+  ServerConfig.load[:port] = port
 
   # Boot the server in a background Ruby thread rather than spawning a separate
   # process.  This removes shell indirection and surfaces any exceptions

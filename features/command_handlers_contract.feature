@@ -151,4 +151,106 @@ Feature: CommandHandler contract compliance
     Then the contract should hold for "close"
 
   Scenario: help implements the CommandHandler contract
-    Then the contract should hold for "help" 
+    Then the contract should hold for "help"
+
+  Scenario: acarea implements the CommandHandler contract
+    Then the contract should hold for "acarea"
+
+  Scenario: terrain implements the CommandHandler contract
+    Then the contract should hold for "terrain"
+
+  Scenario: restart implements the CommandHandler contract
+    Then the contract should hold for "restart"
+
+  Scenario: deleteplayer implements the CommandHandler contract
+    Then the contract should hold for "deleteplayer"
+
+  Scenario: awho implements the CommandHandler contract
+    Then the contract should hold for "awho"
+
+  Scenario: awatch implements the CommandHandler contract
+    Then the contract should hold for "awatch"
+
+  Scenario: ateach implements the CommandHandler contract
+    Then the contract should hold for "ateach"
+
+  Scenario: astatus implements the CommandHandler contract
+    Then the contract should hold for "astatus"
+
+  Scenario: ashow implements the CommandHandler contract
+    Then the contract should hold for "ashow"
+
+  Scenario: aset implements the CommandHandler contract
+    Then the contract should hold for "aset"
+
+  Scenario: asave implements the CommandHandler contract
+    Then the contract should hold for "asave"
+
+  Scenario: areload implements the CommandHandler contract
+    Then the contract should hold for "areload"
+
+  Scenario: areas implements the CommandHandler contract
+    Then the contract should hold for "areas"
+
+  Scenario: areact implements the CommandHandler contract
+    Then the contract should hold for "areact"
+
+  Scenario: aput implements the CommandHandler contract
+    Then the contract should hold for "aput"
+
+  Scenario: alook implements the CommandHandler contract
+    Then the contract should hold for "alook"
+
+  Scenario: alog implements the CommandHandler contract
+    Then the contract should hold for "alog"
+
+  Scenario: alist implements the CommandHandler contract
+    Then the contract should hold for "alist"
+
+  Scenario: alearn implements the CommandHandler contract
+    Then the contract should hold for "alearn"
+
+  Scenario: ainfo implements the CommandHandler contract
+    Then the contract should hold for "ainfo"
+
+  Scenario: ahide implements the CommandHandler contract
+    Then the contract should hold for "ahide"
+
+  Scenario: ahelp implements the CommandHandler contract
+    Then the contract should hold for "ahelp"
+
+  Scenario: aforce implements the CommandHandler contract
+    Then the contract should hold for "aforce"
+
+  Scenario: adesc implements the CommandHandler contract
+    Then the contract should hold for "adesc"
+
+  Scenario: adelete implements the CommandHandler contract
+    Then the contract should hold for "adelete"
+
+  Scenario: acroom implements the CommandHandler contract
+    Then the contract should hold for "acroom"
+
+  Scenario: acreate implements the CommandHandler contract
+    Then the contract should hold for "acreate"
+
+  Scenario: acprop implements the CommandHandler contract
+    Then the contract should hold for "acprop"
+
+  Scenario: acportal implements the CommandHandler contract
+    Then the contract should hold for "acportal"
+
+  Scenario: aconfig implements the CommandHandler contract
+    Then the contract should hold for "aconfig"
+
+  Scenario: acomment implements the CommandHandler contract
+    Then the contract should hold for "acomment"
+
+  Scenario: acomm implements the CommandHandler contract
+    Then the contract should hold for "acomm"
+
+  Scenario: acexit implements the CommandHandler contract
+    Then the contract should hold for "acexit"
+
+  Scenario: acdoor implements the CommandHandler contract
+    Then the contract should hold for "acdoor" 

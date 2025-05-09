@@ -76,8 +76,29 @@ end
 ###############################################################################
 
 def resolve_handler_class(identifier)
-  # Force-load the source-file so that the class constant becomes defined.     #
-  require "aethyr/core/input_handlers/#{identifier}"
+  # ---------------------------------------------------------------------
+  # Resolve the *source path* for the handler. Concrete command handlers  
+  # live in two different namespaces:                                     
+  #                                                                       
+  #   1. lib/aethyr/core/input_handlers/<identifier>.rb                   
+  #   2. lib/aethyr/core/input_handlers/admin/<identifier>.rb             
+  #                                                                       
+  # The second location contains admin-only commands which still obey the 
+  # *exact* same runtime contract. We therefore have to attempt loading   
+  # from both places.                                                     
+  # ---------------------------------------------------------------------
+
+  begin
+    require "aethyr/core/input_handlers/#{identifier}"
+  rescue LoadError => _e
+    # Fall back to the admin collection.                                  
+    begin
+      require "aethyr/core/input_handlers/admin/#{identifier}"
+    rescue LoadError
+      # Re-raise the original error so callers receive a helpful message. 
+      raise
+    end
+  end
 
   #   1. Ask the registry – preferred because it contains the fully qualified  #
   #      constants regardless of the nesting module hierarchy.                 #

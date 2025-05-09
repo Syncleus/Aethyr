@@ -33,6 +33,29 @@ require 'aethyr/core/connection/player_connect'
 require 'aethyr/core/render/display'
 
 module Aethyr
+    # Custom exception class that represents connection reset errors in client handling
+    # This provides better semantic information than simply returning nil
+    class ClientConnectionResetError < StandardError
+      # Creates a new instance of ClientConnectionResetError
+      #
+      # @param message [String] The error message to be displayed
+      # @param addrinfo [Addrinfo] Information about the client address that experienced the reset
+      # @param original_error [Exception] The original network error that triggered this exception
+      def initialize(message = "Client connection reset", addrinfo = nil, original_error = nil)
+        @addrinfo = addrinfo
+        @original_error = original_error
+        super(message)
+      end
+      
+      # Client address information where the reset occurred
+      # @return [Addrinfo] The client address information
+      attr_reader :addrinfo
+      
+      # The original network error that caused this exception
+      # @return [Exception] The original exception object
+      attr_reader :original_error
+    end
+
     #The Server is what starts everything up. In fact, that is pretty much all it does. To use, call Server.new.
     class Server
       #This is the main server loop. Just call it.
@@ -62,7 +85,11 @@ module Aethyr
           #ready, _, _ = IO.select([listener])
           socket, addr_info = listener.accept_nonblock(exception: false)
           if (not socket.nil?) and socket.is_a? Socket
-            players << handle_client(socket, addr_info)
+            begin
+              players << handle_client(socket, addr_info)
+            rescue ClientConnectionResetError => e
+              log "Player disconnected prematurely", Logger::Medium, true
+            end
           end
 
           players.each do |player|
@@ -125,10 +152,11 @@ module Aethyr
       def handle_client(socket, addrinfo)
         begin
           player = PlayerConnection.new(socket, addrinfo)
-          puts "Connected: #{addrinfo.inspect}\n"
+          log "Connected: #{addrinfo.inspect}", Logger::Normal, true
           return player
-        rescue Errno::ECONNRESET, Errno::EPIPE
-          puts "       Reset: #{addrinfo.inspect}\n"
+        rescue Errno::ECONNRESET, Errno::EPIPE => e
+          log "Reset: #{addrinfo.inspect}\n#{e.inspect}\n#{e.backtrace.join("\n")}", Logger::Medium, true
+          raise ClientConnectionResetError.new("Client connection reset or pipe error", addrinfo, e)
         end
       end
 

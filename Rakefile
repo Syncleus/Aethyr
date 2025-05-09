@@ -80,6 +80,7 @@ safe_require 'rdoc/task',          'rdoc'
 safe_require 'bundler/gem_helper', 'bundler'
 
 # Project-local task libraries.
+safe_require_relative 'lib/aethyr/core/util/config'
 safe_require_relative 'features/support/coverage/rake_task'
 
 # -----------------------------------------------------------------------------

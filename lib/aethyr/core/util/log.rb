@@ -1,3 +1,4 @@
+
 #Simplistic logging with buffer and autodeletion of the log when it gets too big.
 class Logger
   Ultimate = 3
@@ -52,7 +53,7 @@ class Logger
     # after evaluating the block.
     return if msg.nil?
 
-    if ServerConfig[:log_level] && log_level <= ServerConfig[:log_level]
+    if ServerConfig[:log_level] > log_level
       $stderr.puts msg
 
       @entries << msg

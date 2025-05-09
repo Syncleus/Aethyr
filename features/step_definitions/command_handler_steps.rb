@@ -168,46 +168,95 @@ Given('an isolated CommandHandler test harness') do
 end
 
 ###############################################################################
-# Then-steps                                                                   #
+# Granular contract verification steps                                         #
 ###############################################################################
-Then('the contract should hold for {string}') do |identifier|
-  # Resolve & instantiate the concrete handler class.                         #
+# NOTE: The original monolithic step "the contract should hold for {string}"  #
+# is now deprecated. The following steps provide fine-grained assertions which #
+# are leveraged by the new Scenario Outline found in                           #
+#   features/command_handlers_contract.feature                                 #
+#                                                                              #
+# The small steps retain *exactly* the same runtime behaviour as the previous  #
+# composite step while promoting readability, debuggability, and reusability.  #
+###############################################################################
+
+# -----------------------------------------------------------------------------
+# When – Resolve and instantiate a concrete CommandHandler implementation.     #
+# -----------------------------------------------------------------------------
+When('the handler for {string} is instantiated') do |identifier|
+  # ---------------------------------------------------------------------------
+  # 1) Resolve the concrete class via the same helper that powers the legacy   #
+  #    step (Single Responsibility Principle – SRP).                           #
+  # ---------------------------------------------------------------------------
   self.handler_class = resolve_handler_class(identifier)
-  self.handler       = handler_class.new(player)
 
-  # -----------------------------------------------------------------------
-  # 1) Inheritance chain                                                   #
-  # -----------------------------------------------------------------------
-  assert_kind_of(Aethyr::Extend::CommandHandler, handler,
-                 "#{handler_class} does not inherit from CommandHandler")
+  # ---------------------------------------------------------------------------
+  # 2) Instantiate the handler. We pass the shared `player` double so that the #
+  #    instance is ready for immediate interaction in subsequent assertions    #
+  #    (Dependency Inversion Principle – DIP).                                 #
+  # ---------------------------------------------------------------------------
+  self.handler = handler_class.new(player)
+end
 
-  # -----------------------------------------------------------------------
-  # 2) HandleHelp capabilities                                             #
-  # -----------------------------------------------------------------------
-  assert_respond_to(handler, :can_help?)
-  assert(handler.can_help?, 'can_help? is expected to return true')
+# -----------------------------------------------------------------------------
+# Then – Verify correct inheritance behaviour.                                 #
+# -----------------------------------------------------------------------------
+Then('the handler should inherit from CommandHandler') do
+  assert_kind_of(
+    Aethyr::Extend::CommandHandler,
+    handler,
+    "#{handler_class} does not inherit from CommandHandler"
+  )
+end
 
-  # -----------------------------------------------------------------------
-  # 3) Command enumeration                                                 #
-  # -----------------------------------------------------------------------
-  assert_respond_to(handler, :commands)
-  assert(!handler.commands.nil? && !handler.commands.empty?,
-         'Handler must expose at least one textual command alias')
+# -----------------------------------------------------------------------------
+# Then – Verify that the handler advertises HandleHelp capabilities.           #
+# -----------------------------------------------------------------------------
+Then('the handler should advertise help capability') do
+  assert_respond_to(handler, :can_help?, 'Handler is expected to respond to #can_help?')
+  assert(
+    handler.can_help?,
+    'can_help? is expected to return true – the handler claims no help support'
+  )
+end
 
-  # -----------------------------------------------------------------------
-  # 4) object_added subscription behaviour                                 #
-  # -----------------------------------------------------------------------
-  # Clear any previous subscription artefacts.
+# -----------------------------------------------------------------------------
+# Then – Verify that at least one textual command alias is exposed.            #
+# -----------------------------------------------------------------------------
+Then('the command handler should expose at least one command alias') do
+  assert_respond_to(handler, :commands, 'Handler must define #commands')
+  assert(
+    !handler.commands.nil? && !handler.commands.empty?,
+    'Handler must expose at least one textual command alias'
+  )
+end
+
+# -----------------------------------------------------------------------------
+# Then – Verify that `object_added` subscribes the handler with the Player.    #
+# -----------------------------------------------------------------------------
+Then('the handler should subscribe itself on object_added') do
+  # Reset potential artefacts from previous assertions to keep each step       #
+  # isolated and free of hidden ordering constraints.                          #
   player.subscribed_handler = nil
-  handler_class.object_added(game_object: player)
-  assert_instance_of(handler_class, player.subscribed_handler,
-                     'object_added did not subscribe the expected handler')
 
-  # -----------------------------------------------------------------------
-  # 5) player_input must not raise                                         #
-  # -----------------------------------------------------------------------
+  # Trigger the lifecycle callback exactly like the production engine does.   #
+  handler_class.object_added(game_object: player)
+
+  assert_instance_of(
+    handler_class,
+    player.subscribed_handler,
+    'object_added did not subscribe the expected handler'
+  )
+end
+
+# -----------------------------------------------------------------------------
+# Then – Verify that a sample input is processed without raising exceptions.   #
+# -----------------------------------------------------------------------------
+Then('processing a sample command should not raise an exception') do
   sample_input = handler.commands.first.to_s
-  assert_nothing_raised("player_input raised an exception for '#{sample_input}'") do
+
+  assert_nothing_raised(
+    "player_input raised an exception for '#{sample_input}'"
+  ) do
     handler.player_input(input: sample_input)
   end
 end 

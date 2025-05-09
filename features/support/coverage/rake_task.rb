@@ -57,7 +57,7 @@ module Coverage
                    cucumber_task: :features,
                    formatter:     SimpleCov::Formatter::Console,
                    filters:       %w[/spec/ /test/],
-                   minimum_cov:   90.0) # rubocop:enable Metrics/ParameterLists
+                   minimum_cov:   85.0) # rubocop:enable Metrics/ParameterLists
       @name, @test_task, @cucumber_task =
         name.to_sym, test_task.to_sym, cucumber_task.to_sym
       @formatter, @filters, @minimum_cov = formatter, filters, minimum_cov

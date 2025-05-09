@@ -78,6 +78,7 @@ safe_require 'rake/testtask',      'rake'
 safe_require 'cucumber/rake/task', 'cucumber'
 safe_require 'rdoc/task',          'rdoc'
 safe_require 'bundler/gem_helper', 'bundler'
+safe_require 'ncursesw',           'ncursesw'
 
 # Project-local task libraries.
 safe_require_relative 'lib/aethyr/core/util/config'

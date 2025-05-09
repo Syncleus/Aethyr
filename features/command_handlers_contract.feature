@@ -3,19 +3,8 @@ Feature: CommandHandler contract compliance
   As a maintainer of the Aethyr engine
   I want every concrete CommandHandler to respect the core CommandHandler contract.
 
-  # -------------------------------------------------------------------------
-  # Shared harness creating the substitute Manager and minimalist Player.
-  # -------------------------------------------------------------------------
   Background:
     Given an isolated CommandHandler test harness
-
-  # -------------------------------------------------------------------------
-  # NOTE:
-  #   Each scenario below targets *exactly one* Ruby source-file inside
-  #   lib/aethyr/core/input_handlers (excluding the abstract base classes).
-  #   The <file> identifier must match the leaf filename – without the ".rb"
-  #   extension – so that the step-definitions can "require" it directly.
-  # -------------------------------------------------------------------------
 
   Scenario: look implements the CommandHandler contract
     Then the contract should hold for "look"

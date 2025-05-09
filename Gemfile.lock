@@ -144,6 +144,7 @@ DEPENDENCIES
   aethyr!
   aruba (~> 0.14)
   bundler (~> 2.4)
+  cucumber (~> 9.2)
   json (~> 2.11)
   rake (~> 13.2)
   rdoc (~> 4.2)

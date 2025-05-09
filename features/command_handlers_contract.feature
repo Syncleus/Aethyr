@@ -6,15 +6,6 @@ Feature: CommandHandler contract compliance
   Background:
     Given an isolated CommandHandler test harness
 
-  # ------------------------------------------------------------------------
-  # Granular contract verification driven by a Scenario Outline.            
-  # ------------------------------------------------------------------------
-  # Instead of defining one scenario per concrete command handler we now use
-  # a Scenario Outline that executes the *same* verification workflow for   
-  # every identifier listed in the examples table below. This drastically   
-  # reduces duplication while still providing fully isolated runs for each  
-  # concrete implementation.                                                
-  # ------------------------------------------------------------------------
   Scenario Outline: <identifier> implements the CommandHandler contract
     When the handler for "<identifier>" is instantiated
     Then the handler should inherit from CommandHandler

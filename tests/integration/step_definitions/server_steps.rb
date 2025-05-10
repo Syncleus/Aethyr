@@ -88,6 +88,24 @@ And('I disconnect all clients') do
 end
 
 # -----------------------------------------------------------------------------
+#  Step: Given/When I log in as the default test user
+# -----------------------------------------------------------------------------
+Given('I log in as the default test user') do
+  # Ensure any previous socket is closed to avoid descriptor leaks when this
+  # step is used after an explicit connection in the same scenario.
+  @client_socket&.close if defined?(@client_socket) && @client_socket
+
+  # Delegate the heavy lifting to the new helper exposed by ServerHarness.
+  @client_socket = server_harness.open_authenticated_socket
+
+  # Drain the welcome banner so subsequent assertions operate on the command
+  # under test rather than login noise.
+  if respond_to?(:drain_socket)
+    drain_socket(@client_socket)
+  end
+end
+
+# -----------------------------------------------------------------------------
 #  T E A R D O W N
 # -----------------------------------------------------------------------------
 After do

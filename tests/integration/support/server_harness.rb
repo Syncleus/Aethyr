@@ -29,6 +29,8 @@ require 'socket'
 require 'forwardable'
 require 'aethyr/core/util/config'
 require 'aethyr/core/connection/server'
+require 'tmpdir'
+require 'fileutils'
 
 module Aethyr
   module Test
@@ -58,6 +60,14 @@ module Aethyr
         DEFAULT_BOOT_TIMEOUT = 30 # Seconds – ample cushion for CI runners.
         DEFAULT_ADDRESS      = ServerConfig.address # Typically 127.0.0.1
 
+        # Publicly accessible *test fixtures* – these constants model the
+        # canonical credentials present in the bootstrap storage that ships
+        # with the repository.  They are exposed so that step-definitions can
+        # reference a single source-of-truth rather than sprinkling literals
+        # throughout the test-suite (DRY principle).
+        DEFAULT_TEST_USERNAME = 'testuser'
+        DEFAULT_TEST_PASSWORD = 'testpass'
+
         # Factory-style constructor that provides a fluent DSL for harness
         # creation whilst hiding the `new` keyword – aligning with the Builder
         # pattern for improved readability.
@@ -84,6 +94,7 @@ module Aethyr
         # @return [self] Returns the same harness instance for fluent chaining.
         # @raise [RuntimeError] If the server fails to open the socket in time.
         def start!(timeout: DEFAULT_BOOT_TIMEOUT)
+          prepare_sandbox_environment!
           configure_runtime_port!
           spawn_server_thread!
           await_port_open!(timeout)
@@ -104,6 +115,13 @@ module Aethyr
 
           @server_thread.kill if @server_thread.alive?
           @server_thread.join(join_timeout)
+
+          # ----------------------------------------------------------------
+          # Teardown sandbox environment – ensure no artefacts survive between
+          # scenarios (critical for deterministic integration tests).
+          # ----------------------------------------------------------------
+          Dir.chdir(@original_working_dir) if @original_working_dir && Dir.exist?(@original_working_dir)
+          FileUtils.remove_entry_secure(@sandbox_dir) if @sandbox_dir && Dir.exist?(@sandbox_dir)
         end
 
         # Convenience helper that constructs, starts, and yields the harness to
@@ -131,6 +149,94 @@ module Aethyr
         end
 
         # -----------------------------------------------------------------
+        #  H A R N E S S   U T I L I T Y   A P I
+        # -----------------------------------------------------------------
+
+        # Opens a new TCP socket *and* performs the interactive login exchange
+        # using the globally seeded `testuser` account (unless overriden).
+        #
+        # This is essentially a convenience wrapper around `open_client_socket`
+        # + `login!` that collapses the two common steps most integration
+        # scenarios require into a single call.
+        #
+        # @param host [String] Host/IP to connect to (defaults to localhost).
+        # @param username [String] Login name to authenticate with.
+        # @param password [String] Plain-text password for the given user.
+        # @return [TCPSocket] An **already authenticated** client session ready
+        #   for in-game commands.
+        def open_authenticated_socket(host: '127.0.0.1',
+                                      username: DEFAULT_TEST_USERNAME,
+                                      password: DEFAULT_TEST_PASSWORD,
+                                      colour: true)
+          socket = open_client_socket(host: host)
+          login!(socket: socket, username: username, password: password, colour: colour)
+          socket
+        end
+
+        # Performs the full ANSI-aware login handshake against the supplied
+        # socket.  The exact prompt sequence is derived from empirical testing
+        # of the reference Aethyr server but is intentionally *fault-tolerant*:
+        # regex pattern matching is used instead of brittle exact strings so
+        # minor wording tweaks in the server do not break the harness.
+        #
+        # @param socket [TCPSocket] **Connected** socket to the server.
+        # @param username [String]
+        # @param password [String]
+        # @param colour [Boolean] Whether to enable ANSI colour for the session.
+        # @return [void]
+        def login!(socket:, username:, password:, colour: true)
+          raise ArgumentError, 'socket must be a live TCPSocket' if socket.nil? || socket.closed?
+
+          # Local helper for receiving the next prompt line (non-blocking with
+          # a generous timeout to keep CI green on sluggish runners).
+          receive_line = lambda do |timeout_sec = 5|
+            buffer = +' '
+            deadline = Time.now + timeout_sec
+            until Time.now > deadline
+              if IO.select([socket], nil, nil, 0.1)
+                chunk = socket.read_nonblock(1024, exception: false)
+                buffer << chunk if chunk
+                break if buffer =~ /:\s?$/     # simplistic prompt heuristic
+              end
+            end
+            buffer
+          end
+
+          ###################################################################
+          # 1. Colour negotiation – the very first question asked by the
+          #    server is whether the client supports ANSI colour codes.  We
+          #    respond according to the `colour` parameter (default true).
+          ###################################################################
+          receive_line.call
+          socket.write((colour ? 'y' : 'n') + "\n")
+
+          ###################################################################
+          # 2. Login menu – choose existing character (option 1).
+          ###################################################################
+          receive_line.call
+          socket.write("1\n")
+
+          ###################################################################
+          # 3. Provide username & password credentials.
+          ###################################################################
+          receive_line.call
+          socket.write("#{username}\n")
+          receive_line.call
+          socket.write("#{password}\n")
+
+          ###################################################################
+          # 4. Post-login colour confirmation – disable if colour == false so
+          #    that test expectations remain deterministic regardless of ANSI
+          #    support.
+          ###################################################################
+          receive_line.call
+          socket.write((colour ? 'y' : 'n') + "\n")
+
+          # Allow the server to finalise player initialisation.
+          sleep 0.25
+        end
+
+        # -----------------------------------------------------------------
         #  INTERNAL IMPLEMENTATION DETAILS (private)
         # -----------------------------------------------------------------
 
@@ -145,6 +251,18 @@ module Aethyr
           @address = address
           @server_thread = nil
           @server_exception = nil
+
+          # ----------------------------------------------------------------
+          # Sandbox state – each harness instantiates a *unique* ephemeral
+          # working directory seeded from the canonical bootstrap fixtures so
+          # that **every** scenario starts with a pristine world & config.
+          # ----------------------------------------------------------------
+          @sandbox_dir            = nil   # Path to the temp workspace.
+          @original_working_dir   = Dir.pwd # Will be restored on teardown.
+
+          # Absolute path to the immutable bootstrap fixture set that ships
+          # with the repository (conf & storage prepared with seeded accounts).
+          @bootstrap_root = File.expand_path('../server_bootstrap', __dir__)
         end
 
         # @api private
@@ -207,6 +325,43 @@ module Aethyr
           port   = socket.addr[1]
           socket.close
           port
+        end
+
+        # -----------------------------------------------------------------
+        #  S A N D B O X   P R E P A R A T I O N
+        # -----------------------------------------------------------------
+        # Creates an isolated temporary directory, copies the canonical
+        # configuration & storage fixtures into it, and finally switches the
+        # working directory so that **all** relative-path look-ups performed by
+        # the server resolve inside the sandbox (conf/, storage/, logs/, …).
+        #
+        # The sandbox is deleted during `stop!`, guaranteeing zero state leak
+        # between scenarios.
+        # -----------------------------------------------------------------
+        def prepare_sandbox_environment!
+          return if @sandbox_dir # Idempotent – useful if `start!` called twice.
+
+          @sandbox_dir = Dir.mktmpdir('aethyr_it_')
+
+          # Replicate the canonical test fixtures (conf + storage) into the
+          # isolated workspace.  We purposefully avoid FileUtils.cp_r(".") to
+          # limit the copy-set to exactly the directories required for runtime
+          # correctness – this keeps the operation fast even on CI runners with
+          # slow I/O.
+          %w[conf storage].each do |folder|
+            src = File.join(@bootstrap_root, folder)
+            dst = File.join(@sandbox_dir, folder)
+            FileUtils.cp_r(src, dst)
+          end
+
+          # Ensure auxiliary directories expected by the server exist inside
+          # the sandbox (e.g. logs/).  We do *not* copy these from the source
+          # because they are typically empty and created lazily by the server
+          # during execution.
+          FileUtils.mkdir_p(File.join(@sandbox_dir, 'logs'))
+
+          # Redirect *all* subsequent relative path resolutions to the sandbox.
+          Dir.chdir(@sandbox_dir)
         end
       end # class ServerHarness
     end   # module Integration

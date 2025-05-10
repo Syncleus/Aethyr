@@ -7,8 +7,7 @@ Feature: Display layout selection and validation
 
   Background:
     Given the Aethyr server is running
-    And I connect as a client
-    And I have created and logged in as a new character
+    And I log in as the default test user
 
   ###################################################################
   # Valid layouts – parameterised via Scenario Outline so that Cucumber

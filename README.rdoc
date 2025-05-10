@@ -407,6 +407,93 @@ Splendid! Sharpen your keyboard, polish your linter, and step up to the anvil.
 3. Run the Trials of Truth (tests)  
    `bundle exec rspec` – red dragons bad, green dragons good.
 
+   • **Integration scenarios (Cucumber)** – deterministic, sandboxed Aethyr instances.  
+     Execute **all** end-to-end scenarios with:
+
+         # Fast run (no coverage)
+         bundle exec rake integration_nocov
+
+         # Or, with SimpleCov HTML report:
+         bundle exec rake integration
+
+     What happens under the hood?
+
+       1. **Sandbox boot-strap** – `ServerHarness` copies the pristine
+          fixtures located in `tests/integration/server_bootstrap/` into a
+          *brand-new* temporary directory (one per scenario).  Those fixtures
+          include ready-to-use `conf/` and `storage/` trees seeded with two
+          canonical accounts:  
+             • **Administrator** – username found in the config file (usually
+               `admin`).  
+             • **Test Player** – `testuser` / `testpass` with ANSI colour
+               *enabled* by default.  
+          Because every copy is thrown away after the test you never pollute
+          the originals—ideal for parallel CI runners.
+
+       2. **Dynamic port allocation** – a free TCP port is discovered at
+          runtime and injected into the in-memory `ServerConfig` so the real
+          engine never touches the fixture YAML on disk.
+
+       3. **In-process server thread** – the actual Aethyr engine boots inside
+          the current Ruby VM (no fork/exec, no external binaries) which makes
+          stack traces and debugging delightful.  The thread dies at the end
+          of the scenario or immediately on failure.
+
+       4. **Teardown** – sandbox directory is recursively deleted and the
+          parent `Dir.pwd` restored, guaranteeing zero cross-test
+          contamination.
+
+     Writing your own scenario is straightforward:
+
+     1. **Feature file** – describe behaviour at a human level:
+
+            # tests/integration/example_login.feature
+            Feature: Authenticate existing users
+              Scenario: Valid credentials log in successfully
+                Given the Aethyr server is running
+                And I connect as a client
+                When I log in as the default test user
+                Then I should see the game banner
+
+     2. **Step definition** – reuse the reusable helpers exposed by
+        `ServerHarness` (note the new `open_authenticated_socket`):
+
+            # tests/integration/step_definitions/auth_steps.rb
+            When('I log in as the default test user') do
+              # Replace the bare socket with an already-authenticated one.
+              @client_socket&.close if @client_socket
+              @client_socket = server_harness.open_authenticated_socket
+            end
+
+            Then('I should see the game banner') do
+              banner = @client_socket.readpartial(512)
+              expect(banner).to match(/welcome to aethyr/i)
+            end
+
+     3. **Run & iterate** – `bundle exec rake integration_nocov` prints green dots; refine
+        assertions or add more scenarios as desired.
+
+     Pro-Tips:
+
+       • Need *another* user?  Clone the bootstrap storage, register the
+         player once manually, and commit the change—future tests can then
+         authenticate via `server_harness.login!`.
+
+       • Prefer *tiny* step definitions that do **one** thing.  Compose them
+         inside feature files for readability; this also maximises reuse.
+
+       • Use `layout_steps.rb` as advanced inspiration: it demonstrates how to
+         script multi-line interactions and drain the socket non-blocking.
+
+       • Running just *one* feature while debugging?
+
+             bundle exec rake integration_nocov CUCUMBER_OPTS="tests/integration/example_login.feature:5"
+
+         (line number focuses the run at a single scenario.)
+
+       • If the server fails to boot in CI, bump `DEFAULT_BOOT_TIMEOUT` in
+         `ServerHarness`—cloud VMs can be sluggish after image spin-up.
+
 4. Bathe in the Forges of Coverage  
    `bundle exec rake coverage` – executes the *entire* test-matrix (**unit**,  
    Cucumber *and* any additional test tasks) under SimpleCov's console  

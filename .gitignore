@@ -1,6 +1,6 @@
 .#*
 logs
-storage
+/storage/
 objects/reactions
 .che/
 pkg/

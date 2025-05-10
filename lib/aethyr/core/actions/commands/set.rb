@@ -77,7 +77,8 @@ module Aethyr
                 player.output("Set description to:\r\n#{player.long_desc}")
               end
             when "layout"
-              case self[:value].downcase
+              value = self[:value].downcase
+              case value
               when "basic"
                 player.layout = :basic
               when "partial"

@@ -52,16 +52,19 @@ module Coverage
                   :minimum_cov     # Numeric – % threshold that fails CI
 
     # rubocop:disable Metrics/ParameterLists
-    def initialize(name = :coverage,
-                   test_task:     :test,
-                   cucumber_task: :features,
+    def initialize(name = :unit,
+                   cucumber_task: :unit_nocov,
                    formatter:     SimpleCov::Formatter::Console,
-                   filters:       %w[/spec/ /test/],
-                   minimum_cov:   85.0) # rubocop:enable Metrics/ParameterLists
-      @name, @test_task, @cucumber_task =
-        name.to_sym, test_task.to_sym, cucumber_task.to_sym
-      @formatter, @filters, @minimum_cov = formatter, filters, minimum_cov
-
+                   filters:       %w[/spec/],
+                   minimum_cov:   85.0,
+                   coverage_dir:  'build/tests/unit/coverage') # rubocop:enable Metrics/ParameterLists
+      # Assign each instance variable individually for better readability and maintainability
+      @name = name.to_sym                # The name of the Rake task to be created
+      @cucumber_task = cucumber_task.to_sym  # The prerequisite cucumber task that will be invoked
+      @formatter = formatter             # The SimpleCov formatter to use for reporting
+      @filters = filters                 # Path prefixes to ignore in coverage calculations
+      @minimum_cov = minimum_cov         # Minimum coverage percentage threshold for CI passing
+      @coverage_dir = coverage_dir       # The directory to store coverage reports
       yield self if block_given? # allow caller DSL-style overrides
       define
     end
@@ -81,11 +84,8 @@ module Coverage
           minimum_cov:  @minimum_cov
         )
 
-        # Expose a flag so helper files can detect "coverage mode" and avoid
-        # double-installations if they also wish to bootstrap SimpleCov.
-        ENV['AETHYR_COVERAGE'] = '1'
+        SimpleCov.coverage_dir(@coverage_dir) if defined?(SimpleCov)
 
-        invoke_task(@test_task)
         invoke_task(@cucumber_task)
       end
     end

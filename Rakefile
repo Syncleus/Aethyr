@@ -50,6 +50,16 @@ end
 require 'rake'          # Core DSL – provides Rake::Task, Rake::TaskLib, etc.
 require 'rake/clean'    # Adds the ubiquitous `clean` and `clobber` targets.
 
+module RakeConstants
+  BUILD_DIR           = 'build'
+  UNIT_DIR    = "#{BUILD_DIR}/tests/unit"
+  INTEGRATION_DIR = "#{BUILD_DIR}/tests/integration"
+  RESULTS_UNIT        = "#{UNIT_DIR}/results.html"
+  RESULTS_INTEGRATION = "#{INTEGRATION_DIR}/results.html"
+  COVERAGE_UNIT = "#{UNIT_DIR}/coverage"
+  COVERAGE_INTEGRATION = "#{INTEGRATION_DIR}/coverage"
+end
+
 # -----------------------------------------------------------------------------
 #  Defensive-loading utilities (Null-Object Pattern)
 # -----------------------------------------------------------------------------
@@ -82,53 +92,43 @@ safe_require 'ncursesw',           'ncursesw'
 
 # Project-local task libraries.
 safe_require_relative 'lib/aethyr/core/util/config'
-safe_require_relative 'tests/features/support/coverage/rake_task'
-
-# -----------------------------------------------------------------------------
-#  Constants – grouped to prevent top-level namespace pollution.
-# -----------------------------------------------------------------------------
-module BuildConstants
-  CUKE_RESULTS = 'results.html'
-end
+safe_require_relative 'tests/rake_task'
 
 # -----------------------------------------------------------------------------
 #  Task Builders – one class per autonomous concern (SRP).
 # -----------------------------------------------------------------------------
 
-# rubocop:disable Style/Documentation
-class TestTaskBuilder
-  include Rake::DSL            # Prefer composition over inheritance.
-
-  # Public: Install a `:test` task backed by Rake::TestTask.
-  #
-  # pattern - Glob pattern describing test files (default: 'test/tc_*.rb').
-  #
-  # Returns nothing.
-  def install(pattern: 'test/tc_*.rb')
-    Rake::TestTask.new(:test) do |t|
-      t.pattern = pattern
-    end
-  end
-end
-
-class FeaturesTaskBuilder
+class UnitNoCoverageTaskBuilder
   include Rake::DSL
-  include BuildConstants
+  include RakeConstants
 
   # Public: Install a Cucumber task that generates both pretty and HTML output.
   def install
-    CLEAN << CUKE_RESULTS # established by rake/clean
+    CLEAN << BUILD_DIR # established by rake/clean
 
-    Cucumber::Rake::Task.new(:features) do |t|
+    # -----------------------------------------------------------------------------
+    #  Directory Structure Creation
+    # -----------------------------------------------------------------------------
+    # Ensures the integration test results directory exists before running tests.
+    # This follows the Single Responsibility Principle by isolating the directory
+    # creation concern in a dedicated method.
+    directory UNIT_DIR
+    
+    # Make the integration_nocov task depend on the directory creation
+    # This demonstrates the Dependency Inversion Principle by depending on the
+    # abstract concept of a prerequisite task rather than concrete directory operations
+    task :unit_nocov => [UNIT_DIR]
+
+    Cucumber::Rake::Task.new(:unit_nocov) do |t|
       # --format pretty : human-readable terminal output
       # --format html   : machine-consumable report persisted to disk
       # --no-source     : omits feature file listings for brevity
       # -x              : fail fast on first error to save CI cycles
       t.cucumber_opts = [
-        '--require', 'tests/features',
-        'tests/features',
-        '--format', 'html', '-o', CUKE_RESULTS,
-        '--format', 'pretty', '--no-source', '-x'
+        '--require', 'tests/unit',
+        'tests/unit',
+        '--format', 'html', '-o', RESULTS_UNIT,
+        '--format', 'pretty', '--no-source'
       ]
       t.fork = false # Ruby 3.x: forking is unnecessary and slower
     end
@@ -147,37 +147,52 @@ class DocsTaskBuilder
   end
 end
 
-class CoverageTaskBuilder
+class UnitTaskBuilder
   include Rake::DSL
-
+  include RakeConstants
   # Public: Attach the :coverage task implemented by Coverage::RakeTask.
   def install
-    Coverage::RakeTask.new # the TaskLib defines the :coverage command
+    Coverage::RakeTask.new(:unit, cucumber_task: :unit_nocov, coverage_dir: COVERAGE_UNIT) # the TaskLib defines the :coverage command
   end
 end
 
 class IntegrationTaskBuilder
   include Rake::DSL
-  include BuildConstants
+  include RakeConstants
+  # Public: Attach the :coverage task implemented by Coverage::RakeTask.
+  def install
+    Coverage::RakeTask.new(:integration, cucumber_task: :integration_nocov, coverage_dir: COVERAGE_INTEGRATION) # the TaskLib defines the :coverage command
+  end
+end
 
-  RESULTS_FILE = 'integration_results.html'
+class IntegrationNoCoverageTaskBuilder
+  include Rake::DSL
+  include RakeConstants
 
   # Public: Install a dedicated Cucumber task for integration testing.
   # Separate artefacts ensure unit and integration phases do not overlap.
   def install
-    CLEAN << RESULTS_FILE
+    CLEAN << BUILD_DIR
 
-    # Signal integration coverage upfront so the environment is inherited by
-    # the Cucumber process. The rake process is the parent of the Cucumber
-    # runner therefore this single assignment suffices.
-    ENV['AETHYR_COVERAGE_INTEGRATION'] = '1'
+    # -----------------------------------------------------------------------------
+    #  Directory Structure Creation
+    # -----------------------------------------------------------------------------
+    # Ensures the integration test results directory exists before running tests.
+    # This follows the Single Responsibility Principle by isolating the directory
+    # creation concern in a dedicated method.
+    directory INTEGRATION_DIR
+    
+    # Make the integration_nocov task depend on the directory creation
+    # This demonstrates the Dependency Inversion Principle by depending on the
+    # abstract concept of a prerequisite task rather than concrete directory operations
+    task :integration_nocov => [INTEGRATION_DIR]
 
-    Cucumber::Rake::Task.new(:integration) do |t|
+    Cucumber::Rake::Task.new(:integration_nocov) do |t|
       # Direct Cucumber to the *integration* feature directory only.
       t.cucumber_opts = [
         '--require', 'tests/integration',
         'tests/integration',
-        '--format', 'html', '-o', RESULTS_FILE,
+        '--format', 'html', '-o', RESULTS_INTEGRATION,
         '--format', 'pretty', '--no-source'
       ]
 
@@ -203,14 +218,14 @@ module Build
     #      they execute side-effects inside their constructor. Should you
     #      prefer explicitness, swap to `.new.install` instead.
     # ***********************************************************************
-    TestTaskBuilder.new.install
-    FeaturesTaskBuilder.new.install
+    UnitNoCoverageTaskBuilder.new.install
     DocsTaskBuilder.new.install
-    CoverageTaskBuilder.new.install
+    UnitTaskBuilder.new.install
+    IntegrationNoCoverageTaskBuilder.new.install
     IntegrationTaskBuilder.new.install
 
     desc 'Run unit tests and cucumber features (default)'
-    task default: %i[test features]
+    task default: %i[unit]
 
     # Delegate gem-packaging related tasks to Bundler (e.g. `rake release`).
     Bundler::GemHelper.install_tasks

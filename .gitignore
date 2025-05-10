@@ -14,3 +14,4 @@ vendor/
 /tmp/
 /.cursor/
 integration_results.html
+/build/

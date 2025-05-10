@@ -13,18 +13,6 @@
 # --------------------------------------------------------------------------------------------------
 # Dependencies & global test-harness configuration
 # --------------------------------------------------------------------------------------------------
-require 'simplecov'                    # Run code-coverage *before* any application code is required.
-SimpleCov.start do
-  add_filter '/features/'              # Ignore the Cucumber test-suite itself from coverage numbers.
-  # Allow full-suite coverage by *not* excluding library files beyond the
-  # feature directory itself.  This ensures the final HTML report reflects
-  # execution across the entire codebase instead of only issues.rb.
-
-  # Track everything under lib/ so that new files introduced in the future are
-  # automatically included in the statistics.
-  track_files 'lib/**/*.rb'
-end
-
 require 'rspec/expectations'           # Provide the `expect` syntax for assertions inside steps.
 require 'fileutils'                    # Utility for creating/cleaning test fixture directories.
 require_relative '../../../lib/aethyr/core/issues' # Pull-in the system-under-test.

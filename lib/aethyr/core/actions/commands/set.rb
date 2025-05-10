@@ -88,7 +88,7 @@ module Aethyr
               when "wide"
                 player.layout = :wide
               else
-                player.output "#{value} is not a valid layout please set one of the following: basic, partial, full, wide."
+                player.output "ERROR: #{value} is not a valid layout. Please set one of the following: basic, partial, full, wide."
               end
             else
               player.output "No such setting: #{self[:setting]}"

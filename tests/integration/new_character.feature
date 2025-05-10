@@ -1,6 +1,6 @@
 Feature: New character creation and initial login
-  # Verifies that a player can create a brand-new character using the public
-  # login dialogue and successfully reach the in-game prompt.
+  Verifies that a player can create a brand-new character using the public
+  login dialogue and successfully reach the in-game prompt.
 
   Background:
     Given the Aethyr server is running

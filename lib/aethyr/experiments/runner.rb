@@ -3,6 +3,7 @@
 require "timeout"
 require "forwardable"
 require "aethyr/experiments/sandbox"
+require "aethyr/core/util/log"
 
 module Aethyr
   module Experiments
@@ -160,11 +161,26 @@ module Aethyr
         exit exit_status
       end
 
-      ####################################################################
-      # Utility helpers
-      ####################################################################
+      # ------------------------------------------------------------------
+      # Logging helper – now routed via the global Logger.
+      #
+      # This method intentionally shadows the Object#log convenience
+      # wrapper so that callers within Runner can remain unchanged while
+      # the implementation delegates to the *real* logger.  By invoking
+      # `super` we bounce up to Object#log which timestamps and formats
+      # the message before passing it to `$LOG`.
+      #
+      # We always log at `Logger::Ultimate` severity when no explicit
+      # level is provided, thereby satisfying the "Logger:Ultimate"
+      # requirement.
+      # ------------------------------------------------------------------
       def log(msg)
-        puts "[EXPERIMENT] #{msg}" if verbose?
+        return unless verbose?
+
+        # Delegate to the generic Object#log implementation which is
+        # defined in aethyr/core/util/log.  Using `super` keeps the call
+        # stack shallow and avoids hard-coding `$LOG` usage here.
+        super(msg, Logger::Ultimate)
       end
     end
   end

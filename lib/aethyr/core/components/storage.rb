@@ -121,7 +121,7 @@ class StorageMachine
     end
 
     if goid.nil?
-      log "Could not fetch player info #{name}"
+      log "Could not fetch player info #{name}", Logger::Ultimate
       raise MUDError::UnknownCharacter
     end
 
@@ -144,12 +144,12 @@ class StorageMachine
     end
 
     if stored_password.nil?
-      log "Could not fetch password for #{name}"
+      log "Could not fetch password for #{name}", Logger::Ultimate
       raise MUDError::UnknownCharacter
     end
 
     if Digest::MD5.new.update(password).to_s != stored_password
-      log "Passwords did not match: #{stored_password} and #{Digest::MD5.new.update(password).to_s}"
+      log "Passwords did not match: #{stored_password} and #{Digest::MD5.new.update(password).to_s}", Logger::Ultimate
       false
     else
       true
@@ -159,7 +159,7 @@ class StorageMachine
   #Deletes a character.
   def delete_player(name)
     name = name.downcase
-    puts "Deleting player #{name}"
+    log "Deleting player #{name}", Logger::Ultimate
 
     goid = nil
 
@@ -169,7 +169,7 @@ class StorageMachine
     end
 
     if goid.nil?
-      puts "Could not fetch player info #{name}"
+      log "Could not fetch player info #{name}", Logger::Ultimate
       return nil
     end
 
@@ -223,7 +223,7 @@ class StorageMachine
       end
 
       if file.nil?
-        log "No file found for that goid (#{game_object_id})"
+        log "No file found for that goid (#{game_object_id})", Logger::Ultimate
         return nil
       end
     else
@@ -250,7 +250,7 @@ class StorageMachine
     end
 
     if file.nil?
-      log "No file found for that goid (#{game_object_id})"
+      log "No file found for that goid (#{game_object_id})", Logger::Ultimate
       raise MUDError::NoSuchGOID
     end
 
@@ -259,7 +259,7 @@ class StorageMachine
     end
 
     if object.nil?
-      log "Tried to load object (#{game_object_id}), but got nil"
+      log "Tried to load object (#{game_object_id}), but got nil", Logger::Ultimate
       raise MUDError::ObjectLoadError
     end
 
@@ -328,12 +328,12 @@ class StorageMachine
   #
   #This method isn't very efficient. Sorry.
   def load_all(include_players = false, game_objects = nil)
-    log "Loading all game objects...may take a while."
+    log "Loading all game objects...may take a while.", Logger::Ultimate
     files = {}
     objects = []
     game_objects ||= Gary.new
 
-    log "Grabbing all the goids..."
+    log "Grabbing all the goids...", Logger::Ultimate
 
     #Get which goids are in which files, so we can pull them out.
 
@@ -367,13 +367,13 @@ class StorageMachine
       end
     end
 
-    log "Loading inventories and equipment..."
+    log "Loading inventories and equipment...", Logger::Ultimate
     #Setup inventory and equipment for each one.
     objects.each do |obj|
       load_inv(obj, game_objects)
       load_equipment(obj, game_objects)
     end
-    log "...done loading inventories and equipment."
+    log "...done loading inventories and equipment.", Logger::Ultimate
 
     return game_objects
   end
@@ -383,7 +383,7 @@ class StorageMachine
   #This should mainly be used when the game exits,
   #as it briefly mutilates the objects.
   def save_all(game_objects)
-    log "Saving given objects (#{game_objects.length})...please wait..."
+    log "Saving given objects (#{game_objects.length})...please wait...", Logger::Ultimate
     @saved = 0
     game_objects.each do |o|
       if o.is_a? Player
@@ -392,7 +392,7 @@ class StorageMachine
         store_object(o)
       end
     end
-    log "...done saving objects (#{@saved})."
+    log "...done saving objects (#{@saved}).", Logger::Ultimate
   end
 
   #Open the store for the given type.

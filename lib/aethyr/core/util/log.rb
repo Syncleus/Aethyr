@@ -1,4 +1,3 @@
-
 #Simplistic logging with buffer and autodeletion of the log when it gets too big.
 class Logger
   Ultimate = 3
@@ -92,6 +91,23 @@ class Logger
   def <<(msg)
     add(Normal, msg)
   end
+
+  # ---------------------------------------------------------------------------
+  # Compatibility patch: If another library subsequently reopens ::Logger and
+  # overwrites #add (e.g. by requiring Ruby's stdlib 'logger'), ensure that the
+  # keyword argument `dump_log:` remains accepted to avoid ArgumentError
+  # (wrong number of arguments).
+  # ---------------------------------------------------------------------------
+  unless instance_method(:add).parameters.any? { |(_, name)| name == :dump_log }
+    alias_method :_aethyr_original_add, :add
+
+    # Wrapper that swallows the extra keyword while delegating to the original
+    # implementation.  The keyword is ignored for stdlib Logger instances but
+    # preserves call-site compatibility across the codebase.
+    def add(severity, msg = nil, progname = nil, dump_log: false, &block) # rubocop:disable Style/OptionalArguments
+      _aethyr_original_add(severity, msg, progname, &block)
+    end
+  end
 end
 
 unless Object.respond_to? :log, true
@@ -103,11 +119,18 @@ unless Object.respond_to? :log, true
       # Construct a consistent timestamped log message.
       logmsg = "[#{Time.now.strftime("%x %X")} #{self.class}#{(defined? GameObject and self.is_a? GameObject) ? " #{self.name}" : ""}]: " + msg.to_s
 
-      $LOG ||= Logger.new
+      $LOG ||= Logger.new("logs/system.log")
 
-      # The new signature expects the severity first followed by the
-      # message.
-      $LOG.add(log_level, logmsg, nil, dump_log: dump_log)
+      # Determine at runtime whether the current Logger#add accepts the
+      # custom `dump_log:` keyword; fall back gracefully when the method
+      # has the standard library signature (1‥3 positional args).
+      add_parameters = $LOG.method(:add).parameters
+      if add_parameters.any? { |(_, name)| name == :dump_log }
+        $LOG.add(log_level, logmsg, nil, dump_log: dump_log)
+      else
+        # Keyword not supported – call without it.
+        $LOG.add(log_level, logmsg, nil)
+      end
     end
 
     private :log

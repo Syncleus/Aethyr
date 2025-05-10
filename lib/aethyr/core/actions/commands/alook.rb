@@ -1,4 +1,5 @@
 require "aethyr/core/actions/commands/command_action"
+require "aethyr/core/util/log"
 
 module Aethyr
   module Core
@@ -58,7 +59,7 @@ module Aethyr
               output << "\t#{object.equipment.equipment.inspect}\n"
             end
 
-            puts output
+            log output, Logger::Ultimate
             player.output(output)
           end
 

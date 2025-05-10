@@ -133,10 +133,16 @@ module Aethyr
         log e.backtrace.join("\n"), 0, true
         log e.inspect
       ensure
-        $manager.stop
-        log "Saving objects...", Logger::Normal, true
-        $manager.save_all
-        log "Objects saved.", Logger::Normal, true
+        # Only attempt to shut down / persist state if the Manager
+        # successfully initialised – `$manager` will be nil when an
+        # exception is raised *before* assignment and we do not want to
+        # mask the original failure with a secondary NoMethodError.
+        if defined?($manager) && $manager
+          $manager.stop
+          log "Saving objects...", Logger::Normal, true
+          $manager.save_all
+          log "Objects saved.", Logger::Normal, true
+        end
       end
 
       private
@@ -145,7 +151,8 @@ module Aethyr
         socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_REUSEADDR, true)
         socket.bind(Addrinfo.tcp(addr, port))
         socket.listen(1)
-        puts 'Waiting for connections...'
+        # Informative start-up message routed through the logger.
+        log 'Waiting for connections...', Logger::Ultimate
         socket
       end
 
@@ -167,7 +174,8 @@ module Aethyr
       rescue Interrupt
         Process.kill('HUP', 0) # Kill all children when main process is terminated
       rescue SystemCallError
-        puts 'All children have exited. Goodbye!'
+        # Final shutdown notification through logger.
+        log 'All children have exited. Goodbye!', Logger::Ultimate
       end
 
     end

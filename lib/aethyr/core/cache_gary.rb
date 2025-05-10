@@ -26,7 +26,7 @@ class CacheGary < Gary
         elsif obj.is_a? Player or obj.is_a? Mobile
           false
         elsif obj.container.nil? or not self.loaded? obj.container
-          puts "Checking #{obj}" , Logger::Ultimate
+          log "Checking #{obj}" , Logger::Ultimate
           if obj.can? :inventory
             if obj.inventory.has_any? Player or obj.inventory.has_any? Mobile
               log "It contains a player or mobile:" , Logger::Ultimate
@@ -45,7 +45,7 @@ class CacheGary < Gary
             true
           end
         else
-          puts "#{obj} isn't a player or a mobile or busy and it has a container" , Logger::Ultimate
+          log "#{obj} isn't a player or a mobile or busy and it has a container" , Logger::Ultimate
           false
         end
       end

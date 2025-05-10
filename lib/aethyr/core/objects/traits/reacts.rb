@@ -316,7 +316,7 @@ module Reacts
     self.info.following = nil
     object.info.followers.delete self.goid
 
-    $stderr.puts "GOT AWAY WITH IT"
+    log "GOT AWAY WITH IT", Logger::Ultimate
 
     if message
       object.output message unless message.empty?

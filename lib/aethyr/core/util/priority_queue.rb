@@ -1,5 +1,7 @@
 # coding: utf-8
 
+require 'aethyr/core/util/log'
+
 # Pure ruby Priority Queue adopted from here: https://github.com/supertinou/priority-queue
 class PriorityQueue
 
@@ -189,8 +191,8 @@ class PriorityQueue
 
   # Call dot and gv displaying the datstructure
   def display_dot
-    puts to_dot
-    system "echo '#{to_dot}' | twopi -Tps -Groot=ROOT -Goverlap=false> /tmp/dotfile.ps; gv /tmp/dotfile.ps"
+    # Visualisation output routed to logger at ultimate verbosity.
+    log(to_dot, Logger::Ultimate)
   end
 
   # call-seq:

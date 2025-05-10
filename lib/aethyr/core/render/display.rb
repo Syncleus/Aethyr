@@ -6,6 +6,7 @@ require 'aethyr/core/connection/telnet_codes'
 require 'aethyr/core/connection/telnet'
 require 'aethyr/core/components/manager'
 require 'aethyr/core/render/window'
+require 'aethyr/core/util/log'
 
 class Display
   attr_reader :layout_type
@@ -58,7 +59,7 @@ class Display
     @windows.each do |_channel, window|
       window.enable_color
     end
-    puts "There are #{Ncurses.COLORS} colors on this client"
+    log "There are #{Ncurses.COLORS} colors on this client", Logger::Ultimate
     Ncurses.assume_default_colors(Color::Foreground.attribute(:white), Color::Background.attribute(:black))
     Ncurses.COLORS.times do |fg|
       Ncurses.COLORS.times do |bg|
@@ -84,7 +85,7 @@ class Display
 
   def layout(layout: @layout_type)
     set_term
-    puts "layout #{layout} set for resolution #{@width}x#{@height}"
+    log "layout #{layout} set for resolution #{@width}x#{@height}", Logger::Ultimate
     @layout_type = layout
     if @layout_type == :wide && @height >= 60 && @width >= 300
       @windows[:quick_bar].create(height: 3, y: @height - 5)
@@ -157,7 +158,7 @@ class Display
 
     return nil if recvd.nil?
 
-    puts "read returned: #{recvd}"
+    log "read returned: #{recvd}", Logger::Ultimate
     recvd + "\n"
   end
 
@@ -348,7 +349,7 @@ class Display
 
     ch = @windows[:input].window_text.getch
     @read_stage = :iac
-    puts ch
+    log ch.to_s, Logger::Ultimate
 
     unless @escape.nil?
       case @escape

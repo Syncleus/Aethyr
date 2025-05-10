@@ -2,6 +2,7 @@
 
 require "concurrent"
 require "securerandom"
+require "aethyr/core/util/log"
 
 module Aethyr
   module Experiments
@@ -92,10 +93,15 @@ module Aethyr
       # == Introspection & Utilities ===========================================
       # ------------------------------------------------------------------------
 
-      # @visibility public
-      # @return [void]
+      # --------------------------------------------------------------
+      # Internal logger – respects the @verbose flag but routes
+      # messages through the central logging facility.
+      # --------------------------------------------------------------
       def log(msg)
-        puts "[SBX] #{msg}" if @verbose
+        return unless @verbose
+
+        # Leverage Object#log for consistent formatting.
+        super(msg, Logger::Ultimate)
       end
 
       private

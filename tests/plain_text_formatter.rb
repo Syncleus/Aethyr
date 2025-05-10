@@ -19,6 +19,7 @@
 # =============================================================================
 require 'fileutils'
 require 'simplecov'
+require 'aethyr/core/util/log'
 
 module Coverage
   # --------------------------------------------------------------------------
@@ -51,7 +52,8 @@ module Coverage
       FileUtils.mkdir_p(output_dir)
       File.write(output_file, ReportBuilder.new(result).to_s)
 
-      puts "Plain-text coverage report written to: #{output_file}"
+      # Emit message via the logging subsystem instead of STDOUT.
+      log("Plain-text coverage report written to: #{output_file}", Logger::Ultimate)
       output_file
     end
 

@@ -48,4 +48,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'simplecov', '~> 0.22'
   spec.add_development_dependency 'simplecov-console', '~> 0.9'
   spec.add_development_dependency 'cucumber', '~> 9.2'
+  spec.add_development_dependency 'ruby-prof', '~> 1.7'
 end

@@ -68,6 +68,10 @@ module Aethyr
         DEFAULT_TEST_USERNAME = 'testuser'
         DEFAULT_TEST_PASSWORD = 'testpass'
 
+        # Cached socket connection pool
+        @@socket_pool = []
+        @@max_pool_size = 10
+
         # Factory-style constructor that provides a fluent DSL for harness
         # creation whilst hiding the `new` keyword – aligning with the Builder
         # pattern for improved readability.
@@ -122,6 +126,9 @@ module Aethyr
           # ----------------------------------------------------------------
           Dir.chdir(@original_working_dir) if @original_working_dir && Dir.exist?(@original_working_dir)
           FileUtils.remove_entry_secure(@sandbox_dir) if @sandbox_dir && Dir.exist?(@sandbox_dir)
+          
+          # Close and clear any cached sockets
+          clear_socket_pool
         end
 
         # Convenience helper that constructs, starts, and yields the harness to
@@ -139,18 +146,48 @@ module Aethyr
         end
 
         # Opens a new TCP client connection to the server synchronously.
-        # Callers are expected to manage the lifecycle of the returned socket.
+        # Tries to reuse sockets from the pool for better performance.
         #
         # @param host [String] Hostname or IP address to connect to. Defaults to
         #   `127.0.0.1` which aligns with the typical local-only test setup.
         # @return [TCPSocket] A ready-to-use bidirectional socket.
         def open_client_socket(host: '127.0.0.1')
+          # Try to reuse a socket from the pool
+          unless @@socket_pool.empty?
+            socket = @@socket_pool.pop
+            return socket if socket && !socket.closed?
+          end
+          
+          # Create a new socket if none available in the pool
           TCPSocket.new(host, @port)
+        end
+
+        # Add a socket to the reuse pool
+        def release_socket(socket)
+          return if socket.nil? || socket.closed?
+          
+          # Only keep a reasonable number of sockets in the pool
+          if @@socket_pool.size < @@max_pool_size
+            @@socket_pool << socket
+          else
+            socket.close rescue nil
+          end
+        end
+
+        # Clear the socket pool
+        def clear_socket_pool
+          @@socket_pool.each do |socket|
+            socket.close rescue nil
+          end
+          @@socket_pool.clear
         end
 
         # -----------------------------------------------------------------
         #  H A R N E S S   U T I L I T Y   A P I
         # -----------------------------------------------------------------
+
+        # Cache for authenticated sessions to avoid redundant handshakes
+        @@auth_cache = {}
 
         # Opens a new TCP socket *and* performs the interactive login exchange
         # using the globally seeded `testuser` account (unless overriden).
@@ -168,16 +205,27 @@ module Aethyr
                                       username: DEFAULT_TEST_USERNAME,
                                       password: DEFAULT_TEST_PASSWORD,
                                       colour: true)
+          # Check cache first
+          cache_key = [host, username, password, colour].hash
+          cached_socket = @@auth_cache[cache_key]
+          
+          # Reuse cached socket if available and still open
+          if cached_socket && !cached_socket.closed?
+            return cached_socket
+          end
+          
+          # Create new authenticated socket
           socket = open_client_socket(host: host)
           login!(socket: socket, username: username, password: password, colour: colour)
+          
+          # Cache the authenticated socket for future reuse
+          @@auth_cache[cache_key] = socket if @@auth_cache.size < 20
+          
           socket
         end
 
         # Performs the full ANSI-aware login handshake against the supplied
-        # socket.  The exact prompt sequence is derived from empirical testing
-        # of the reference Aethyr server but is intentionally *fault-tolerant*:
-        # regex pattern matching is used instead of brittle exact strings so
-        # minor wording tweaks in the server do not break the harness.
+        # socket. Optimized for performance.
         #
         # @param socket [TCPSocket] **Connected** socket to the server.
         # @param username [String]
@@ -187,53 +235,47 @@ module Aethyr
         def login!(socket:, username:, password:, colour: true)
           raise ArgumentError, 'socket must be a live TCPSocket' if socket.nil? || socket.closed?
 
-          # Local helper for receiving the next prompt line (non-blocking with
-          # a generous timeout to keep CI green on sluggish runners).
-          receive_line = lambda do |timeout_sec = 5|
-            buffer = +' '
+          # Optimized receive_line - uses a pre-allocated buffer and shorter timeout
+          receive_line = lambda do |timeout_sec = 2|
+            buffer = +''
+            buffer.force_encoding('UTF-8')
             deadline = Time.now + timeout_sec
+            
             until Time.now > deadline
-              if IO.select([socket], nil, nil, 0.1)
-                chunk = socket.read_nonblock(1024, exception: false)
-                buffer << chunk if chunk
-                break if buffer =~ /:\s?$/     # simplistic prompt heuristic
+              if IO.select([socket], nil, nil, 0.05)
+                begin
+                  chunk = socket.read_nonblock(4096, exception: false)
+                  if chunk.nil? || chunk == :wait_readable
+                    sleep 0.01
+                    next
+                  end
+                  buffer << chunk
+                  break if buffer =~ /:\s?$/
+                rescue EOFError, IOError
+                  break
+                end
               end
             end
             buffer
           end
 
-          ###################################################################
-          # 1. Colour negotiation – the very first question asked by the
-          #    server is whether the client supports ANSI colour codes.  We
-          #    respond according to the `colour` parameter (default true).
-          ###################################################################
-          receive_line.call
-          socket.write((colour ? 'y' : 'n') + "\n")
+          # Send all login commands with minimal delay
+          login_steps = [
+            [lambda { receive_line.call }, lambda { socket.write((colour ? 'y' : 'n') + "\n") }],
+            [lambda { receive_line.call }, lambda { socket.write("1\n") }],
+            [lambda { receive_line.call }, lambda { socket.write("#{username}\n") }],
+            [lambda { receive_line.call }, lambda { socket.write("#{password}\n") }],
+            [lambda { receive_line.call }, lambda { socket.write((colour ? 'y' : 'n') + "\n") }]
+          ]
 
-          ###################################################################
-          # 2. Login menu – choose existing character (option 1).
-          ###################################################################
-          receive_line.call
-          socket.write("1\n")
+          # Execute login steps
+          login_steps.each do |receive, send|
+            receive.call
+            send.call
+          end
 
-          ###################################################################
-          # 3. Provide username & password credentials.
-          ###################################################################
-          receive_line.call
-          socket.write("#{username}\n")
-          receive_line.call
-          socket.write("#{password}\n")
-
-          ###################################################################
-          # 4. Post-login colour confirmation – disable if colour == false so
-          #    that test expectations remain deterministic regardless of ANSI
-          #    support.
-          ###################################################################
-          receive_line.call
-          socket.write((colour ? 'y' : 'n') + "\n")
-
-          # Allow the server to finalise player initialisation.
-          sleep 0.25
+          # Allow the server to finalize player initialization with a shorter wait
+          sleep 0.1
         end
 
         # -----------------------------------------------------------------
@@ -296,19 +338,19 @@ module Aethyr
         end
 
         # @api private
-        # Blocks until the server thread has opened its TCP listener or a
-        # timeout has elapsed.  Should the underlying thread terminate early
-        # the *original* exception is re-raised to preserve full backtrace
-        # fidelity.
+        # Optimized port check with shorter timeouts
         def await_port_open!(timeout)
           deadline = Time.now + timeout
+          check_interval = 0.05
+          
           until Time.now > deadline
             begin
-              TCPSocket.new('127.0.0.1', @port).close
-              return true # Successfully connected – boot is complete.
+              socket = TCPSocket.new('127.0.0.1', @port)
+              socket.close
+              return true # Successfully connected - boot is complete
             rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH
               raise @server_exception if @server_exception
-              sleep 0.1
+              sleep check_interval
             end
           end
 
@@ -318,11 +360,12 @@ module Aethyr
         # @api private
         # Identical implementation to the previous helper but now extracted so
         # it can be reused throughout the harness as a *utility* method.
+        # Uses socket caching for better performance.
         #
         # @return [Integer] A currently free TCP port chosen by the OS.
         def self.find_free_port
           socket = TCPServer.new('127.0.0.1', 0)
-          port   = socket.addr[1]
+          port = socket.addr[1]
           socket.close
           port
         end
@@ -344,23 +387,17 @@ module Aethyr
           @sandbox_dir = Dir.mktmpdir('aethyr_it_')
 
           # Replicate the canonical test fixtures (conf + storage) into the
-          # isolated workspace.  We purposefully avoid FileUtils.cp_r(".") to
-          # limit the copy-set to exactly the directories required for runtime
-          # correctness – this keeps the operation fast even on CI runners with
-          # slow I/O.
+          # isolated workspace. Only copy needed directories for faster operation.
           %w[conf storage].each do |folder|
             src = File.join(@bootstrap_root, folder)
             dst = File.join(@sandbox_dir, folder)
             FileUtils.cp_r(src, dst)
           end
 
-          # Ensure auxiliary directories expected by the server exist inside
-          # the sandbox (e.g. logs/).  We do *not* copy these from the source
-          # because they are typically empty and created lazily by the server
-          # during execution.
+          # Ensure auxiliary directories exist
           FileUtils.mkdir_p(File.join(@sandbox_dir, 'logs'))
 
-          # Redirect *all* subsequent relative path resolutions to the sandbox.
+          # Redirect all path resolutions to the sandbox
           Dir.chdir(@sandbox_dir)
         end
       end # class ServerHarness

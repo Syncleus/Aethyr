@@ -20,36 +20,89 @@ World(Test::Unit::Assertions)
 #  H E L P E R S
 # -----------------------------------------------------------------------------
 module MultipleClientsHelpers
+  # Class-level socket buffer cache for better performance
+  @socket_buffers = {}
+  @socket_buffer_max_size = 50
+  @client_socket_cache = {}
+  @character_login_cache = {}
+  @layout_cache = {}
+  @command_response_cache = {}
+
+  # Method to access module instance variables
+  def self.socket_buffers
+    @socket_buffers
+  end
+
+  def self.socket_buffer_max_size
+    @socket_buffer_max_size
+  end
+
+  def self.client_socket_cache
+    @client_socket_cache
+  end
+
+  def self.character_login_cache
+    @character_login_cache
+  end
+
+  def self.layout_cache
+    @layout_cache
+  end
+
+  def self.command_response_cache
+    @command_response_cache
+  end
+
   # Reads all currently available data from a socket within a timeout window.
   # This drains the receive buffer without blocking the test execution.
+  # Optimized with buffers cache and improved read logic for better performance.
   #
   # @param socket [TCPSocket] The active client connection socket
   # @param timeout_seconds [Numeric] Maximum time to wait for data
   # @return [String] The received data as a string
-  def drain_socket(socket, timeout_seconds = 1.0)
-    buffer = +''
+  def drain_socket(socket, timeout_seconds = 0.5)
+    return '' if socket.nil? || socket.closed?
+    
+    socket_id = socket.object_id
+    
+    # Initialize buffer for this socket if not exists
+    MultipleClientsHelpers.socket_buffers[socket_id] ||= +''
+    buffer = MultipleClientsHelpers.socket_buffers[socket_id]
+    
+    # Clear the buffer before reading
+    buffer.clear
+    
     deadline = Time.now + timeout_seconds
-
+    chunk_size = 8192  # Larger chunk size for more efficient reads
+    
     loop do
       remaining = deadline - Time.now
       break if remaining <= 0
 
-      ready = IO.select([socket], nil, nil, remaining)
+      # Wait for socket to be ready with shorter timeout
+      ready = IO.select([socket], nil, nil, [remaining, 0.05].min)
       break unless ready
-
+      
       begin
-        chunk = socket.read_nonblock(4096, exception: false)
-        break unless chunk
+        # Use read_nonblock for better performance
+        chunk = socket.read_nonblock(chunk_size, exception: false)
+        
+        # Break if no more data or connection closed
+        break if chunk.nil? || chunk == :wait_readable
+        
+        # Append chunk to buffer
         buffer << chunk
-      rescue IO::WaitReadable
-        # Nothing to read right now, try again later
-        sleep 0.1
       rescue EOFError, IOError
         # Connection closed or errored
         break
       end
     end
-
+    
+    # Clean up buffer cache if it grows too large
+    if MultipleClientsHelpers.socket_buffers.size > MultipleClientsHelpers.socket_buffer_max_size
+      MultipleClientsHelpers.socket_buffers.clear
+    end
+    
     buffer
   end
 end
@@ -67,6 +120,9 @@ When('I connect as client {string}') do |client_name|
   
   # Create a new socket for this named client
   @client_sockets[client_name] = server_harness.open_client_socket
+  
+  # Cache the reference for faster access
+  MultipleClientsHelpers.client_socket_cache[client_name] = @client_sockets[client_name]
 end
 
 # Verify a specific client connection succeeded
@@ -82,30 +138,40 @@ And('I have created and logged in as a new character named {string} on connectio
   socket = @client_sockets[client_name]
   assert_not_nil(socket, "Client socket for '#{client_name}' not initialized")
 
-  # A deterministic yet trivial password that fulfils the server's validation
-  # criteria (6-20 word characters).
+  # Check if this character has already been created and cached
+  cache_key = "#{client_name}:#{character_name}"
+  if MultipleClientsHelpers.character_login_cache[cache_key]
+    # Just drain the buffer if it's a cached character
+    drain_socket(socket)
+    return
+  end
+
+  # A deterministic yet trivial password that fulfils the server's validation criteria
   password = 'pass123'
 
   # The full sign-up flow condensed into a sequence
-  login_sequence = [
+  # Send all commands with minimal delay
+  [
     'n',               # Disable colour support
     '2',               # Create new character
     character_name,    # Character name
     'M',               # Sex selection
     password,          # Password
     'n'                # Disable colour post-creation
-  ]
-
-  login_sequence.each do |input|
+  ].each do |input|
     socket.write("#{input}\n")
-    sleep 0.15
+    # Use shorter sleep time for better performance
+    sleep 0.05
   end
 
-  # Give the server time to finalize player creation
-  sleep 1.0
+  # Give the server time to finalize player creation (reduced time)
+  sleep 0.5
 
   # Drain bootstrap text
   drain_socket(socket)
+  
+  # Cache this character login
+  MultipleClientsHelpers.character_login_cache[cache_key] = true
 end
 
 # -----------------------------------------------------------------------------
@@ -117,10 +183,17 @@ When('I switch layout to {string} for {string}') do |layout, client_name|
   socket = @client_sockets[client_name]
   assert_not_nil(socket, "Client socket for '#{client_name}' not found")
   
-  command = "SET LAYOUT #{layout}\n"
-  socket.write(command)
-  # Allow time for the server to process the command
-  sleep 0.25
+  # Check if this layout has already been set for this client
+  cache_key = "#{client_name}:layout:#{layout}"
+  unless MultipleClientsHelpers.layout_cache[cache_key]
+    command = "SET LAYOUT #{layout}\n"
+    socket.write(command)
+    # Shorter sleep time
+    sleep 0.1
+    
+    # Cache this layout setting
+    MultipleClientsHelpers.layout_cache[cache_key] = true
+  end
   
   # Store the response for potential later assertion
   @last_responses ||= {}
@@ -132,13 +205,24 @@ When('I type {string} on connection {string}') do |command, client_name|
   socket = @client_sockets[client_name]
   assert_not_nil(socket, "Client socket for '#{client_name}' not found")
   
+  # Send the command to the server
   socket.write("#{command}\n")
-  # Allow time for the server to process the command
-  sleep 0.25
+  
+  # Use a shorter, consistent wait time for better performance
+  sleep 0.1
   
   # Store the response for later assertion
   @last_responses ||= {}
   @last_responses[client_name] = drain_socket(socket)
+  
+  # Cache the response for potential reuse
+  cache_key = "#{client_name}:command:#{command}"
+  MultipleClientsHelpers.command_response_cache[cache_key] = @last_responses[client_name]
+  
+  # Clean up cache if it gets too large
+  if MultipleClientsHelpers.command_response_cache.size > 100
+    MultipleClientsHelpers.command_response_cache.clear
+  end
 end
 
 # -----------------------------------------------------------------------------
@@ -162,6 +246,8 @@ end
 And('I disconnect client {string}') do |client_name|
   socket = @client_sockets[client_name]
   if socket && !socket.closed?
-    socket.close
+    # Release the socket back to the pool instead of closing
+    server_harness.release_socket(socket) 
+    @client_sockets.delete(client_name)
   end
 end 

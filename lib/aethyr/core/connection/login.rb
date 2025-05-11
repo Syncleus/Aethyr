@@ -273,17 +273,18 @@ module Login
   end
 
   #Creates a new player
+  # TODO: This whole bit needs to be pulled out into extensions somehow since it depends on things in extensions
   def create_new_player
-    @player = Player.new(self, nil, ServerConfig.start_room, @new_name, [], "a typical person", "This is a normal, everyday kind of person.", "person", @sex)
+    @player = Aethyr::Core::Objects::Player.new(self, nil, ServerConfig.start_room, @new_name, [], "a typical person", "This is a normal, everyday kind of person.", "person", @sex)
     @player.word_wrap = nil
 
     # TODO remove following lines
     require 'aethyr/extensions/objects/clothing_items' #why not
     require 'aethyr/extensions/objects/sword'
-    shirt = Shirt.new
-    pants = Pants.new
-    undies = Underwear.new
-    sword = Sword.new
+    shirt = Aethyr::Extensions::Objects::Shirt.new
+    pants = Aethyr::Extensions::Objects::Pants.new
+    undies = Aethyr::Extensions::Objects::Underwear.new
+    sword = Aethyr::Extensions::Objects::Sword.new
 
     $manager.add_object(shirt)
     $manager.add_object(undies)

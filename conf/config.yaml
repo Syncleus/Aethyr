@@ -2,14 +2,14 @@
 :log_level: 0
 :save_rate: 1440
 :debug: false
-:admin: freemo
+:admin: testuser
 :goid_type: ":guid"
 :port: 8888
 :update_rate: 30
 :restart_delay: 10
 :address: 0.0.0.0
 :intro_file: intro.txt
-:start_room: aa496a12-2410-4349-c3ca-69bc0e675244
+:start_room: 18ab28fa-b839-04f5-c90d-7b2d162b7380
 :restart_limit: 15
 :mccp: false
 :mssp: false

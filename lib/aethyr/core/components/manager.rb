@@ -173,7 +173,7 @@ class Manager < Publisher
   #create_object(Box, room, nil, nil, :@open => false)
   def create_object(klass, room = nil, position = nil, args = nil, vars = nil)
     object = nil
-    if room.is_a? Container
+    if room.is_a? Aethyr::Core::Objects::Container
       room_goid = room.goid
     else
       room_goid = room
@@ -216,7 +216,7 @@ class Manager < Publisher
     unless game_object.room.nil?
       room = @game_objects[game_object.room]
       unless room.nil?
-        if room.is_a? Area
+        if room.is_a? Aethyr::Core::Objects::Area
           room.add(game_object, position)
         else
           room.add(game_object)

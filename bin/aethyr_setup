@@ -107,27 +107,27 @@ def reset_storage
 
   $manager = Manager.new
 
-  city_area = $manager.create_object(Area, nil, nil, nil, :@name => "City of Ófærr")
+  city_area = $manager.create_object(Aethyr::Core::Objects::Area, nil, nil, nil, :@name => "City of Ófærr")
   city_area.add_flag PlusEarth.new(city_area)
   city_area.info.terrain.type =  Terrain::CITY
-  town_square_room = $manager.create_object(Room, city_area, [0,0], nil, :@name => "Ófærr City Square", :@short_desc => "You see a sad excuse for the heart of the city of Ófærr. The street is covered in mud and dirt and lined with trash. The fountain has long since stopped working.")
+  town_square_room = $manager.create_object(Aethyr::Core::Objects::Room, city_area, [0,0], nil, :@name => "Ófærr City Square", :@short_desc => "You see a sad excuse for the heart of the city of Ófærr. The street is covered in mud and dirt and lined with trash. The fountain has long since stopped working.")
   ServerConfig[:start_room] = town_square_room.goid
-  church_entrance_room = $manager.create_object(Room, city_area, [-1,0], nil, :@name => "Church of Light Entrance", :@short_desc => "Before you stands an ancient disregarded church. It is too dark to see inside however from the look of the collapsed roof and rotting wood door way it probably isnt safe to enter.")
-  $manager.create_object(Exit, town_square_room, nil, church_entrance_room.goid, :@alt_names => ["west"])
-  $manager.create_object(Exit, church_entrance_room, nil, town_square_room.goid, :@alt_names => ["east"])
+  church_entrance_room = $manager.create_object(Aethyr::Core::Objects::Room, city_area, [-1,0], nil, :@name => "Church of Light Entrance", :@short_desc => "Before you stands an ancient disregarded church. It is too dark to see inside however from the look of the collapsed roof and rotting wood door way it probably isnt safe to enter.")
+  $manager.create_object(Aethyr::Core::Objects::Exit, town_square_room, nil, church_entrance_room.goid, :@alt_names => ["west"])
+  $manager.create_object(Aethyr::Core::Objects::Exit, church_entrance_room, nil, town_square_room.goid, :@alt_names => ["east"])
 
-  area = $manager.create_object(Area, nil, nil, nil, :@name => "an Underground Cavern")
+  area = $manager.create_object(Aethyr::Core::Objects::Area, nil, nil, nil, :@name => "an Underground Cavern")
   area.info.terrain.type =  Terrain::UNDERGROUND
   area.add_flag MinusFire.new(area)
   area.add_flag PlusEarth.new(area)
-  hole = $manager.create_object(Room, area, [0,0], nil,  :@name => "🙖 A vine-infested hole deep underground 🙐", :@short_desc => "While trying to explore the church you fell through the rotting floor boards, you are now syuck at the bottom of a deep hole. The dirt is soft and wet, teaming with life, you smell green plants on the air. The air is hot and a thick mist hangs, obstructing your vision. All you see is the distant light overhead. After some time a <mob>tall man</mob> appears before you, as if out of nowhere.")
+  hole = $manager.create_object(Aethyr::Core::Objects::Room, area, [0,0], nil,  :@name => "🙖 A vine-infested hole deep underground 🙐", :@short_desc => "While trying to explore the church you fell through the rotting floor boards, you are now syuck at the bottom of a deep hole. The dirt is soft and wet, teaming with life, you smell green plants on the air. The air is hot and a thick mist hangs, obstructing your vision. All you see is the distant light overhead. After some time a <mob>tall man</mob> appears before you, as if out of nowhere.")
   hole.add_flag PlusFire.new(hole)
   hole.add_flag PlusWater.new(hole)
-  $manager.create_object(Exit, church_entrance_room, nil, hole.goid, :@alt_names => ["church"])
-  slime = $manager.create_object(Mobile, hole, nil, nil, :@generic => "blue slime", :@short_desc => "A <mob>blue slime</mob> stands here being useless", :@alt_names => ["slime"])
+  $manager.create_object(Aethyr::Core::Objects::Exit, church_entrance_room, nil, hole.goid, :@alt_names => ["church"])
+  slime = $manager.create_object(Aethyr::Core::Objects::Mobile, hole, nil, nil, :@generic => "blue slime", :@short_desc => "A <mob>blue slime</mob> stands here being useless", :@alt_names => ["slime"])
 
 
-  man = $manager.create_object(Mobile, hole, nil, nil, :@generic => "tall man", :@short_desc => "A <mob>tall man</mob> with a <raw bold blink>very</raw bold blink> long beard stands here placidly.", :@alt_names => ["man"], :@show_in_look => "A <mob>tall man</mob> with a <raw bold>very</raw bold> long beard stands here regarding you placidly.", :@sex => "m")
+  man = $manager.create_object(Aethyr::Core::Objects::Mobile, hole, nil, nil, :@generic => "tall man", :@short_desc => "A <mob>tall man</mob> with a <raw bold blink>very</raw bold blink> long beard stands here placidly.", :@alt_names => ["man"], :@show_in_look => "A <mob>tall man</mob> with a <raw bold>very</raw bold> long beard stands here regarding you placidly.", :@sex => "m")
 
   puts "Adding helper reactions..."
 

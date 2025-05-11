@@ -60,19 +60,21 @@ class CacheGary < Gary
 
   #Look up an object by goid.
   #This function is potentially dangerous, since it is not using a mutex
-  def [](id)
-    result = super
-    if result.nil? and !@storage.nil?
-      if id.to_s =~ /P\d+/ 
-        result = @storage.load_player_id(id, self)
-      elsif obj = @storage.load_id(id, self)
-        result = obj
-      elsif obj.is_a? Aethyr::Core::Objects::Player or obj.is_a? Mobile
-        @storage.load_inventory(obj, self)
+  def [] goid
+    if @ghash[goid]
+      return @ghash[goid]
+    elsif @all_goids.include? goid
+      log "Loading #{goid} from storage" , Logger::Ultimate
+      begin
+        obj = @storage.load_object(goid, self)
+      rescue MUDError::NoSuchGOID
+        log "Tried to load #{goid}, but it must have been deleted."
+        return nil
       end
-      self << result if result
+      return obj
+    else
+      return nil
     end
-    return result
   end
 
   #Add object to CacheGary.

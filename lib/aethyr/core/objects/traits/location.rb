@@ -26,7 +26,7 @@ module Location
     parent_id = @container
     until parent_id.nil? do
       parent = $manager.find(parent_id)
-      return parent if parent.nil? or parent.is_a? Area
+      return parent if parent.nil? or parent.is_a? Aethyr::Core::Objects::Area
       parent_id = parent.container
     end
     nil

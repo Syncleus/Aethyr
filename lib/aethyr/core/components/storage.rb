@@ -348,7 +348,7 @@ class StorageMachine
     end
 
     #Don't want to load players, unless specified that we do
-    files.delete('Aethyr::Core::Objects::Player') unless include_players
+    files.delete(Aethyr::Core::Objects::Player) unless include_players
 
     #Load each object.
     files.each do |type, ids|
@@ -480,46 +480,4 @@ class StorageMachine
   end
 
   public :update_all_objects!
-
-  def save_inventory(object)
-    return if object.is_a? Aethyr::Core::Objects::Player #don't want to do this for players, use save_player instead
-    unless object.inventory.nil?
-      object.inventory.each do |obj|
-        store_object(obj) unless obj.is_a? Aethyr::Core::Objects::Player #this shouldn't happen, but who knows
-      end
-    end
-  end
-
-  def follow_reference(reference, objects, include_players = false)
-    obj = objects[reference]
-    return nil if obj.nil?
-    return obj if obj.is_a? Aethyr::Core::Objects::Player or obj.nil?
-    
-    # ... existing code ...
-  end
-
-  def save_file(object, object_store = nil)
-    unless object.nil? or (not include_players and object.is_a? Aethyr::Core::Objects::Player)
-      write_file(save_path(object), object_store || object)
-      save_deps(object)
-    end
-  end
-  
-  def save_deps(object)
-    if object.is_a? Aethyr::Core::Objects::Player
-      write_player_file(player_path(object.name), object)
-    end
-    unless object.nil? or object.inventory.nil?
-      object.inventory.each do |o|
-        store_object(o) unless o.is_a? Aethyr::Core::Objects::Player #this shouldn't happen, but who knows
-      end
-    end
-  end
-
-  def load_object_deps(obj, objects = {})
-    unless obj.is_a? Aethyr::Core::Objects::Player
-      log "Getting dependencies for #{obj.name}"
-      # ... existing code ...
-    end
-  end
 end

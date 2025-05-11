@@ -124,6 +124,7 @@ module Aethyr
             # No connection available, just continue
           rescue StandardError => e
             log "Error accepting connection: #{e.message}", Logger::Medium, true
+            raise e
           end
 
           # Use optimized IO multiplexing with timeout
@@ -147,6 +148,7 @@ module Aethyr
                 player.close
                 read_array.delete(socket)
                 players.delete(player)
+                raise e
               end
             end
           end
@@ -195,9 +197,11 @@ module Aethyr
         log "Received interrupt: halting", 0
         log i.inspect
         log i.backtrace.join("\n"), 0, true
+        raise i
       rescue Exception => e
         log e.backtrace.join("\n"), 0, true
         log e.inspect
+        raise e
       ensure
         # Close the server log file
         server_log.close if server_log && !server_log.closed?
@@ -257,9 +261,10 @@ module Aethyr
         end
       rescue Interrupt
         Process.kill('HUP', 0) # Kill all children when main process is terminated
-      rescue SystemCallError
+      rescue SystemCallError => e
         # Final shutdown notification through logger.
         log 'All children have exited. Goodbye!', Logger::Ultimate
+        raise e
       end
     end
 
@@ -273,12 +278,12 @@ module Aethyr
           log "Server restart ##{server_restarts}"
 
           begin
-            #result = RubyProf.profile do
             Server.new(ServerConfig.address, ServerConfig.port)
-            #end
-            #File.open "logs/profile", "w" do |f|
-            # RubyProf::CallTreePrinter.new(result).print f, 1
-            #end
+          rescue => e
+            puts "Server restart failed: #{e.message}"
+            puts e.backtrace.join("\n")
+            puts e.inspect
+            raise e
           ensure
             if server_restarts < ServerConfig.restart_limit
               if $manager and $manager.soft_restart
@@ -292,12 +297,13 @@ module Aethyr
               sleep ServerConfig.restart_delay
               log "RESTARTING SERVER", Logger::Important, true
 
-              program_name = ENV["_"] || "ruby"
-
+              # Find the proper command to restart the server
+              executable_path = File.join(File.dirname(__FILE__), '../../../../bin/aethyr')
+              
               if $manager and $manager.soft_restart
-                exec("#{program_name} server.rb")
+                exec("bundle exec #{executable_path} run")
               else
-                exec("#{program_name} server.rb #{server_restarts + 1}")
+                exec("bundle exec #{executable_path} run #{server_restarts + 1}")
               end
             else
               File.open("logs/server.log", "a") { |f| f.puts "#{Time.now} Server stopping. Too many restarts." }

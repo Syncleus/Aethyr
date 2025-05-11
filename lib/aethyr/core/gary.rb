@@ -62,7 +62,7 @@ class Gary
 
   #Object can be an game object id or a game object. Deletes it from the game object set.
   def delete(object)
-    if object.is_a?(GameObject)
+    if object.is_a?(Aethyr::Core::Objects::GameObject)
       object_id = object.game_object_id
     else
       object_id = object

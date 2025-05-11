@@ -20,6 +20,7 @@
 require 'test/unit/assertions'
 require 'set'
 require 'aethyr/core/registry'
+require_relative '../support/test_helpers'
 
 World(Test::Unit::Assertions)
 
@@ -126,41 +127,46 @@ Given('an isolated CommandHandler test harness') do
   # implementations. We only add the members actually referenced by the       #
   # production code so as to keep the doubles honest (ISP & LSP).             #
   # -------------------------------------------------------------------------
-  unless defined?(::Player)
-    class ::Player; end
-  end
-
-  # Provide accessor for the handler subscription performed via #subscribe.   #
-  class ::Player
-    attr_accessor :admin, :subscribed_handler
+  module ::Aethyr
+    module Core
+      module Objects
+        # Only define if it doesn't exist yet
+        unless defined?(MockPlayer)
+          class MockPlayer
+            attr_accessor :admin, :subscribed_handler
+            
+            def initialize
+              @admin = false
+              @subscribed_handler = nil
+            end
+            
+            def subscribe(handler)
+              self.subscribed_handler = handler
+            end
+            
+            def output(_text, _newline = true); end
+            
+            def help_library
+              @__help_stub ||= HelpLibraryStub.new
+            end
+          end
+        end
+      end
+    end
   end
 
   # Inject a stubbed "help library" supporting the sole method invoked via    #
-  # the HandleHelp mixin.                                                     #
+  # the HandleHelp mixin.                                       
   class HelpLibraryStub
     def entry_register(_entry); end
     def topics; []; end
     def render_topic(_topic); 'help text'; end
   end
 
-  self.player = ::Player.new
+  self.player = ::Aethyr::Core::Objects::MockPlayer.new
   # Grant admin privileges unconditionally – regular handlers simply ignore   #
   # the flag whereas Aethyr::Extend::AdminHandler subclasses *require* it.     #
   player.admin = true
-
-  def player.help_library
-    @__help_stub ||= HelpLibraryStub.new
-  end
-
-  # The production player stores the subscription via #subscribe.            #
-  def player.subscribe(handler)
-    self.subscribed_handler = handler
-  end
-
-  # Many handlers send user-facing feedback via Player#output. Implement a no-
-  # op stub so that tests remain focused on handler *behaviour* rather than
-  # rendering logic.
-  def player.output(_text, _newline = true); end
 
   # Install the stubbed manager globally for the current scenario.            #
   $manager = StubManager.new

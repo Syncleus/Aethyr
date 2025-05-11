@@ -1,7 +1,25 @@
-require 'aethyr/core/input_handlers/help_handler'
+require 'aethyr/core/util/publisher'
+require 'aethyr/core/objects/player'
 
 module Aethyr
   module Extend
+    module HandleHelp
+      attr_reader :commands
+
+      def initialize(player, commands, *args, help_entries: [], **kwargs)
+        super(player, *args, **kwargs)
+
+        @commands = commands
+
+        help_entries.each do |entry|
+          player.help_library.entry_register entry
+        end
+      end
+
+      def can_help?
+        true
+      end
+    end
 
     class InputHandler
       attr_reader :player
@@ -25,12 +43,14 @@ module Aethyr
 
       protected
       #event listener parent that listens for when a new user is added to the manager
-      def self.object_added(data, child_class = nil)
-        raise "child_class must be defined, object_added is likely not implemented in the child class" if child_class.nil?
-        return unless data[:game_object].is_a? Player
-        data[:game_object].subscribe(child_class.new(data[:game_object]))
+      def self.object_added(data, handler_class = self)
+        #Subscribes the handler to the object that was added, assuming that object was a player.
+        is_player = data[:game_object].is_a?(Aethyr::Core::Objects::Player)
+        is_mock_player = defined?(Aethyr::Core::Objects::MockPlayer) && data[:game_object].is_a?(Aethyr::Core::Objects::MockPlayer)
+        
+        return unless is_player || is_mock_player
+        data[:game_object].subscribe(handler_class.new(data[:game_object]))
       end
-
     end
   end
 end

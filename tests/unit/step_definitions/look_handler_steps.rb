@@ -18,6 +18,7 @@
 require 'test/unit/assertions'
 require 'set'                                         # Ensures ::Set is defined
 require 'aethyr/core/input_handlers/look'            # Class under test
+require_relative '../support/test_helpers'
 
 World(Test::Unit::Assertions)
 
@@ -55,73 +56,22 @@ end
 # Given-steps                                                                #
 ###############################################################################
 Given('a stubbed LookHandler environment') do
-  # -------------------------------------------------------------------------
-  # Create a light-weight stand-in for Player that still satisfies the type    #
-  # check performed via «is_a? Player» inside CommandHandler.object_added.     #
-  # -------------------------------------------------------------------------
-  unless defined?(::Player)
-    # The dummy definition is only installed when the real class is absent so
-    # that we do not inadvertently monkey-patch the production model class.
-    class ::Player; end
-  end
+  # Use the MockPlayer from test_helpers.rb
+  @player = ::Aethyr::Core::Objects::MockPlayer.new
 
-  # Minimal set of methods that the LookHandler or the registration callback   #
-  # might invoke on the Player instance.                                       #
-  @player = ::Player.new
-  # -------------------------------------------------------------------------
-  # Inject "HelpLibrary" stub so LookHandler's HandleHelp mixin can safely
-  # register new help entries without triggering a NoMethodError.            #
-  #--------------------------------------------------------------------------
-  class HelpLibraryStub
-    # Public: Mimics the signature of the real #entry_register but acts as a
-    # no-op. This keeps the test focused on LookHandler behaviour whilst
-    # satisfying the collaboration contract (Liskov Substitution Principle).
-    def entry_register(_entry); end
-  end
-
-  def @player.help_library
-    @help_library_stub ||= HelpLibraryStub.new
-  end
-
-  def @player.subscribe(handler)
-    @subscribed_handler = handler
-  end
-  def @player.subscribed_handler
-    @subscribed_handler
-  end
-
-  # Instantiate the handler under test.                                       #
+  # Instantiate the handler under test.
   @handler = Aethyr::Core::Commands::Look::LookHandler.new(@player)
 
-  # Inject our stubbed manager in place of the production global.             #
+  # Inject our stubbed manager in place of the production global.
   $manager = StubManager.new
 
-  # Track submitted actions for easy access in step-definitions.              #
+  # Track submitted actions for easy access in step-definitions.
   @captured_actions = $manager.actions
 end
 
 Given('a fresh stubbed Player instance') do
   # Stand-alone variant reused by the object_added scenario.
-  class ::Player; end unless defined?(::Player)
-
-  @player = ::Player.new
-
-  # Provide stubbed #help_library for this fresh player as well.
-  class HelpLibraryStub
-    def entry_register(_entry); end
-  end
-
-  def @player.help_library
-    @help_library_stub ||= HelpLibraryStub.new
-  end
-
-  def @player.subscribe(handler)
-    @subscribed_handler = handler
-  end
-
-  def @player.subscribed_handler
-    @subscribed_handler
-  end
+  @player = ::Aethyr::Core::Objects::MockPlayer.new
 end
 
 ###############################################################################

@@ -8,8 +8,12 @@ module Aethyr
       end
 
       protected
-      def self.object_added(data, child_class)
-        return unless (data[:game_object].is_a? Player) && data[:game_object].admin
+      def self.object_added(data, child_class = self)
+        is_player = data[:game_object].is_a?(Aethyr::Core::Objects::Player)
+        is_mock_player = defined?(Aethyr::Core::Objects::MockPlayer) && data[:game_object].is_a?(Aethyr::Core::Objects::MockPlayer)
+        is_admin = data[:game_object].admin
+        
+        return unless (is_player || is_mock_player) && is_admin
         data[:game_object].subscribe(child_class.new(data[:game_object]))
       end
 

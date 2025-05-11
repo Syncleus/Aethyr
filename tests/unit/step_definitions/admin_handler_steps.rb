@@ -21,6 +21,7 @@
 require 'test/unit/assertions'
 require 'set'
 require 'aethyr/core/registry'
+require_relative '../support/test_helpers'
 
 # Mixin Test::Unit assertions directly into the Cucumber execution context.    #
 World(Test::Unit::Assertions)
@@ -105,57 +106,21 @@ end
 # Given-steps                                                                  #
 ###############################################################################
 Given('an isolated AdminHandler test harness') do
-  # -----------------------------------------------------------------------
   # Define – or reopen – the minimalistic Player surrogate demanded by the  #
   # production AdminHandler hierarchy. We purposefully inject *only* the     #
   # members referenced by the concrete code paths so as to keep the double   #
   # honest and aligned with the ISP principle.                               #
   # -----------------------------------------------------------------------
-  unless defined?(::Player)
-    class ::Player; end
-  end
-
-  class ::Player
-    # Flag indicating whether the player possesses elevated admin rights.
-    attr_accessor :admin
-    # Stores the handler instance subscribed via #subscribe so that we can
-    # validate correct behaviour inside `object_added`.
-    attr_accessor :subscribed_handler
-  end
-
-  # Provide *exactly* the public API surface required by the HandleHelp mixin.
-  class HelpLibraryStub
-    def entry_register(_entry); end
-    def topics; []; end
-    def render_topic(_topic); 'help text'; end
-  end
-
+  
   # Instantiate both variants of the player double.
-  self.player_admin   = ::Player.new
-  self.player_regular = ::Player.new
+  self.player_admin   = ::Aethyr::Core::Objects::MockPlayer.new
+  self.player_regular = ::Aethyr::Core::Objects::MockPlayer.new
 
   # Grant / revoke privileges.
   player_admin.admin   = true
   player_regular.admin = false
 
-  # Stubbing application-level dependencies ---------------------------------
-  # Bind a no-op help library so that Handler#can_help? passes successfully.
-  [player_admin, player_regular].each do |p|
-    def p.help_library
-      @__help_stub ||= HelpLibraryStub.new
-    end
-
-    # Concrete handlers usually send feedback to the Player#output channel.
-    def p.output(_text, _newline = true); end
-
-    # Capture subscriptions so that we can later on assert *who* received what
-    # handler instance.
-    def p.subscribe(handler)
-      self.subscribed_handler = handler
-    end
-  end
-
-  # Replace the global game manager with a super-lightweight stub.
+  # Install the stubbed manager globally for the current scenario.
   $manager = StubManager.new
   self.captured_actions = $manager.actions
 end

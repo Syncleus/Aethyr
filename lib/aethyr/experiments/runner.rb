@@ -119,7 +119,7 @@ module Aethyr
       # 3. Player Bootstrap
       ####################################################################
       def bootstrap_player
-        require "aethyr/core/objects/player" unless defined?(Player)
+        require "aethyr/core/objects/player" unless defined?(Aethyr::Core::Objects::Player)
 
         @player =
           if $manager.player_exist?(@options.player)
@@ -127,12 +127,13 @@ module Aethyr
             $manager.load_player(@options.player, "")
           else
             log "Creating new sandbox player: #{@options.player}"
-            # NOTE: Aethyr::Storage normally handles persistence; here
+            # Rather than try to sort out player authentication from scratch here,
             # we punt and create an in-memory Player via Manager API.
-            $manager.create_object(Player, nil, nil, nil,
-                                   :@name       => @options.player,
-                                   :@short_desc => "An intrepid experimenter",
-                                   :@admin      => true)
+            $manager.create_object(Aethyr::Core::Objects::Player, nil, nil, nil,
+              :@name       => @options.player,
+              :@short_desc => "",
+              :@long_desc  => "",
+              :@admin      => true)
           end
 
         # Persist the player reference into Sandbox for user scripts.

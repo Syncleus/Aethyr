@@ -42,8 +42,8 @@ module Aethyr
             if object.nil?
               player.output "Cannot find #{self[:object]} to delete."
               return
-            elsif object.is_a? Player
-              player.output "Use DELETEPLAYER to delete players."
+            elsif object.is_a? Aethyr::Core::Objects::Player
+              player.output "Use the DELETEPLAYER command to delete other players."
               return
             end
 

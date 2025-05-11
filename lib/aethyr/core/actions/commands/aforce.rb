@@ -18,8 +18,9 @@ module Aethyr
             if object.nil?
               player.output "Force who?"
               return
-            elsif object.is_a? Player
-              object.handle_input(self[:command])
+            elsif object.is_a? Aethyr::Core::Objects::Player
+              @player.output "Cannot force another player."
+              return
             else
               player.output "You can only force other players to execute a command."
             end

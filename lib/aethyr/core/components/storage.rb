@@ -197,7 +197,7 @@ class StorageMachine
 
     if object.respond_to? :equipment
       object.equipment.each do |o|
-        store_object(o) unless o.is_a? Player #this shouldn't happen, but who knows
+        store_object(o) unless o.is_a? Aethyr::Core::Objects::Player #this shouldn't happen, but who knows
       end
     end
 
@@ -276,7 +276,7 @@ class StorageMachine
 
         #Don't want to load players until they are playing.
         #We can add the player to a room once they login, not before.
-        object.inventory << obj unless obj.is_a? Player
+        object.inventory << obj unless obj.is_a? Aethyr::Core::Objects::Player
         obj.container = object.goid
       end
     end
@@ -294,7 +294,7 @@ class StorageMachine
 
         #Don't want to load players until they are playing.
         #We can add the player to a room once they login, not before.
-        unless obj.is_a? Player or obj.nil?
+        unless obj.is_a? Aethyr::Core::Objects::Player or obj.nil?
           object.equipment.inventory << obj
           obj.info.equipment_of = object.goid
         end
@@ -348,7 +348,7 @@ class StorageMachine
     end
 
     #Don't want to load players, unless specified that we do
-    files.delete(Player) unless include_players
+    files.delete('Aethyr::Core::Objects::Player') unless include_players
 
     #Load each object.
     files.each do |type, ids|
@@ -356,7 +356,7 @@ class StorageMachine
         ids.each do |id|
           object = Marshal.load(gd[id])
           log "Loaded #{object}", Logger::Ultimate
-          unless object.nil? or (not include_players and object.is_a? Player)
+          unless object.nil? or (not include_players and object.is_a? Aethyr::Core::Objects::Player)
 
             object.rehydrate(nil)
 
@@ -386,7 +386,7 @@ class StorageMachine
     log "Saving given objects (#{game_objects.length})...please wait...", Logger::Ultimate
     @saved = 0
     game_objects.each do |o|
-      if o.is_a? Player
+      if o.is_a? Aethyr::Core::Objects::Player
         save_player(o)
       else
         store_object(o)
@@ -433,7 +433,7 @@ class StorageMachine
       if game_objects.include? inv_obj[0]
         obj = game_objects[inv_obj[0]]
         pos = inv_obj[1]
-        unless obj.is_a? Player
+        unless obj.is_a? Aethyr::Core::Objects::Player
           inv.add(obj, pos)
           obj.container = object.goid
         end
@@ -480,4 +480,46 @@ class StorageMachine
   end
 
   public :update_all_objects!
+
+  def save_inventory(object)
+    return if object.is_a? Aethyr::Core::Objects::Player #don't want to do this for players, use save_player instead
+    unless object.inventory.nil?
+      object.inventory.each do |obj|
+        store_object(obj) unless obj.is_a? Aethyr::Core::Objects::Player #this shouldn't happen, but who knows
+      end
+    end
+  end
+
+  def follow_reference(reference, objects, include_players = false)
+    obj = objects[reference]
+    return nil if obj.nil?
+    return obj if obj.is_a? Aethyr::Core::Objects::Player or obj.nil?
+    
+    # ... existing code ...
+  end
+
+  def save_file(object, object_store = nil)
+    unless object.nil? or (not include_players and object.is_a? Aethyr::Core::Objects::Player)
+      write_file(save_path(object), object_store || object)
+      save_deps(object)
+    end
+  end
+  
+  def save_deps(object)
+    if object.is_a? Aethyr::Core::Objects::Player
+      write_player_file(player_path(object.name), object)
+    end
+    unless object.nil? or object.inventory.nil?
+      object.inventory.each do |o|
+        store_object(o) unless o.is_a? Aethyr::Core::Objects::Player #this shouldn't happen, but who knows
+      end
+    end
+  end
+
+  def load_object_deps(obj, objects = {})
+    unless obj.is_a? Aethyr::Core::Objects::Player
+      log "Getting dependencies for #{obj.name}"
+      # ... existing code ...
+    end
+  end
 end

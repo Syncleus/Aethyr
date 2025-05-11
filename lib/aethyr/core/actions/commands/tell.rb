@@ -12,8 +12,8 @@ module Aethyr
           def action
             
             target = $manager.find self[:target]
-            unless target and target.is_a? Player
-              @player.output "That person is not available."
+            unless target and target.is_a? Aethyr::Core::Objects::Player
+              @player.output "You can't send a tell to #{self[:target]}."
               return
             end
 

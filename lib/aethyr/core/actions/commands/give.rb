@@ -29,8 +29,8 @@ module Aethyr
             if receiver.nil?
               player.output("There is no #{self[:to]}.")
               return
-            elsif not receiver.is_a? Player and not receiver.is_a? Mobile
-              player.output("You cannot give anything to #{receiver.name}.")
+            elsif not receiver.is_a? Aethyr::Core::Objects::Player and not receiver.is_a? Mobile
+              player.output "You can't give something to an inanimate object."
               return
             end
 

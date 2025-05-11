@@ -122,7 +122,7 @@ class Manager < Publisher
   #
   #If player is already loaded, this function raises MUDError::CharacterAlreadyLoaded.
   def load_player(name, password)
-    player = @game_objects.find(name, Player) #should return nil unless player is logged in
+    player = @game_objects.find(name, Aethyr::Core::Objects::Player) #should return nil unless player is logged in
     if player
       player.output "<important>Someone is trying to login as you.</>"
       if @storage.check_password(name, password)
@@ -224,11 +224,11 @@ class Manager < Publisher
       end
     end
 
-    @storage.store_object(game_object) unless game_object.is_a? Player
+    @storage.store_object(game_object) unless game_object.is_a? Aethyr::Core::Objects::Player
 
     log "Added an object! (#{game_object.name})", Logger::Medium
 
-    if game_object.is_a? Player
+    if game_object.is_a? Aethyr::Core::Objects::Player
       @game_objects.find_all("@admin", true).each do |admin|
         admin.output "#{game_object.name} has entered the game."
       end
@@ -255,7 +255,7 @@ class Manager < Publisher
       return
     end
 
-    player = @game_objects.find(name, Player)
+    player = @game_objects.find(name, Aethyr::Core::Objects::Player)
 
     if player.nil?
       set_password name, "deleting"
@@ -393,7 +393,7 @@ class Manager < Publisher
 
   #Sends alert to all players.
   def alert_all(message = "<important>Server is shutting down, sorry!</important>", ignore_lost = true)
-    @game_objects.find_all('class', Player).each do |object|
+    @game_objects.find_all('class', Aethyr::Core::Objects::Player).each do |object|
       begin
         unless ignore_lost and object.container.nil?
           object.output message

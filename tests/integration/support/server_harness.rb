@@ -324,11 +324,73 @@ module Aethyr
           @server_thread = Thread.new do
             begin
               Thread.current.name = 'AethyrServer'
+              
+              # Add additional debug output
+              puts "Starting Aethyr server on #{@address}:#{@port}..."
+              
+              # Add error reporting before starting the server
+              begin
+                require 'aethyr/core/util/all-objects'
+                puts "Successfully loaded all-objects.rb"
+              rescue StandardError => e
+                puts "Error loading all-objects.rb: #{e.class} - #{e.message}"
+                puts e.backtrace.join("\n")
+                raise
+              end
+              
+              # Debug the current working directory
+              puts "Current working directory: #{Dir.pwd}"
+              
+              # Check if key files exist
+              ['storage/goids', 'conf/config.yaml'].each do |file|
+                if File.exist?(file)
+                  puts "File exists: #{file}"
+                else
+                  puts "ERROR: File not found: #{file}"
+                end
+              end
+              
+              # Try to load some of the key objects that might be failing
+              begin
+                puts "Testing StorageMachine class..."
+                require 'aethyr/core/components/storage'
+                storage = StorageMachine.new
+                puts "StorageMachine initialized successfully"
+              rescue StandardError => e
+                puts "Error initializing StorageMachine: #{e.class} - #{e.message}"
+                puts e.backtrace.join("\n")
+              end
+              
+              begin
+                puts "Testing Manager class..."
+                require 'aethyr/core/components/manager'
+                puts "Manager class loaded successfully"
+                
+                # Attempt to create a Manager to see if we can debug issues there
+                puts "Attempting to create a Manager instance..."
+                manager = Manager.new
+                puts "Manager instance created successfully"
+                puts "Number of objects loaded: #{manager.game_objects_count}"
+                
+                # Check for common Manager initialization issues
+                if manager.game_objects_count == 0
+                  puts "WARNING: No game objects were loaded by the Manager"
+                end
+              rescue StandardError => e
+                puts "Error loading Manager class: #{e.class} - #{e.message}"
+                puts e.backtrace.join("\n")
+              end
+              
+              # Now try to start the server
+              puts "Starting Aethyr::Server..."
               Aethyr::Server.new(@address, @port)
             rescue Exception => e # rubocop:disable RescueException
               # Store the exception for later interrogation before re-raising
               # through the main thread if boot never completes.
               @server_exception = e
+              puts "ERROR in server thread: #{e.class} - #{e.message}"
+              puts e.backtrace.join("\n")
+              raise
             end
           end
 
@@ -349,9 +411,30 @@ module Aethyr
               socket.close
               return true # Successfully connected - boot is complete
             rescue Errno::ECONNREFUSED, Errno::EHOSTUNREACH
-              raise @server_exception if @server_exception
+              # Check if the server thread has encountered an exception
+              if @server_exception
+                puts "Server thread encountered exception: #{@server_exception.class}"
+                puts @server_exception.message
+                puts @server_exception.backtrace.join("\n")
+                raise @server_exception
+              end
               sleep check_interval
             end
+          end
+
+          # Before raising the timeout error, check if server thread is still alive and if there's an exception
+          if @server_thread && !@server_thread.alive?
+            puts "Server thread died before opening port"
+            if @server_exception
+              puts "Server exception: #{@server_exception.class}"
+              puts @server_exception.message
+              puts @server_exception.backtrace.join("\n")
+              raise @server_exception
+            end
+          else
+            puts "Server thread status: #{@server_thread&.alive? ? 'alive' : 'dead'}"
+            puts "Server thread backtrace:"
+            puts @server_thread&.backtrace&.join("\n")
           end
 
           raise "Server did not open port #{@port} within #{timeout} seconds"

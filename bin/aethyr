@@ -2,6 +2,8 @@
 
 require 'optparse'
 require 'methadone'
+require 'aethyr/core/util/config'
+require 'aethyr/core/util/log'
 require 'aethyr/core/connection/server'
 
 class App
@@ -9,8 +11,14 @@ class App
     include Methadone::CLILogging
 
     main do |command, subcommand|
-        puts 'verbose output enabled' if options[:verbose]
-        puts 'flag set to: ' + options['flag'] if options[:verbose]
+        $VERBOSE = true if options[:verbose]
+        if options[:verbose]
+          ServerConfig[:log_level] = Logger::Ultimate
+        else
+          ServerConfig[:log_level] = Logger::Normal
+        end
+        log 'verbose output enabled', Logger::Normal if options[:verbose]
+        log 'flag set to: ' + options['flag'], Logger::Normal if !options['flag'].nil?
         Aethyr::main
     end
 

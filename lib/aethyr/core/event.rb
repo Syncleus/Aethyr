@@ -1,42 +1,5 @@
 require 'ostruct'
 
-module Kernel
-  #Creates a future event and adds it to the EventHandler
-  def after time, unit = :sec, event = nil, &block
-    case unit
-    when :sec
-      seconds = time
-    when :min
-      seconds = time * 60
-    when :hour
-      seconds = time * 3600
-    when :day
-      seconds = time * 3600 * 24
-    when :week
-      seconds = time * 3600 * 24 * 7
-    when :month
-      seconds = time * 3600 * 24 * 7 * 30
-    else
-      seconds = time
-    end
-
-    if event
-      f = CommandParser.future_event(self, seconds, event)
-
-      if block_given?
-        log "Ignoring block for future event."
-      end
-    else
-      f = CommandParser.future_event(self, seconds, &block)
-    end
-
-    $manager.update f
-    f
-  end
-end
-
-
-
 #Events are an OpenStruct-like object to make it simpler (less typing) to create commands.
 #They can also be treated as hashes (which makes them backwards-compatible with code that has not
 #been updated yet.)

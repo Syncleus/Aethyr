@@ -31,6 +31,7 @@ require 'aethyr/core/util/config'
 require 'aethyr/core/connection/server'
 require 'tmpdir'
 require 'fileutils'
+require 'timeout'
 
 module Aethyr
   module Test
@@ -53,6 +54,40 @@ module Aethyr
         # Expose whether the internal server thread is still alive. Delegating
         # directly to Thread keeps the surface area minimal.
         def_delegator :@server_thread, :alive?, :running?
+
+        # -----------------------------------------------------------------
+        #  SERVER EXCEPTION HANDLING
+        # -----------------------------------------------------------------
+        # Returns the most recent exception caught in the server thread, if any.
+        # This is used by tests to check for server failures during execution.
+        #
+        # @return [Exception, nil] The current server exception, or nil if none.
+        def server_exception
+          return @server_exception if @server_exception
+          
+          # Check if the server thread died unexpectedly - this might indicate an exception
+          # that wasn't properly captured
+          if @server_thread && !@server_thread.alive? && !@server_exception
+            # Thread died but we don't have the exception - try to get it from the thread
+            # if possible (some Ruby implementations may not support this)
+            @server_exception = @server_thread.respond_to?(:value) ? 
+              begin
+                @server_thread.value
+                nil # If no exception was raised, this will be returned
+              rescue Exception => e
+                e
+              end : RuntimeError.new("Server thread died unexpectedly without raising an exception")
+          end
+          
+          @server_exception
+        end
+
+        # Check if the server has encountered an exception
+        #
+        # @return [Boolean] True if the server has encountered an exception
+        def server_exception?
+          !server_exception.nil?
+        end
 
         # -----------------------------------------------------------------
         #  DOMAIN CONSTANTS & CONFIGURATION
@@ -115,11 +150,25 @@ module Aethyr
         #   when the server is unresponsive.
         # @return [void]
         def stop!(join_timeout: 5)
+          # Return early if server thread doesn't exist
           return unless @server_thread
 
+          # Store any exception before killing the thread
+          server_exception_before_stop = server_exception
+          
+          # Kill and join the server thread
           @server_thread.kill if @server_thread.alive?
           @server_thread.join(join_timeout)
+          
+          # Stop the monitoring thread if it exists and is alive
+          if defined?(@monitoring_thread) && @monitoring_thread
+            @monitoring_thread.kill if @monitoring_thread.alive?
+            @monitoring_thread.join(1) # Use a shorter timeout
+          end
 
+          # Check for any exceptions that might have been raised during shutdown
+          final_exception = server_exception || server_exception_before_stop
+          
           # ----------------------------------------------------------------
           # Teardown sandbox environment – ensure no artefacts survive between
           # scenarios (critical for deterministic integration tests).
@@ -129,6 +178,20 @@ module Aethyr
           
           # Close and clear any cached sockets
           clear_socket_pool
+          
+          # If we found a server exception, log it
+          if final_exception
+            $stderr.puts "\n\n" + "="*80
+            $stderr.puts "SERVER EXCEPTION DETECTED:"
+            $stderr.puts "-"*80
+            $stderr.puts "Exception: #{final_exception.class}: #{final_exception.message}"
+            $stderr.puts "Backtrace:"
+            $stderr.puts final_exception.backtrace&.join("\n  ")
+            $stderr.puts "="*80 + "\n\n"
+            
+            # Store the exception in @server_exception to be raised in the After hook
+            @server_exception = final_exception
+          end
         end
 
         # Convenience helper that constructs, starts, and yields the harness to
@@ -155,21 +218,53 @@ module Aethyr
           # Try to reuse a socket from the pool
           unless @@socket_pool.empty?
             socket = @@socket_pool.pop
-            return socket if socket && !socket.closed?
+            
+            # Verify socket is still valid and connected
+            if socket && !socket.closed?
+              begin
+                # Quick test to see if socket is still valid
+                socket.getsockopt(Socket::SOL_SOCKET, Socket::SO_ERROR)
+                return socket
+              rescue Errno::EBADF, IOError
+                # Socket is bad, create a new one instead
+              end
+            end
           end
           
-          # Create a new socket if none available in the pool
-          TCPSocket.new(host, @port)
+          # Create a new socket with a reasonable timeout for connection
+          socket = nil
+          begin
+            Timeout.timeout(5) do
+              socket = TCPSocket.new(host, @port)
+              # Set TCP_NODELAY to disable Nagle's algorithm for faster responses
+              socket.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, 1)
+              # Set reasonable socket timeouts
+              socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_RCVTIMEO, [1, 0].pack('l_*'))
+              socket.setsockopt(Socket::SOL_SOCKET, Socket::SO_SNDTIMEO, [1, 0].pack('l_*'))
+            end
+          rescue Timeout::Error
+            raise "Connection to server timed out after 5 seconds"
+          end
+          
+          socket
         end
 
         # Add a socket to the reuse pool
         def release_socket(socket)
           return if socket.nil? || socket.closed?
           
-          # Only keep a reasonable number of sockets in the pool
-          if @@socket_pool.size < @@max_pool_size
-            @@socket_pool << socket
-          else
+          begin
+            # Verify socket is still in a good state
+            socket.getsockopt(Socket::SOL_SOCKET, Socket::SO_ERROR)
+            
+            # Only keep a reasonable number of sockets in the pool
+            if @@socket_pool.size < @@max_pool_size
+              @@socket_pool << socket
+            else
+              socket.close rescue nil
+            end
+          rescue Errno::EBADF, IOError
+            # Socket is bad, just close it
             socket.close rescue nil
           end
         end
@@ -321,14 +416,48 @@ module Aethyr
         # caller if boot fails.
         def spawn_server_thread!
           @server_exception = nil
+          
+          # Create a monitor thread to periodically check for server health
+          @monitoring_thread = Thread.new do
+            Thread.current.name = 'ServerMonitor'
+            
+            begin
+              # Check server health every 0.5 seconds
+              loop do
+                sleep 0.5
+                
+                # Exit monitoring if server thread is dead
+                break unless @server_thread&.alive?
+                
+                # Check for exceptions in thread variables (works on some Ruby implementations)
+                if @server_thread.respond_to?(:thread_variable_get) &&
+                   (ex = @server_thread.thread_variable_get(:last_exception))
+                  @server_exception = ex
+                  break
+                end
+              end
+            rescue Exception => e
+              # Don't let the monitor thread crash the whole test
+              $stderr.puts "Server monitor thread exception: #{e.inspect}"
+            end
+          end
+          
+          # The main server thread to run the Aethyr server
           @server_thread = Thread.new do
             begin
               Thread.current.name = 'AethyrServer'
+              
+              # Run the server
               Aethyr::Server.new(@address, @port)
             rescue Exception => e # rubocop:disable RescueException
-              # Store the exception for later interrogation before re-raising
-              # through the main thread if boot never completes.
+              # Store the exception for later interrogation
               @server_exception = e
+              
+              # Also store in thread-local variable for monitor thread to find
+              Thread.current.thread_variable_set(:last_exception, e) if Thread.current.respond_to?(:thread_variable_set)
+              
+              # Re-raise to allow natural thread termination
+              raise
             end
           end
 

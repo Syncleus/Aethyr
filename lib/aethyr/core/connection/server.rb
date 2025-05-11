@@ -113,8 +113,9 @@ module Aethyr
           if socket.is_a?(Socket)
             # Only accept new connections if below the maximum limit
             if players.size < MAX_PLAYERS
-              players << handle_client(socket, addr_info)
-              read_array << socket
+              new_player = handle_client(socket, addr_info)
+              players << new_player unless new_player.nil?
+              read_array << socket unless new_player.nil?
             else
               socket.close
               log "Maximum player limit reached, rejecting connection", Logger::Medium, true
@@ -251,7 +252,7 @@ module Aethyr
         return player
       rescue Errno::ECONNRESET, Errno::EPIPE => e
         log "Reset: #{addrinfo.inspect}\n#{e.inspect}\n#{e.backtrace.join("\n")}", Logger::Medium, true
-        raise ClientConnectionResetError.new("Client connection reset or pipe error", addrinfo, e)
+        return nil
       end
     end
 

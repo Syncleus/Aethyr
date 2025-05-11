@@ -108,8 +108,58 @@ end
 # -----------------------------------------------------------------------------
 #  T E A R D O W N
 # -----------------------------------------------------------------------------
-After do
+After do |scenario|
+  # Check for server exceptions
+  if server_harness&.server_exception?
+    exception = server_harness.server_exception
+    
+    # Log using stderr instead of the scenario method
+    $stderr.puts "\n\n" + "="*80
+    $stderr.puts "SERVER EXCEPTION DETECTED:"
+    $stderr.puts "-"*80
+    $stderr.puts "Exception: #{exception.class}: #{exception.message}"
+    
+    # Add the stack trace if available
+    if exception.backtrace
+      $stderr.puts "Backtrace (limited to 20 lines):"
+      $stderr.puts exception.backtrace.take(20).join("\n  ")
+    end
+    $stderr.puts "="*80 + "\n\n"
+    
+    # Mark the scenario as failed if it hasn't already failed
+    unless scenario.failed?
+      # Force a test failure
+      raise "Server crashed with exception: #{exception.message}"
+    end
+  end
+
   # Ensure the harness (if one was created) is properly shut down to avoid
   # leaking background threads between scenarios.
   server_harness&.stop!
+end
+
+# Also check for server exceptions after each step
+AfterStep do |scenario|
+  if server_harness&.server_exception?
+    exception = server_harness.server_exception
+    
+    # Log using stderr instead of the scenario method
+    $stderr.puts "\n\n" + "="*80
+    $stderr.puts "SERVER EXCEPTION DETECTED DURING STEP:"
+    $stderr.puts "-"*80
+    $stderr.puts "Exception: #{exception.class}: #{exception.message}"
+    
+    # Add the stack trace if available
+    if exception.backtrace
+      $stderr.puts "Backtrace (limited to 10 lines):"
+      $stderr.puts exception.backtrace.take(10).join("\n  ")
+    end
+    $stderr.puts "="*80 + "\n\n"
+    
+    # Force a test failure to halt execution
+    raise "Server crashed with exception during step: #{exception.message}"
+    
+    # We won't reach this, but in case the exception is caught elsewhere
+    server_harness&.stop!
+  end
 end 

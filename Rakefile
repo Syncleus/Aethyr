@@ -271,6 +271,73 @@ class IntegrationProfileTaskBuilder
     t.fork = false  # Important: ensure Cucumber runs in the same process
   end
 end
+
+# -----------------------------------------------------------------------------
+#  UnitProfileTaskBuilder - Add profiling to unit tests
+# -----------------------------------------------------------------------------
+#  This builder configures a Rake task that behaves identical to the
+#  unit_nocov task but adds Ruby profiling to the test run.
+#  It follows all the same SOLID principles:
+#  • Single-Responsibility – owns *only* the profiling unit test concern
+#  • Open/Closed – behavior can be modified via parameters without changing code
+#  • Liskov Substitution – interchangeable with other task builders
+#  • Interface Segregation – minimal API through #install method
+#  • Dependency Inversion – depends on Rake abstractions
+# -----------------------------------------------------------------------------
+class UnitProfileTaskBuilder
+  include Rake::DSL
+  include RakeConstants
+
+  # Public: Install a task for unit testing with profiling.
+  # This implementation uses the profiler.rb utility to collect and display
+  # detailed method-level profiling information from within the Ruby process.
+  def install
+    CLEAN << BUILD_DIR
+
+    # Ensure the unit test results directory exists
+    directory UNIT_DIR
+    
+    # Define a custom task for detailed profiling
+    desc "Run unit tests with detailed method and class-level profiling"
+    task :unit_profile => [UNIT_DIR] do
+      # Load our profiler utility
+      require_relative 'tests/profiler'
+      
+      # Begin profiling
+      puts "\n" + ("=" * 80)
+      puts "STARTING PROFILED UNIT TESTS"
+      puts ("=" * 80)
+      
+      # Run unit_nocov task with profiling
+      # This ensures we capture detailed metrics while running the same tests
+      Aethyr.profile do
+        # Create a new Cucumber::Rake::Task programmatically
+        # This is necessary to run Cucumber in the same Ruby process
+        # so the profiler can collect method-level statistics
+        require 'cucumber/rake/task'
+        cucumber = Cucumber::Rake::Task.new(:_unit_profile_helper, &method(:configure_cucumber))
+        cucumber.runner.run
+      end
+      
+      # Delete the temporary task
+      Rake.application.instance_variable_get('@tasks').delete('_unit_profile_helper')
+    end
+  end
+  
+  private
+  
+  # Configure the Cucumber task exactly like unit_nocov
+  # This ensures the same behavior while allowing for profiling
+  def configure_cucumber(t)
+    t.cucumber_opts = [
+      '--require', 'tests/unit',
+      'tests/unit',
+      '--format', 'html', '-o', RESULTS_UNIT,
+      '--format', 'pretty', '--no-source'
+    ]
+    t.fork = false  # Important: ensure Cucumber runs in the same process
+  end
+end
 # rubocop:enable Style/Documentation
 
 # -----------------------------------------------------------------------------
@@ -294,6 +361,7 @@ module Build
     IntegrationNoCoverageTaskBuilder.new.install
     IntegrationTaskBuilder.new.install
     IntegrationProfileTaskBuilder.new.install
+    UnitProfileTaskBuilder.new.install
 
     desc 'Run unit tests and cucumber features (default)'
     task default: %i[unit]

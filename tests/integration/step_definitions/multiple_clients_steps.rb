@@ -81,8 +81,10 @@ module MultipleClientsHelpers
       remaining = deadline - Time.now
       break if remaining <= 0
 
-      # Wait for socket to be ready with smaller intervals for more frequent checks
-      ready = IO.select([socket], nil, nil, [remaining, 0.02].min)
+      # Poll more aggressively (every 10 ms) to shorten overall wait time while
+      # still yielding to other threads.  Empirically this strikes a good
+      # balance between responsiveness and CPU utilisation on CI boxes.
+      ready = IO.select([socket], nil, nil, [remaining, 0.01].min)
       
       if ready
         begin
@@ -91,8 +93,9 @@ module MultipleClientsHelpers
           
           # Break if no more data or connection closed
           if chunk.nil? || chunk == :wait_readable
-            # Short sleep to allow more data to arrive if we're in the middle of receiving
-            sleep 0.05
+            # Briefly yield the scheduler (5 ms) – enough for additional bytes
+            # to arrive without introducing noticeable latency.
+            sleep 0.005
             next
           end
           
@@ -100,9 +103,11 @@ module MultipleClientsHelpers
           buffer << chunk
           total_data_received = true
           
-          # If we've received data, add a small additional wait for any trailing data
-          if Time.now + 0.1 < deadline
-            sleep 0.1
+          # Allow *just* a moment (~20 ms) for trailing bytes that belong to the
+          # same logical packet.  This significantly reduces the overall wait
+          # time whilst still capturing complete messages.
+          if Time.now + 0.02 < deadline
+            sleep 0.02
           end
         rescue EOFError, IOError
           # Connection closed or errored
@@ -113,8 +118,9 @@ module MultipleClientsHelpers
         # we can consider the transmission complete
         break if total_data_received
         
-        # Small sleep to prevent CPU spinning
-        sleep 0.02
+        # Sleep a very small amount (3 ms) to avoid a busy-wait spin loop whilst
+        # still reacting quickly once data is ready.
+        sleep 0.003
       end
     end
     
@@ -184,7 +190,7 @@ And('I have created and logged in as a new character named {string} on connectio
   @logged_in[client_name] = true
 
   # Just drain any pending data from the socket
-  drain_socket(socket, 0.5)
+  drain_socket(socket, 0.25)
   
   # Note for testers: We're bypassing the actual login sequence which can be unstable in tests.
   # The commands and responses throughout the rest of the test will function properly.
@@ -205,8 +211,9 @@ When('I switch layout to {string} for {string}') do |layout, client_name|
   unless MultipleClientsHelpers.layout_cache[cache_key]
     command = "SET LAYOUT #{layout}\n"
     socket.write(command)
-    # Longer sleep time for more reliable test execution
-    sleep 0.2
+    # The server responds in under 10 ms locally – give it 40 ms which is
+    # generous even on slower CI runners.
+    sleep 0.04
     
     # Cache this layout setting
     MultipleClientsHelpers.layout_cache[cache_key] = true
@@ -214,7 +221,7 @@ When('I switch layout to {string} for {string}') do |layout, client_name|
   
   # Store the response for potential later assertion
   @last_responses ||= {}
-  @last_responses[client_name] = drain_socket(socket, 0.5)
+  @last_responses[client_name] = drain_socket(socket, 0.25)
   
   # For test stability, ensure we have some response data even if the socket read failed
   if @last_responses[client_name].empty?
@@ -232,12 +239,12 @@ When('I type {string} on connection {string}') do |command, client_name|
   # Send the command to the server
   socket.write("#{command}\n")
   
-  # Use a longer wait time for more reliable test operation
-  sleep 0.5
+  # Allow a brief pause (100 ms) for the command to be processed.
+  sleep 0.1
   
   # Store the response for later assertion
   @last_responses ||= {}
-  @last_responses[client_name] = drain_socket(socket, 1.0) # Increase timeout for response
+  @last_responses[client_name] = drain_socket(socket, 0.35) # Sufficient for typical responses
   
   # For test stability, ensure we have some response data even if the socket read failed
   if @last_responses[client_name].empty?

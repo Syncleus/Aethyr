@@ -9,7 +9,7 @@
 :restart_delay: 10
 :address: 0.0.0.0
 :intro_file: intro.txt
-:start_room: b07f3f55-a9a6-d6d3-e017-ea32ede520c8
+:start_room: e45bf27d-8e63-b965-4ee9-c3b462142e24
 :restart_limit: 15
 :mccp: false
 :mssp: false

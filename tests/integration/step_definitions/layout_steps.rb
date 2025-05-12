@@ -34,7 +34,7 @@ module LayoutTestHelpers
   # @param socket [TCPSocket] The live client connection.
   # @param timeout_seconds [Numeric] Maximum time to wait for incoming data.
   # @return [String] Whatever bytes were received (can be empty).
-  def drain_socket(socket, timeout_seconds = 1.5)
+  def drain_socket(socket, timeout_seconds = 0.6)
     return '' if socket.nil? || socket.closed?
     
     # Use a unique key for the socket
@@ -52,8 +52,8 @@ module LayoutTestHelpers
       remaining = deadline - Time.now
       break if remaining <= 0
 
-      # Use a shorter interval to check more frequently
-      ready = IO.select([socket], nil, nil, [remaining, 0.05].min)
+      # Tighter polling interval (20 ms) strikes a good balance for local and CI runs
+      ready = IO.select([socket], nil, nil, [remaining, 0.02].min)
       break unless ready
 
       begin
@@ -113,8 +113,8 @@ end
 When('I set layout to {string}') do |layout|
   command = "SET LAYOUT #{layout}\n"
   @client_socket.write(command)
-  # Allow the server time to process with slightly longer timeout for reliability
-  sleep 0.5
+  # 100 ms is typically ample for the server to apply a layout change
+  sleep 0.1
   @last_response = drain_socket(@client_socket, 1.0)
   
   # Store the layout for later use
@@ -148,7 +148,7 @@ Then('I should not receive an invalid layout error') do
   # Allow for a more detailed check with additional draining if needed
   if @last_response.empty?
     sleep 0.5
-    additional_response = drain_socket(@client_socket, 1.0)
+    additional_response = drain_socket(@client_socket, 0.4)
     @last_response = additional_response
   end
   

@@ -38,6 +38,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency 'gdbm', '~> 2.1'
   spec.add_dependency 'base64', '~> 0.2'
   spec.add_dependency 'logger', '~> 1.5'
+  spec.add_runtime_dependency 'gdal', '~> 3.0'
   spec.add_development_dependency 'bundler', '~> 2.4'
   spec.add_development_dependency 'json', '~> 2.11'
   spec.add_development_dependency 'rake', '~> 13.2'

@@ -126,7 +126,7 @@ class Inventory < Gary
   def marshal_dump
     inv = []
     each do |o|
-      if o.is_a? GameObject
+      if o.is_a? Aethyr::Core::Objects::GameObject
         inv << [o.game_object_id, position(o)]
       else
         inv << [o, position(o)]

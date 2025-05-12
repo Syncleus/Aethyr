@@ -20,4 +20,9 @@ Feature: Aethyr command-line interface
   Scenario: Rejecting unknown command-line flags
     When I run `bash -c "cd /app && bundle exec bin/aethyr --definitely-invalid-flag"`
     Then the exit status should not be 0
-    And the output should contain "Usage:" 
+    And the output should contain "Usage:"
+
+  Scenario: Displaying the intro banner over a TCP connection
+    Given I start the Aethyr server on a random port
+    When I establish a raw TCP connection to the server
+    Then I should receive the intro banner 

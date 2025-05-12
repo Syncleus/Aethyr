@@ -17,7 +17,7 @@ module Location
   end
 
   def area
-    return self if self.is_a? Area
+    return self if self.is_a? Aethyr::Core::Objects::Area
     self.parent_area
   end
 

@@ -15,6 +15,7 @@ RUN pacman -Sy --noconfirm \
         ruby-erb \
         git \
         base-devel \
+        gdal \
         glibc &&\
     pacman -Scc --noconfirm
 
@@ -37,7 +38,7 @@ RUN gem install --no-document bundler -v '~> 2.6' &&\
     git clean -xdf &&\
     rm -rf ./.bundle &&\
     bundle config build.ncursesw --with-cflags="-Wno-error=incompatible-pointer-types" &&\
-    bundle config set --local frozen true &&\
+    #bundle config set --local frozen true &&\
     bundle install  --jobs 4 --retry 3 &&\
     rm -rf .git
 

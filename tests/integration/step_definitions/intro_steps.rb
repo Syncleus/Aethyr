@@ -60,7 +60,10 @@ Given('I start the Aethyr server on a random port') do
   #  Launch the server **as a child process** (background) via the public CLI
   # -------------------------------------------------------------------------
   cli_cmd = "bash -c \"cd /app && bundle exec bin/aethyr run\""
-  @server_pid = Process.spawn(cli_cmd, out: '/dev/null', err: '/dev/null')
+  # Redirect server's STDOUT and STDERR to the parent process so that
+  # any diagnostics, banner text, or runtime exceptions become visible
+  # in the test run output – dramatically simplifying debugging.
+  @server_pid = Process.spawn(cli_cmd, out: $stdout, err: $stderr)
 
   #  Ensure the TCP port becomes reachable before the scenario continues.
   Timeout.timeout(30) do

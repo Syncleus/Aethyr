@@ -123,9 +123,6 @@ module Aethyr
           end
         rescue IO::WaitReadable
           # No connection available, just continue
-        rescue StandardError => e
-          log "Error accepting connection: #{e.message}", Logger::Medium, true
-          raise e
         end
 
         # Use optimized IO multiplexing with timeout
@@ -193,16 +190,6 @@ module Aethyr
 
       clean_up_children
       return 0 # Return code
-
-    rescue Interrupt => i
-      log "Received interrupt: halting", 0
-      log i.inspect
-      log i.backtrace.join("\n"), 0, true
-      raise i
-    rescue Exception => e
-      log e.backtrace.join("\n"), 0, true
-      log e.inspect
-      raise e
     ensure
       # Close the server log file
       server_log.close if server_log && !server_log.closed?
@@ -264,10 +251,6 @@ module Aethyr
       end
     rescue Interrupt
       Process.kill('HUP', 0) # Kill all children when main process is terminated
-    rescue SystemCallError => e
-      # Final shutdown notification through logger.
-      log 'All children have exited. Goodbye!', Logger::Ultimate
-      raise e
     end
   end
 
@@ -283,7 +266,7 @@ module Aethyr
 
     begin
       Server.new(ServerConfig.address, ServerConfig.port)
-    rescue => e
+    rescue Exception => e
       log "Server restart failed: #{e.message}", Logger::Important
       log e.backtrace.join("\n"), Logger::Important
       log e.inspect, Logger::Important

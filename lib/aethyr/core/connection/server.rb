@@ -265,6 +265,8 @@ module Aethyr
     log "Server restart ##{server_restarts}"
 
     begin
+      log "Server restarting", Logger::Important
+      puts "Server restarting as puts"
       Server.new(ServerConfig.address, ServerConfig.port)
     rescue Exception => e
       log "Server restart failed: #{e.message}", Logger::Important
@@ -272,49 +274,49 @@ module Aethyr
       log e.inspect, Logger::Important
       raise e
     ensure
-      # --------------------------------------------------------------------
-      # Enhanced Auto-Restart Guard Rails (single authoritative location)
-      # --------------------------------------------------------------------
-      last_exception       = $!
+      # # --------------------------------------------------------------------
+      # # Enhanced Auto-Restart Guard Rails (single authoritative location)
+      # # --------------------------------------------------------------------
+      # last_exception       = $!
 
-      terminated_by_signal = (
-        last_exception.is_a?(Interrupt)       || # SIGINT / Ctrl-C
-        last_exception.is_a?(SignalException) || # Any POSIX signal (incl. SIGTERM)
-        last_exception.is_a?(SystemExit)         # Explicit exit calls
-      )
+      # terminated_by_signal = (
+      #   last_exception.is_a?(Interrupt)       || # SIGINT / Ctrl-C
+      #   last_exception.is_a?(SignalException) || # Any POSIX signal (incl. SIGTERM)
+      #   last_exception.is_a?(SystemExit)         # Explicit exit calls
+      # )
 
-      restart_env_disabled = ENV['AETHYR_DISABLE_AUTO_RESTART'] =~ /^(1|true)$/i
+      # restart_env_disabled = ENV['AETHYR_DISABLE_AUTO_RESTART'] =~ /^(1|true)$/i
 
-      restart_allowed = server_restarts < ServerConfig.restart_limit &&
-                       !terminated_by_signal &&
-                       !restart_env_disabled
+      # restart_allowed = server_restarts < ServerConfig.restart_limit &&
+      #                  !terminated_by_signal &&
+      #                  !restart_env_disabled
 
-      if restart_allowed
-        # Log intent
-        if defined?($manager) && $manager&.soft_restart
-          log "Server restart initiated by administrator."
-          File.open("logs/server.log", "a+") { |f| f.puts "#{Time.now} Server restart by administrator." }
-        else
-          File.open("logs/server.log", "a+") { |f| f.puts "#{Time.now} Server restart on error or interrupt." }
-        end
+      # if restart_allowed
+      #   # Log intent
+      #   if defined?($manager) && $manager&.soft_restart
+      #     log "Server restart initiated by administrator."
+      #     File.open("logs/server.log", "a+") { |f| f.puts "#{Time.now} Server restart by administrator." }
+      #   else
+      #     File.open("logs/server.log", "a+") { |f| f.puts "#{Time.now} Server restart on error or interrupt." }
+      #   end
 
-        log "SERVER RESTARTING - Attempting to restart in #{ServerConfig.restart_delay} seconds...press ^C to stop...", Logger::Important
-        sleep ServerConfig.restart_delay
-        log "RESTARTING SERVER", Logger::Important, true
+      #   log "SERVER RESTARTING - Attempting to restart in #{ServerConfig.restart_delay} seconds...press ^C to stop...", Logger::Important
+      #   sleep ServerConfig.restart_delay
+      #   log "RESTARTING SERVER", Logger::Important, true
 
-        executable_path = File.expand_path('../../../../bin/aethyr', __dir__)
+      #   executable_path = File.expand_path('../../../../bin/aethyr', __dir__)
 
-        if defined?($manager) && $manager&.soft_restart
-          exec("bundle exec #{executable_path} run")
-        else
-          exec("bundle exec #{executable_path} run #{server_restarts + 1}")
-        end
-      else
-        # Either we were asked not to restart, reached the limit, or received
-        # an explicit termination signal – in all cases just exit.
-        File.open("logs/server.log", "a") { |f| f.puts "#{Time.now} Server stopping. Auto-restart suppressed." }
-        log "Auto-restart suppressed – server shutting down.", Logger::Important, true
-      end
+      #   if defined?($manager) && $manager&.soft_restart
+      #     exec("bundle exec #{executable_path} run")
+      #   else
+      #     exec("bundle exec #{executable_path} run #{server_restarts + 1}")
+      #   end
+      # else
+      #   # Either we were asked not to restart, reached the limit, or received
+      #   # an explicit termination signal – in all cases just exit.
+      #   File.open("logs/server.log", "a") { |f| f.puts "#{Time.now} Server stopping. Auto-restart suppressed." }
+      #   log "Auto-restart suppressed – server shutting down.", Logger::Important, true
+      # end
     end
   end
 end

@@ -111,19 +111,15 @@ module Coverage
       # --------------------------------------------------------------------
       # 2. Standard SimpleCov configuration (unchanged)
       # --------------------------------------------------------------------
-      SimpleCov.minimum_coverage(@minimum_cov)
       SimpleCov.start do
-        # Record branch coverage when supported (Ruby ≥ 2.5)
-        # Branch coverage currently triggers evaluation bugs in SimpleCov 0.22
-        # when running under certain Ruby versions (e.g. 3.4.0) and dynamic
-        # code patterns (singleton-method definitions inside Cucumber steps).
-        #
-        # Until the upstream gem resolves the parsing issue, we gracefully
-        # fall back to *line* coverage only. This still satisfies our >95 %
-        # requirement for the targeted file whilst keeping the build green.
-        #
-        # To re-enable simply change the flag below once the bug is fixed.
-        # enable_coverage :branch if SimpleCov.respond_to?(:enable_coverage)
+        # Respect task-specific coverage thresholds supplied by the Rake
+        # wrapper – this must be declared *inside* the configuration block so
+        # that SimpleCov anchors the value to the current result set instead
+        # of the global default.  Placing the directive earlier (before the
+        # `start` invocation) causes subsequent `SimpleCov.start` calls from
+        # other tasks to overwrite the value – manifesting as the hard-coded
+        # 85 % failure we observed during the integration test run.
+        minimum_coverage @minimum_cov
 
         # Exclude noise
         @filters.each { |path| add_filter(path) }

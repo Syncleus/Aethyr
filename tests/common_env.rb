@@ -10,6 +10,7 @@ Before do
   # Store original RUBYLIB so we can restore it afterwards (isolation!)
   @original_rubylib = ENV['RUBYLIB']
   ENV['RUBYLIB'] = [LIB_DIR, ENV['RUBYLIB']].compact.join(File::PATH_SEPARATOR)
+  ENV['AETHYR_DISABLE_AUTO_RESTART'] = 'true'
   
   # Aruba: keep command output available for debugging but do not flood CI
   @puts = true

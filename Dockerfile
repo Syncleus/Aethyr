@@ -16,6 +16,9 @@ RUN pacman -Sy --noconfirm \
         git \
         base-devel \
         gdal \
+        nodejs \
+        npm \
+        net-tools \
         glibc &&\
     pacman -Scc --noconfirm
 

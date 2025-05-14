@@ -94,7 +94,7 @@ safe_require 'ncursesw',           'ncursesw'
 safe_require_relative 'lib/aethyr/core/util/config'
 safe_require_relative 'tests/rake_task'
 
-ServerConfig[:log_level] = 100
+ServerConfig[:log_level] = 0
 $VERBOSE = nil
 
 # -----------------------------------------------------------------------------

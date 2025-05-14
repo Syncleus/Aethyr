@@ -349,7 +349,56 @@ class UnitProfileTaskBuilder
     t.fork = false  # Important: ensure Cucumber runs in the same process
   end
 end
-# rubocop:enable Style/Documentation
+
+# -----------------------------------------------------------------------------
+#  DocusaurusDocsTaskBuilder – Compile and serve the Docusaurus site
+# -----------------------------------------------------------------------------
+#  This builder encapsulates all responsibilities surrounding the generation
+#  and live-serving of the end-user documentation written in Markdown/MDX and
+#  rendered via Facebook's Docusaurus.
+#
+#  It follows the same architectural constraints as the rest of this Rakefile:
+#  • Each builder owns exactly *one* concern (Single-Responsibility).
+#  • New behaviour can be introduced through subclassing or additional
+#    builders without touching existing code (Open/Closed).
+#  • The public façade remains a solitary `#install` method (Interface
+#    Segregation).
+#  • The implementation depends on the Rake DSL rather than concrete shell
+#    commands (Dependency Inversion): the DSL merely *delegates* to the system
+#    shell.
+# -----------------------------------------------------------------------------
+class DocusaurusDocsTaskBuilder
+  include Rake::DSL
+
+  # Centralised constant – a single source of truth for the build artefact
+  # location keeps the rest of the task definitions DRY.
+  BUILD_DIR = 'build/docs'
+
+  # Public: Inject the `documentation` and `documentation_serve` tasks into the
+  # global Rake namespace.
+  def install
+    # Purge generated HTML on `rake clobber`.
+    CLEAN << BUILD_DIR
+
+    # -------------------------------------------------------------------------
+    #  Static build – transforms Markdown into a fully-baked HTML site.
+    # -------------------------------------------------------------------------
+    desc 'Compile the static end-user documentation via Docusaurus'
+    task :documentation do
+      sh 'npm run build' # Delegates to package.json → "build"
+    end
+
+    # -------------------------------------------------------------------------
+    #  Development server – hot-reloads docs locally for authors.
+    # -------------------------------------------------------------------------
+    desc 'Serve the documentation locally on IPv4 (hot-reload)'
+    task :documentation_serve do
+      # Forward the host flag explicitly to guarantee IPv4-only binding even on
+      # systems where Node defaults to dual-stack.
+      sh 'npm run start -- --host 0.0.0.0'
+    end
+  end
+end
 
 # -----------------------------------------------------------------------------
 #  Facade – high-level build orchestration exposed to callers.
@@ -373,6 +422,7 @@ module Build
     IntegrationTaskBuilder.new.install
     IntegrationProfileTaskBuilder.new.install
     UnitProfileTaskBuilder.new.install
+    DocusaurusDocsTaskBuilder.new.install
 
     desc 'Run unit tests and cucumber features (default)'
     task default: %i[unit]

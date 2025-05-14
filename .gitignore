@@ -16,3 +16,5 @@ vendor/
 integration_results.html
 /build/
 /worldcover/
+/.docusaurus/
+node_modules/

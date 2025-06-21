@@ -18,3 +18,4 @@ integration_results.html
 /worldcover/
 /.docusaurus/
 node_modules/
+.aider*

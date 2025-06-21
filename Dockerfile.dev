@@ -1,0 +1,37 @@
+FROM borea/aethyr:1.0.0
+
+LABEL maintainer="Jeffrey Phillips Freeman the@jeffreyfreeman.me"
+
+RUN sudo pacman -Sy --noconfirm \
+        go && \
+    sudo pacman -Scc --noconfirm
+
+RUN git clone https://aur.archlinux.org/yay.git && \
+    cd yay && \
+    makepkg -si --noconfirm && \
+    cd .. && \
+    rm -rf yay
+
+RUN yay -Sy --noconfirm \
+        python312 && \
+    yay -Scc --noconfirm
+
+
+# Playwright browser settings
+ENV PLAYWRIGHT_BROWSERS_PATH=${USER_HOME}/pw-browsers
+ENV PLAYWRIGHT_SKIP_BROWSER_GC=1
+
+# Create directories with proper permissions
+RUN sudo mkdir -p ${USER_HOME}/.aider ${USER_HOME}/.cache ${USER_HOME}/pw-browsers && \
+    sudo chown -R ${AETHYR_UID}:${AETHYR_GID} ${USER_HOME} && \
+    sudo chmod -R 777 ${USER_HOME}/.aider ${USER_HOME}/.cache ${USER_HOME}/pw-browsers
+
+# So git doesn't complain about unusual permissions
+RUN sudo git config --system --add safe.directory ${APP_DIR}
+
+RUN sudo python3.12 -m ensurepip && \
+    sudo python3.12 -m pip install --no-cache-dir aider-chat[help,browser,playwright] boto3 --extra-index-url https://download.pytorch.org/whl/cpu
+
+#RUN sudo playwright install --with-deps chromium
+
+CMD ["bash"]

@@ -1,5 +1,7 @@
 FROM archlinux:base
 
+LABEL maintainer="Jeffrey Phillips Freeman the@jeffreyfreeman.me"
+
 ENV USER_HOME=/home/aethyr
 ENV GEM_HOME=${USER_HOME}/.local
 ENV BUNDLE_PATH=${GEM_HOME}
@@ -10,6 +12,11 @@ ENV APP_DIR=/app
 ARG AETHYR_UID=1000
 ARG AETHYR_GID=100
 
+#Override these as env so they can be inherited down to child containers
+ENV AETHYR_UID=$AETHYR_UID
+ENV AETHYR_GID=$AETHYR_GID
+
+
 RUN pacman -Sy --noconfirm \
         ruby \
         ruby-erb \
@@ -18,11 +25,13 @@ RUN pacman -Sy --noconfirm \
         gdal \
         nodejs \
         npm \
+        sudo \
         net-tools \
         glibc &&\
     pacman -Scc --noconfirm
 
 COPY . /app
+COPY .docker/50-aethyr /etc/sudoers.d/50-aethyr
 
 RUN mkdir -p $APP_DIR &&\
     groupadd --system --gid "$AETHYR_GID" aethyr &&\

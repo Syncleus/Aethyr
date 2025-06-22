@@ -18,6 +18,7 @@ require 'fileutils'         # Local cache folder handling
 require 'logger'            # Lightweight progress output if ncurses is not desired
 require 'rexml/document'    # XML parsing for bucket listings
 require 'gdal'
+require 'etc'
 
 module Aethyr
   module Core
@@ -27,7 +28,8 @@ module Aethyr
       # in-game representation of planet Earth can be constructed.  Download
       # and processing are pipelined: up to MAX_CONCURRENT_DOWNLOADS run in   
       # parallel while the main thread converts completed files into game      
-      # entities.                                                              
+      # entities. Processing has been redesigned to eliminate mutex contention
+      # and maximize CPU utilization across all available cores.
       class WorldCoverGenerator
         # ------------------------------------------------------------------- #
         # Constants & configuration                                           #
@@ -55,6 +57,9 @@ module Aethyr
         # intersects the supplied lat/lon ranges.  This is invaluable when
         # running unit tests or quick local experiments.
         MAX_TILES             = 1
+        # Maximum number of concurrent processing threads.
+        MAX_CONCURRENT_PROC   = [Etc.nprocessors * 4, 4].max  # Increase from 2x to 4x cores for IO-bound work
+        BATCH_SIZE = 10  # Process rooms in batches to reduce queue contention
 
         # World-cover numeric code → Terrain constant symbol mapping.
         # We purposefully re-use the existing terrain palette to avoid having
@@ -108,6 +113,21 @@ module Aethyr
         }.freeze
 
         # ------------------------------------------------------------------- #
+        # Internal data structures for lock-free processing                   #
+        # ------------------------------------------------------------------- #
+
+        # Represents processed room data before object creation
+        ProcessedRoom = Struct.new(:x, :y, :tile_code, :terrain_sym, :name, :desc, :area_goid) do
+          # Generate a unique key for this room's position
+          def position_key
+            "#{tile_code}:#{x}:#{y}"
+          end
+        end
+
+        # Represents a connection between two rooms
+        RoomConnection = Struct.new(:from_key, :to_key, :direction_from, :direction_to)
+
+        # ------------------------------------------------------------------- #
         # Construction                                                        #
         # ------------------------------------------------------------------- #
 
@@ -123,22 +143,30 @@ module Aethyr
         # @param logger [Logger] optional custom logger instance.
         def initialize(manager, resolution: RESOLUTION_METRES,
                        max_concurrent_downloads: MAX_CONCURRENT_DL,
+                       max_concurrent_processors: MAX_CONCURRENT_PROC,
                        logger: Logger.new($stdout))
           raise ArgumentError, 'Manager cannot be nil' unless manager
-
+      
           @manager   = manager
           @logger    = logger
           @res       = resolution < 10 ? 10 : resolution
           @max_dl    = [max_concurrent_downloads, 1].max
-
+          @max_proc  = [max_concurrent_processors, 1].max
+      
           @download_queue  = Queue.new   # tile_code strings awaiting fetch
           @process_queue   = Queue.new   # local .tif paths awaiting raster-to-rooms
-
+      
           @downloaded      = 0          # tiles fetched & cached this session
           @processed       = 0          # tiles converted into Aethyr rooms
-
+      
           @tile_total      = nil        # lazy initialised once queue is populated
           @mutex           = Mutex.new  # protects @downloaded/@processed counters
+          
+          # Lock-free data structures for high-performance parallel processing
+          @processed_rooms = Queue.new    # ProcessedRoom structs ready for object creation
+          @room_connections = Queue.new   # RoomConnection structs for linking
+          @room_lookup = {}              # position_key -> room_goid mapping (synchronized via @room_lookup_mutex)
+          @room_lookup_mutex = Mutex.new # Only used for final room lookup updates
         end
 
         ######################################################################
@@ -156,15 +184,35 @@ module Aethyr
         # @param lon_range [Range]   longitude bounds in integral degrees
         def build_world(lat_range: (-90..89), lon_range: (-180..179))
           populate_download_queue(lat_range, lon_range)
-
-          @logger.info("Tiles to download: #{@tile_total}. Starting #{@max_dl} download threads …")
-
+      
+          @logger.info("Tiles to download: #{@tile_total}. Starting #{@max_dl} download threads and #{@max_proc} processing threads …")
+      
+          # Start all threads
           download_threads = spawn_download_pool
-
-          # The main thread becomes the processing worker, turning finished
-          # downloads into game objects while downloads continue in the
-          # background.
-          process_tiles_until_done(download_threads)
+          processing_threads = spawn_processing_pool
+          object_creation_thread = spawn_object_creation_thread
+          room_connection_thread = spawn_room_connection_thread
+      
+          # Monitor thread progress and CPU usage
+          monitor_thread = Thread.new do
+            while download_threads.any?(&:alive?) || 
+                  processing_threads.any?(&:alive?) ||
+                  object_creation_thread.alive? ||
+                  room_connection_thread.alive?
+              
+              sleep 5
+              @logger.info("CPU utilization monitoring: #{@downloaded}/#{@tile_total} downloaded, #{@processed}/#{@tile_total} processed")
+            end
+          end
+      
+          # Wait for all work to complete
+          download_threads.each(&:join)
+          processing_threads.each(&:join)
+          object_creation_thread.join
+          room_connection_thread.join
+          monitor_thread.join
+          
+          @logger.info("World generation complete! Total rooms created: #{@room_lookup.size}")
         end
 
         ######################################################################
@@ -301,107 +349,91 @@ module Aethyr
         end
 
         # ------------------------------------------------------------------- #
-        # Processing stage                                                   #
+        # Processing stage - completely redesigned for lock-free operation   #
         # ------------------------------------------------------------------- #
 
-        # Continues until *all* tiles have been processed and the download
-        # workers have exited.
-        def process_tiles_until_done(download_threads)
-          prev_row_room_goids = {}
+        # Create a pool of processing threads that work independently without
+        # shared state contention. Each thread processes complete tiles and
+        # outputs ProcessedRoom and RoomConnection data to lock-free queues.
+        def spawn_processing_pool
+          (1..@max_proc).map do |_i|
+            Thread.new do
+              # Thread-local batch collection to reduce queue contention
+              local_processed_rooms = []
+              local_room_connections = []
+              
+              loop do
+                tif_path = nil
 
-          until done?(download_threads)
-            tif_path = nil
+                # Non-blocking pop with minimal lock time
+                begin
+                  tif_path = @process_queue.pop(true)
+                rescue ThreadError
+                  # If we have accumulated batches, push them before checking exit condition
+                  if !local_processed_rooms.empty? || !local_room_connections.empty?
+                    flush_local_batches(local_processed_rooms, local_room_connections)
+                    local_processed_rooms = []
+                    local_room_connections = []
+                  end
+                  
+                  # Queue empty, check if downloads are still running
+                  break if @downloaded >= @tile_total
+                  sleep 0.01 # Reduced sleep time to check more frequently
+                  next
+                end
 
-            # Non-blocking pop so we can poll thread liveness once queue empty.
-            begin
-              tif_path = @process_queue.pop(true)
-            rescue ThreadError
-              tif_path = nil
-            end
-
-            if tif_path
-              tile_code = File.basename(tif_path)[/N\d{2}[EW]\d{3}/]
-              @logger.info("Processing #{tile_code} …")
-              process_tile(tif_path, prev_row_room_goids)
-              increment_process_counter
-            else
-              sleep 0.1 # back-off whilst waiting for more work
+                if tif_path
+                  tile_code = File.basename(tif_path)[/[NS]\d{2}[EW]\d{3}/]
+                  @logger.info("Processing #{tile_code} …")
+                  
+                  # Process the tile with local batching
+                  process_tile_with_batching(tif_path, local_processed_rooms, local_room_connections)
+                  
+                  # If batches are large enough, flush them to the main queues
+                  if local_processed_rooms.size >= BATCH_SIZE || local_room_connections.size >= BATCH_SIZE * 4
+                    flush_local_batches(local_processed_rooms, local_room_connections)
+                    local_processed_rooms = []
+                    local_room_connections = []
+                  end
+                  
+                  increment_process_counter
+                end
+              end
+              
+              # Final flush of any remaining items
+              flush_local_batches(local_processed_rooms, local_room_connections) unless local_processed_rooms.empty?
             end
           end
         end
 
-        # Returns true when no download thread is alive and the process queue
-        # has been drained.
-        def done?(threads)
-          threads_done = threads.none?(&:alive?)
-          queue_empty   = @process_queue.empty?
-          threads_done && queue_empty
-        end
-
-        # Converts a GeoTIFF into game objects. An Area is created per tile and
-        # a grid of Room objects fills the Area. Each Room is linked to its
-        # western and northern neighbours in order to build a contiguous, fully
-        # navigable world graph.
-        #
-        # Because loading the entire 36000×36000 pixel raster into memory is
-        # infeasible we stream scan-lines and operate in a single-pass manner.
-        # The prev_row_room_goids hash carries GOIDs for the row immediately
-        # above the one currently being generated so that vertical Exit objects
-        # can be inserted without revisiting previous rows.
-        def process_tile(tif_path, prev_row_room_goids)
+        # Process a single tile without any shared state access.
+        # This eliminates the mutex bottleneck entirely by deferring
+        # all room creation and connection to separate phases.
+        def process_tile_lockfree(tif_path)
           ds         = Gdal::Gdal.open(tif_path)
           band       = ds.get_raster_band(1)
           width      = ds.RasterXSize
           height     = ds.RasterYSize
 
-          # ----------------------------------------------------------------
-          # Per-tile progress tracking                                       
-          # ----------------------------------------------------------------
-          tile_code = File.basename(tif_path)[/N\d{2}[EW]\d{3}/]
+          tile_code = File.basename(tif_path)[/[NS]\d{2}[EW]\d{3}/]
           step_px   = @res / 10
-          rows      = (height.to_f / step_px).ceil
-          cols      = (width.to_f  / step_px).ceil
-          cells_total = rows * cols
-          cells_done  = 0
-
-          # We emit at most 40 updates (2.5 % granularity) to strike a good
-          # balance between feedback fidelity and log verbosity.
-          updates_max           = 40
-          update_interval_cells = [1, (cells_total / updates_max).floor].max
-
-          # Helper lambda renders a fixed-width ASCII progress bar similar to
-          # the global counters but scoped to a single tile.
-          render_tile_bar = lambda do |percent|
-            bar_width = 20
-            filled    = (percent * bar_width / 100).round
-            bar       = '=' * filled + ' ' * (bar_width - filled)
-            format('[TILE %s] %6.2f%% |%s|', tile_code, percent, bar)
-          end
-
-          area_name  = "Area #{File.basename(tif_path, '.tif')}"
-          area       = @manager.create_object(Aethyr::Core::Objects::Area, nil, nil, nil, :@name => area_name)
-
-          # Helper for generating flavour text – memoised so repeated calls for
-          # the same terrain symbol do not trigger new random selections.
+          
+          # Create area data that will be used by object creation thread
+          area_name = "Area #{File.basename(tif_path, '.tif')}"
+          area_data = { tile_code: tile_code, name: area_name }
+          
+          # Helper for generating flavour text – memoised per thread
           flavour_cache = {}
 
           # Pre-compute sample positions to avoid generating the same ranges
-          # over and over inside the hot inner loop.
-          step_px       = @res / 10
-          sample_x      = (0...width).step(step_px).to_a
+          sample_x = (0...width).step(step_px).to_a
 
-          # Iterate over raster scan-lines at the chosen stride. Reading an
-          # entire scan-line in one GDAL call is *vastly* faster than
-          #  performing a separate 1×1 window read per cell.
+          # Process each room position and generate ProcessedRoom data
           (0...height).step(step_px).each do |y|
-            current_row_goids = {}
-
-            # Read the full row once – this is a contiguous `String` of bytes
-            # (one byte per pixel) that we can index directly.
-            row_data = band.read_raster(0, y, width, 1)
-
             sample_x.each do |x|
-              code       = row_data.getbyte(x)
+              # Read single pixel value
+              pixel_data = band.read_raster(x, y, 1, 1)
+              code = pixel_data.getbyte(0)
               terrain_sym = CODE_TO_TERRAIN[code] || :GRASSLAND
               terrain_const = ::Terrain.const_get(terrain_sym)
 
@@ -410,75 +442,333 @@ module Aethyr
                 DESCRIPTION_TEMPLATES[terrain_sym]&.sample || "An unremarkable #{terrain_const.room_text}."
               ]
 
-              room = @manager.create_object(
-                Aethyr::Core::Objects::Room,
-                area,
-                [x, y],
-                nil,
-                :@name => name,
-                :@short_desc => desc
-              )
-              room.info.terrain.type = terrain_const
+              # Create processed room data (no mutex needed)
+              processed_room = ProcessedRoom.new(x, y, tile_code, terrain_sym, name, desc, nil)
+              @processed_rooms << processed_room
 
-              current_row_goids[x] = room.goid
-
-              # WEST/EAST linkage (left neighbour exists in same row)
-              if (prev_gid = current_row_goids[x - (@res / 10)])
-                link_rooms(prev_gid, room.goid, 'east', 'west')
+              # Generate connection data for later processing (no mutex needed)
+              # WEST/EAST linkage
+              if x > 0  # Has western neighbor within same tile
+                west_key = "#{tile_code}:#{x - step_px}:#{y}"
+                connection = RoomConnection.new(west_key, processed_room.position_key, 'east', 'west')
+                @room_connections << connection
               end
 
-              # NORTH/SOUTH linkage (room above in previous row)
-              if (north_gid = prev_row_room_goids[x])
-                link_rooms(north_gid, room.goid, 'south', 'north')
-              end
-
-              # Record the very first room as spawn/start location.
-              @start_room_goid ||= room.goid
-
-              # -----------------------------------------------------------
-              # Per-tile progress update                                   
-              # -----------------------------------------------------------
-              cells_done += 1
-              if (cells_done % update_interval_cells).zero? || cells_done == cells_total
-                percent = (cells_done.to_f / cells_total * 100)
-                @logger.info(render_tile_bar.call(percent))
+              # NORTH/SOUTH linkage  
+              if y > 0  # Has northern neighbor within same tile
+                north_key = "#{tile_code}:#{x}:#{y - step_px}"
+                connection = RoomConnection.new(north_key, processed_room.position_key, 'south', 'north')
+                @room_connections << connection
               end
             end
-
-            # Finished one raster line.
-            prev_row_room_goids.replace(current_row_goids)
           end
 
         ensure
-          # The SWIG-generated Dataset wrapper does not expose an explicit
-          # close/destroy method.  Releasing our reference allows Ruby's GC
-          # to reclaim native resources deterministically once no Dataset
-          # objects remain reachable.
+          # Release GDAL resources deterministically
           ds = nil
+        end
+
+        # Process a single tile with local batching to reduce queue contention
+        def process_tile_with_batching(tif_path, local_rooms, local_connections)
+          ds         = Gdal::Gdal.open(tif_path)
+          band       = ds.get_raster_band(1)
+          width      = ds.RasterXSize
+          height     = ds.RasterYSize
+
+          tile_code = File.basename(tif_path)[/[NS]\d{2}[EW]\d{3}/]
+          step_px   = @res / 10
+          
+          # Helper for generating flavour text – memoised per thread
+          flavour_cache = {}
+
+          # Pre-compute sample positions
+          sample_x = (0...width).step(step_px).to_a
+          
+          # Process in chunks to improve memory locality
+          chunk_size = [height / @max_proc, step_px * 10].max
+          
+          (0...height).step(chunk_size).each do |chunk_y|
+            max_y = [chunk_y + chunk_size, height].min
+            
+            (chunk_y...max_y).step(step_px).each do |y|
+              # Read the entire row at once for better performance
+              row_data = band.read_raster(0, y, width, 1)
+              
+              sample_x.each do |x|
+                # Get pixel value from pre-read row
+                code = row_data.getbyte(x)
+                terrain_sym = CODE_TO_TERRAIN[code] || :GRASSLAND
+                terrain_const = ::Terrain.const_get(terrain_sym)
+
+                name, desc = flavour_cache[terrain_sym] ||= [
+                  NAME_TEMPLATES[terrain_sym]&.sample || terrain_const.name.capitalize,
+                  DESCRIPTION_TEMPLATES[terrain_sym]&.sample || "An unremarkable #{terrain_const.room_text}."
+                ]
+
+                # Create processed room data and add to local batch
+                processed_room = ProcessedRoom.new(x, y, tile_code, terrain_sym, name, desc, nil)
+                local_rooms << processed_room
+
+                # Generate connection data for later processing
+                # WEST/EAST linkage
+                if x > 0  # Has western neighbor within same tile
+                  west_key = "#{tile_code}:#{x - step_px}:#{y}"
+                  connection = RoomConnection.new(west_key, processed_room.position_key, 'east', 'west')
+                  local_connections << connection
+                end
+
+                # NORTH/SOUTH linkage
+                if y > 0  # Has northern neighbor within same tile
+                  north_key = "#{tile_code}:#{x}:#{y - step_px}"
+                  connection = RoomConnection.new(north_key, processed_room.position_key, 'south', 'north')
+                  local_connections << connection
+                end
+              end
+            end
+          end
+
+        ensure
+          # Release GDAL resources deterministically
+          ds = nil
+        end
+
+        # Helper method to flush local batches to main queues
+        def flush_local_batches(rooms, connections)
+          rooms.each { |room| @processed_rooms << room }
+          connections.each { |conn| @room_connections << conn }
+        end
+
+        # ------------------------------------------------------------------- #
+        # Object creation stage - separate thread for maximum efficiency     #
+        # ------------------------------------------------------------------- #
+
+        # Spawn a dedicated thread for creating game objects from processed room data.
+        # This allows object creation to proceed in parallel with tile processing
+        # while avoiding mutex contention on the Manager.
+        def spawn_object_creation_thread
+          Thread.new do
+            areas_created = {}
+            rooms_created = 0
+            room_batch = []
+
+            loop do
+              # Try to get a batch of rooms at once to reduce queue contention
+              begin
+                # Get up to BATCH_SIZE rooms at once
+                BATCH_SIZE.times do
+                  room_batch << @processed_rooms.pop(true)
+                end
+              rescue ThreadError
+                # If we got at least one room, process the batch
+                if room_batch.empty?
+                  # Queue empty, check if processing is complete
+                  break if @processed >= @tile_total
+                  sleep 0.01 # Very short sleep to avoid busy-waiting
+                  next
+                end
+              end
+
+              # Process the batch of rooms
+              room_batch.each do |processed_room|
+                # Create area if not already created for this tile
+                unless areas_created[processed_room.tile_code]
+                  area = @manager.create_object(
+                    Aethyr::Core::Objects::Area,
+                    nil,
+                    nil,
+                    nil,
+                    :@name => "Area #{processed_room.tile_code}"
+                  )
+                  areas_created[processed_room.tile_code] = area.goid
+                end
+
+                area_goid = areas_created[processed_room.tile_code]
+                area = @manager.get_object(area_goid)
+
+                # Create the room
+                room = @manager.create_object(
+                  Aethyr::Core::Objects::Room,
+                  area,
+                  [processed_room.x, processed_room.y],
+                  nil,
+                  :@name => processed_room.name,
+                  :@short_desc => processed_room.desc
+                )
+
+                terrain_const = ::Terrain.const_get(processed_room.terrain_sym)
+                room.info.terrain.type = terrain_const
+
+                # Update room lookup (minimal mutex usage)
+                @room_lookup_mutex.synchronize do
+                  @room_lookup[processed_room.position_key] = room.goid
+                end
+
+                # Record the very first room as spawn/start location
+                @start_room_goid ||= room.goid
+
+                rooms_created += 1
+              end
+              
+              if (rooms_created % 100).zero?
+                @logger.debug("Created #{rooms_created} rooms so far...")
+              end
+              
+              # Clear the batch for next iteration
+              room_batch.clear
+            end
+
+            @logger.info("Object creation complete. Created #{rooms_created} rooms.")
+          end
+        end
+
+        # ------------------------------------------------------------------- #
+        # Room connection stage - separate thread for linking rooms          #
+        # ------------------------------------------------------------------- #
+
+        # Spawn a dedicated thread for creating Exit objects between rooms.
+        # This runs after room creation and handles all the room linking
+        # without any mutex contention on shared processing state.
+        def spawn_room_connection_thread
+          Thread.new do
+            connections_created = 0
+            connections_processed = 0
+            connection_batch = []
+            processed_connections = Set.new # Track which connections we've already processed
+
+            # Wait until some rooms are created before starting to process connections
+            until @room_lookup.size > 0
+              sleep 0.5
+              next
+            end
+
+            loop do
+              # Try to get a batch of connections at once
+              begin
+                # Get up to BATCH_SIZE*4 connections at once (connections are smaller objects)
+                (BATCH_SIZE * 4).times do
+                  connection_batch << @room_connections.pop(true)
+                end
+              rescue ThreadError
+                # If we got at least one connection, process the batch
+                if connection_batch.empty?
+                  # Queue empty, check if processing is complete and we've processed all rooms
+                  if @processed >= @tile_total && @processed_rooms.empty?
+                    # Do one final sweep to catch any missed connections
+                    @logger.info("Performing final connection sweep with #{@room_lookup.size} rooms...")
+                    create_missing_connections
+                    break
+                  end
+                  sleep 0.1 # Slightly longer sleep to reduce CPU usage
+                  next
+                end
+              end
+
+              # Process the batch of connections
+              connection_batch.each do |connection|
+                connections_processed += 1
+                connection_key = "#{connection.from_key}:#{connection.to_key}"
+                
+                # Skip if we've already processed this connection
+                next if processed_connections.include?(connection_key)
+                processed_connections.add(connection_key)
+
+                # Look up the room GOIDs (read-only access to lookup hash)
+                from_goid = @room_lookup[connection.from_key]
+                to_goid = @room_lookup[connection.to_key]
+
+                if from_goid && to_goid
+                  # Create bidirectional exits
+                  success = link_rooms(from_goid, to_goid, connection.direction_from, connection.direction_to)
+                  connections_created += 1 if success
+                end
+              end
+
+              if (connections_processed % 1000).zero?
+                @logger.debug("Processed #{connections_processed} connections, created #{connections_created} exits...")
+              end
+              
+              # Clear the batch for next iteration
+              connection_batch.clear
+            end
+
+            @logger.info("Room connection complete. Created #{connections_created} exits from #{connections_processed} connections.")
+          end
         end
 
         # Create bidirectional Exit objects between two rooms.
         def link_rooms(room_a_gid, room_b_gid, name_a_to_b, name_b_to_a)
           room_a = @manager.get_object(room_a_gid)
           room_b = @manager.get_object(room_b_gid)
+    
+          return false if room_a.nil? || room_b.nil?
+          
+          # Check if exits already exist to avoid duplicates
+          return false if room_a.exit(name_a_to_b) || room_b.exit(name_b_to_a)
+    
+          begin
+            # Create exit from room A to room B
+            @manager.create_object(
+              Aethyr::Core::Objects::Exit,
+              room_a,
+              nil,
+              room_b_gid,
+              :@alt_names => [name_a_to_b]
+            )
+    
+            # Create exit from room B to room A
+            @manager.create_object(
+              Aethyr::Core::Objects::Exit,
+              room_b,
+              nil,
+              room_a_gid,
+              :@alt_names => [name_b_to_a]
+            )
+            
+            return true
+          rescue StandardError => e
+            @logger.error("Failed to create exits between #{room_a_gid} and #{room_b_gid}: #{e.message}")
+            return false
+          end
+        end
 
-          return if room_a.nil? || room_b.nil?
-
-          @manager.create_object(
-            Aethyr::Core::Objects::Exit,
-            room_a,
-            nil,
-            room_b_gid,
-            :@alt_names => [name_a_to_b]
-          )
-
-          @manager.create_object(
-            Aethyr::Core::Objects::Exit,
-            room_b,
-            nil,
-            room_a_gid,
-            :@alt_names => [name_b_to_a]
-          )
+        # Add a method to create missing connections by scanning all rooms
+        def create_missing_connections
+          connections_created = 0
+          step_px = @res / 10
+          
+          # Create a copy of the lookup to avoid modification during iteration
+          room_positions = @room_lookup.keys
+          
+          room_positions.each do |pos_key|
+            # Parse the position key
+            tile_code, x, y = pos_key.split(':')
+            x = x.to_i
+            y = y.to_i
+            
+            # Check for neighbors in all four cardinal directions
+            neighbors = [
+              { key: "#{tile_code}:#{x + step_px}:#{y}", dir_from: 'east', dir_to: 'west' },
+              { key: "#{tile_code}:#{x - step_px}:#{y}", dir_from: 'west', dir_to: 'east' },
+              { key: "#{tile_code}:#{x}:#{y + step_px}", dir_from: 'south', dir_to: 'north' },
+              { key: "#{tile_code}:#{x}:#{y - step_px}", dir_from: 'north', dir_to: 'south' }
+            ]
+            
+            neighbors.each do |neighbor|
+              if @room_lookup[neighbor[:key]]
+                from_goid = @room_lookup[pos_key]
+                to_goid = @room_lookup[neighbor[:key]]
+                
+                # Check if the exit already exists
+                from_room = @manager.get_object(from_goid)
+                if from_room && !from_room.exit(neighbor[:dir_from])
+                  success = link_rooms(from_goid, to_goid, neighbor[:dir_from], neighbor[:dir_to])
+                  connections_created += 1 if success
+                end
+              end
+            end
+          end
+          
+          @logger.info("Created #{connections_created} missing connections in final sweep")
         end
 
         ######################################################################

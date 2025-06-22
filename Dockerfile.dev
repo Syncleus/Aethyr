@@ -13,6 +13,7 @@ RUN git clone https://aur.archlinux.org/yay.git && \
     rm -rf yay
 
 RUN yay -Sy --noconfirm \
+        less \
         python312 && \
     yay -Scc --noconfirm
 
@@ -33,5 +34,8 @@ RUN sudo python3.12 -m ensurepip && \
     sudo python3.12 -m pip install --no-cache-dir aider-chat[help,browser,playwright] boto3 --extra-index-url https://download.pytorch.org/whl/cpu
 
 #RUN sudo playwright install --with-deps chromium
+
+RUN git config --global commit.gpgsign false && \
+    git config --global tag.gpgsign false && \
 
 CMD ["bash"]

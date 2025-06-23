@@ -202,13 +202,24 @@ class IntegrationNoCoverageTaskBuilder
     task :integration_nocov => [INTEGRATION_DIR]
 
     Cucumber::Rake::Task.new(:integration_nocov) do |t|
-      # Direct Cucumber to the *integration* feature directory only.
-      t.cucumber_opts = [
+      # Check if a specific feature file is specified
+      feature_file = ENV['FEATURE']
+      
+      # Base cucumber options
+      cucumber_opts = [
         '--require', 'tests/integration',
-        'tests/integration',
         '--format', 'html', '-o', RESULTS_INTEGRATION,
         '--format', 'pretty', '--no-source'
       ]
+      
+      # Add the specific feature file if provided, otherwise use the whole directory
+      if feature_file && !feature_file.empty?
+        cucumber_opts << feature_file
+      else
+        cucumber_opts << 'tests/integration'
+      end
+      
+      t.cucumber_opts = cucumber_opts
 
       # Avoid fail-fast so every scenario runs regardless of earlier failures.
       t.fork = false

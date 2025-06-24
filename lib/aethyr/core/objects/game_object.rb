@@ -86,6 +86,11 @@ module Aethyr
           @admin = false
 
           load_defaults
+    
+          # If event sourcing is enabled and this is a new object, emit creation event
+          if defined?(ServerConfig) && ServerConfig[:event_sourcing_enabled] && $manager && !$manager.existing_goid?(@game_object_id)
+            # This will be handled by Manager#create_object or Manager#add_player
+          end
         end
 
         def attributes
@@ -210,17 +215,108 @@ module Aethyr
         #Sets the long description of the object.
         def long_desc= desc
           @long_desc = desc
-        end
+          
+          # If event sourcing is enabled, emit attribute update event
+          if defined?(ServerConfig) && ServerConfig[:event_sourcing_enabled] && $manager && defined?(Sequent)
+            begin
+              command = Aethyr::Core::EventSourcing::UpdateGameObjectAttribute.new(
+                id: @game_object_id,
+                key: 'long_desc',
+                value: desc
+              )
+              Sequent.command_service.execute_commands(command)
+            rescue => e
+# Updates the container of the object with event sourcing support.
+#
+# This method updates the container of the game object (effectively moving it to a new
+# location) and, if event sourcing is enabled, emits a GameObjectContainerUpdated event
+# to record this change in the event store. This ensures that the change is properly
+# tracked and can be replayed if needed.
+#
+# @param new_container [String] The ID of the new container for the game object
+# @return [void]
+def container=(new_container)
+  old_container = @container
+  @container = new_container
+          
+  # If event sourcing is enabled, emit container update event
+  if defined?(ServerConfig) && ServerConfig[:event_sourcing_enabled] && $manager && defined?(Sequent)
+    begin
+      command = Aethyr::Core::EventSourcing::UpdateGameObjectContainer.new(
+        id: @game_object_id,
+        container_id: new_container
+      )
+      Sequent.command_service.execute_commands(command)
+    rescue => e
+      log "Failed to record event: #{e.message}", Logger::Medium
+    end
+  end
+end
+        
+# Updates multiple attributes of the object with event sourcing support.
+#
+# This method updates multiple attributes of the game object at once and, if event
+# sourcing is enabled, emits a GameObjectAttributesUpdated event to record these
+# changes in the event store. This ensures that the changes are properly tracked
+# and can be replayed if needed.
+#
+# @param attrs_hash [Hash] A hash mapping attribute names to their new values
+# @return [void]
+def update_attributes(attrs_hash)
+  # Update local attributes
+  attrs_hash.each do |key, value|
+    instance_variable_set("@#{key}", value) if instance_variable_defined?("@#{key}")
+    @attributes[key] = value if @attributes
+  end
+          
+  # If event sourcing is enabled, emit attributes update event
+  if defined?(ServerConfig) && ServerConfig[:event_sourcing_enabled] && $manager && defined?(Sequent)
+    begin
+      command = Aethyr::Core::EventSourcing::UpdateGameObjectAttributes.new(
+        id: @game_object_id,
+        attributes: attrs_hash
+      )
+      Sequent.command_service.execute_commands(command)
+    rescue => e
+      log "Failed to record attributes update event: #{e.message}", Logger::Medium
+    end
+  end
+end
 
-        #This is the long description of the object. If there is no long
-        #description, it just shows the short description.
-        def long_desc
-          if @long_desc == ""
-            @short_desc
-          else
-            @long_desc
-          end
-        end
+# Sets the long description of the object with event sourcing support.
+#
+# This method updates the long description of the game object and, if event sourcing
+# is enabled, emits a GameObjectAttributeUpdated event to record this change in the
+# event store. This ensures that the change is properly tracked and can be replayed
+# if needed.
+#
+# @param desc [String] The new long description for the game object
+# @return [void]
+def long_desc=(desc)
+  @long_desc = desc
+  
+  # If event sourcing is enabled, emit attribute update event
+  if defined?(ServerConfig) && ServerConfig[:event_sourcing_enabled] && $manager && defined?(Sequent)
+    begin
+      command = Aethyr::Core::EventSourcing::UpdateGameObjectAttribute.new(
+        id: @game_object_id,
+        key: 'long_desc',
+        value: desc
+      )
+      Sequent.command_service.execute_commands(command)
+    rescue => e
+      log "Failed to record event: #{e.message}", Logger::Medium
+    end
+  end
+end
+
+def long_desc
+  if @long_desc == ""
+    @short_desc
+  else
+    @long_desc
+  end
+end
 
         #Determines if the object can move.
         def can_move?

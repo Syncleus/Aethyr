@@ -3,11 +3,13 @@ module Aethyr
     module Objects
       # Mock implementation of Player for testing
       class MockPlayer
-        attr_accessor :admin, :subscribed_handler, :help_library
+        attr_accessor :admin, :subscribed_handler, :help_library, :name, :goid
         
-        def initialize
+        def initialize(name = nil)
           @subscribed_handler = nil
           @admin = false
+          @name = name
+          @goid = "mock_player_#{name || 'unnamed'}"
         end
         
         def subscribe(handler)
@@ -22,6 +24,9 @@ module Aethyr
         def help_library
           @help_library ||= HelpLibraryStub.new
         end
+        
+        # Alias for goid to match GameObject interface
+        alias :game_object_id :goid
       end
       
       # Simple stub for HelpLibrary

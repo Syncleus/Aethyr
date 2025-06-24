@@ -78,6 +78,26 @@ class Gary
   def length
     return @ghash.length
   end
+  
+  # Retrieves statistics about the event store.
+  #
+  # This method provides detailed metrics about the event store, including:
+  # - Number of events stored and loaded
+  # - Number of aggregates
+  # - Number of snapshots
+  # - Event types and their counts
+  #
+  # This information is useful for monitoring the health and performance
+  # of the event sourcing system.
+  #
+  # @return [Hash] A hash containing event store statistics or an empty hash if event sourcing is disabled
+  def event_store_stats
+    if ServerConfig[:event_sourcing_enabled] && defined?(Aethyr::Core::EventSourcing::SequentSetup)
+      Aethyr::Core::EventSourcing::SequentSetup.event_store_stats
+    else
+      {}
+    end
+  end
 
   #Checks name against name, alternate names, and generic names for each item and returns the first match or nil if none.
   #If type is other than nil, then it checks for that as well. (object.is_a? type)

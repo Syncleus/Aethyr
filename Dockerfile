@@ -27,6 +27,7 @@ RUN pacman -Sy --noconfirm \
         npm \
         sudo \
         net-tools \
+        postgresql-libs \
         glibc &&\
     pacman -Scc --noconfirm
 

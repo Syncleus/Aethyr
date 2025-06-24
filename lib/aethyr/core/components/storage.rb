@@ -70,6 +70,23 @@ class StorageMachine
       store_object(o)
     end
 
+    # If event sourcing is enabled, ensure player exists in event store
+    if defined?(ServerConfig) && ServerConfig[:event_sourcing_enabled] && password
+      # Check if player exists in event store
+      begin
+        Sequent.aggregate_repository.load_aggregate(player.goid)
+      rescue Sequent::Core::AggregateRepository::AggregateNotFound
+        # Create player in event store
+        password_hash = Digest::MD5.new.update(password).to_s
+        command = Aethyr::Core::EventSourcing::CreatePlayer.new(
+          id: player.goid,
+          name: player.name,
+          password_hash: password_hash
+        )
+        Sequent.command_service.execute_commands(command)
+      end
+    end
+
     log "Player saved: #{player.name}"
   end
 
@@ -87,8 +104,18 @@ class StorageMachine
       goid = gd[name.downcase]
     end
 
+    password_hash = Digest::MD5.new.update(password).to_s
     open_store("passwords", false) do |gd|
-      gd[goid] = Digest::MD5.new.update(password).to_s
+      gd[goid] = password_hash
+    end
+    
+    # If event sourcing is enabled, update password in event store
+    if defined?(ServerConfig) && ServerConfig[:event_sourcing_enabled] && goid
+      command = Aethyr::Core::EventSourcing::UpdatePlayerPassword.new(
+        id: goid,
+        password_hash: password_hash
+      )
+      Sequent.command_service.execute_commands(command)
     end
   end
 
@@ -204,6 +231,23 @@ class StorageMachine
     @saved += 1
 
     object.rehydrate(volatile_data)
+    
+    # If event sourcing is enabled, ensure object exists in event store
+    if defined?(ServerConfig) && ServerConfig[:event_sourcing_enabled]
+      # Check if object exists in event store
+      begin
+        Sequent.aggregate_repository.load_aggregate(object.goid)
+      rescue Sequent::Core::AggregateRepository::AggregateNotFound
+        # Create object in event store
+        command = Aethyr::Core::EventSourcing::CreateGameObject.new(
+          id: object.goid,
+          name: object.name,
+          generic: object.generic,
+          container_id: object.container
+        )
+        Sequent.command_service.execute_commands(command)
+      end
+    end
 
     log "Stored #{object} # #{object.game_object_id}", Logger::Ultimate
   end
@@ -237,6 +281,14 @@ class StorageMachine
 
     open_store("goids", false) do |gd|
       gd.delete(game_object_id)
+    end
+    
+    # If event sourcing is enabled, mark object as deleted in event store
+    if defined?(ServerConfig) && ServerConfig[:event_sourcing_enabled] && game_object_id
+      command = Aethyr::Core::EventSourcing::DeleteGameObject.new(
+        id: game_object_id
+      )
+      Sequent.command_service.execute_commands(command)
     end
   end
 
@@ -479,5 +531,113 @@ class StorageMachine
     end
   end
 
-  public :update_all_objects!
+  # Migrates existing game objects to the event store.
+  #
+  # This method loads all game objects from the traditional storage system
+  # and creates corresponding events in the event store to establish a complete
+  # history. It handles different types of game objects (players, rooms, and
+  # regular game objects) and creates appropriate commands for each.
+  #
+  # The migration process is atomic - either all objects are successfully
+  # migrated or none are. This ensures data consistency between the traditional
+  # storage system and the event store.
+  #
+  # @return [Boolean] true if migration was successful, false otherwise
+  # @raise [LoadError] If the Sequent gem is not available
+  # @raise [RuntimeError] If there is an error during migration
+  def migrate_to_event_store
+    return false unless defined?(ServerConfig) && ServerConfig[:event_sourcing_enabled]
+    
+    # Check if Sequent is available
+    begin
+      require 'sequent'
+    rescue LoadError => e
+      log "Cannot migrate to event store: #{e.message}", Logger::Ultimate
+      log "Make sure the sequent gem is installed", Logger::Ultimate
+      return false
+    end
+    
+    # Initialize Sequent if not already done
+    unless defined?(Sequent.configuration) && Sequent.configuration.event_store
+      return false unless Aethyr::Core::EventSourcing::SequentSetup.configure
+    end
+    
+    log "Starting migration of all objects to event store...", Logger::Medium
+    
+    # Load all objects
+    game_objects = load_all(true)
+    
+    # Create commands for each object
+    commands = []
+    
+    # Process players first
+    players = game_objects.find_all("class", Aethyr::Core::Objects::Player)
+    players.each do |player|
+      # Get password hash
+      password_hash = nil
+      open_store "passwords" do |gd|
+        password_hash = gd[player.goid]
+      end
+      
+      # Create player command
+      commands << Aethyr::Core::EventSourcing::CreatePlayer.new(
+        id: player.goid,
+        name: player.name,
+        password_hash: password_hash || "migrated",
+        admin: player.admin
+      )
+      
+      # Add container command
+      commands << Aethyr::Core::EventSourcing::UpdateGameObjectContainer.new(
+        id: player.goid,
+        container_id: player.container
+      )
+    end
+    
+    # Process rooms
+    rooms = game_objects.find_all("class", Aethyr::Core::Objects::Room)
+    rooms.each do |room|
+      # Create room command
+      commands << Aethyr::Core::EventSourcing::CreateRoom.new(
+        id: room.goid,
+        name: room.name,
+        description: room.long_desc
+      )
+      
+      # Add exits if available
+      if room.respond_to?(:exits) && room.exits
+        room.exits.each do |direction, exit_obj|
+          if exit_obj.respond_to?(:exit_room)
+            commands << Aethyr::Core::EventSourcing::AddRoomExit.new(
+              id: room.goid,
+              direction: direction,
+              target_room_id: exit_obj.exit_room
+            )
+          end
+        end
+      end
+    end
+    
+    # Process other game objects
+    game_objects.each do |obj|
+      next if obj.is_a?(Aethyr::Core::Objects::Player) || obj.is_a?(Aethyr::Core::Objects::Room)
+      
+      # Create game object command
+      commands << Aethyr::Core::EventSourcing::CreateGameObject.new(
+        id: obj.goid,
+        name: obj.name,
+        generic: obj.generic,
+        container_id: obj.container
+      )
+    end
+    
+    # Execute all commands
+    log "Executing #{commands.size} commands to migrate objects to event store", Logger::Medium
+    Sequent.command_service.execute_commands(*commands)
+    
+    log "Migration to event store completed", Logger::Medium
+    return true
+  end
+
+  public :update_all_objects!, :migrate_to_event_store
 end

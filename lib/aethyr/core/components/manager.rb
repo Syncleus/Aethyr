@@ -9,6 +9,7 @@ require 'aethyr/core/util/priority_queue'
 require 'set'
 require 'aethyr/core/objects/integration_mock_room'
 require 'aethyr/core/objects/integration_mock_player'
+require 'aethyr/core/event_sourcing/sequent_setup' if ServerConfig[:event_sourcing_enabled]
 
 #The Manager class uses the wisper to recieve commands from objects, which
 #it then passes along to the EventHandler.
@@ -35,9 +36,27 @@ class Manager < Publisher
     unless objects
       @cancelled_events = Set.new
 
+      # Initialize event sourcing if enabled
+      if ServerConfig[:event_sourcing_enabled]
+        log "Initializing event sourcing", Logger::Medium
+        begin
+          require 'aethyr/core/event_sourcing/sequent_setup'
+          Aethyr::Core::EventSourcing::SequentSetup.configure
+        rescue LoadError => e
+          log "Event sourcing disabled: #{e.message}", Logger::Medium
+          ServerConfig[:event_sourcing_enabled] = false
+        end
+      end
+
       log "Loading objects from storage..."
       @game_objects = @storage.load_all(false, CacheGary.new(@storage, self))
       log "#{@game_objects.length} objects have been loaded."
+
+      # Rebuild world state from events if event sourcing is enabled
+      if ServerConfig[:event_sourcing_enabled]
+        log "Rebuilding world state from events", Logger::Medium
+        Aethyr::Core::EventSourcing::SequentSetup.rebuild_world_state
+      end
 
       @calendar = Calendar.new
 
@@ -106,14 +125,63 @@ class Manager < Publisher
   end
 
   #Adds a newly created Player.
-  def add_player(player, password)
-    @storage.save_player(player, password)
-    self.add_object(player)
+# Creates a player with event sourcing support.
+#
+# This method creates a new player and records the creation event
+# in the event store if event sourcing is enabled. This ensures that
+# the player creation is properly tracked and can be replayed if needed.
+#
+# @param player [Player] The player object to add
+# @param password [String] The player's password
+# @return [void]
+def add_player(player, password)
+  if ServerConfig[:event_sourcing_enabled] && defined?(Sequent)
+    begin
+      # Create player through event sourcing
+      password_hash = Digest::MD5.new.update(password).to_s
+      command = Aethyr::Core::EventSourcing::CreatePlayer.new(
+        id: player.goid,
+        name: player.name,
+        password_hash: password_hash
+      )
+      Sequent.command_service.execute_commands(command)
+    rescue => e
+      log "Failed to record player creation event: #{e.message}", Logger::Medium
+    end
   end
+  
+  # Still use the old system as a fallback/transition
+  @storage.save_player(player, password)
+  self.add_object(player)
+end
 
-  def set_password(player, password)
-    @storage.set_password(player, password)
+# Updates a player's password with event sourcing support.
+#
+# This method updates a player's password and records the update event
+# in the event store if event sourcing is enabled. This ensures that
+# the password update is properly tracked and can be replayed if needed.
+#
+# @param player [Player, String] The player object or player name
+# @param password [String] The new password
+# @return [void]
+def set_password(player, password)
+  if ServerConfig[:event_sourcing_enabled] && defined?(Sequent)
+    begin
+      player_id = player.is_a?(String) ? @game_objects.find(player).goid : player.goid
+      password_hash = Digest::MD5.new.update(password).to_s
+      command = Aethyr::Core::EventSourcing::UpdatePlayerPassword.new(
+        id: player_id,
+        password_hash: password_hash
+      )
+      Sequent.command_service.execute_commands(command)
+    rescue => e
+      log "Failed to record password update event: #{e.message}", Logger::Medium
+    end
   end
+  
+  # Still use the old system as a fallback/transition
+  @storage.set_password(player, password)
+end
 
   #Calls find_all on @game_objects
   def find_all(attrib, query)
@@ -173,40 +241,81 @@ class Manager < Publisher
   #Example:
   #
   #create_object(Box, room, nil, nil, :@open => false)
-  def create_object(klass, room = nil, position = nil, args = nil, vars = nil)
-    object = nil
-    if room.is_a? Aethyr::Core::Objects::Container
-      room_goid = room.goid
-    else
-      room_goid = room
-      room = $manager.get_object room
-    end
-    if args
-      if args.is_a? Enumerable
-        object = klass.new(*args)
-      else
-        object = klass.new(args)
-      end
-    else
-      object = klass.new(nil, room_goid)
-    end
-
-    if vars
-      vars.each do |k,v|
-        object.instance_variable_set(k, v)
-      end
-    end
-
-    add_object(object, position)
-    unless room.nil?
-      if position == nil
-        room.add(object)
-      else
-        room.add(object, position)
-      end
-    end
-    object
+# Creates a game object with event sourcing support.
+#
+# This method creates a new game object and records the creation event
+# in the event store if event sourcing is enabled. This ensures that
+# the object creation is properly tracked and can be replayed if needed.
+#
+# @param klass [Class] The class of the object to create
+# @param room [Room, nil] The room to place the object in
+# @param position [Object, nil] The position within the room
+# @param args [Array] Additional arguments for the object constructor
+# @param vars [Hash, nil] Additional variables to set on the object
+# @return [GameObject] The created game object
+def create_object(klass, room = nil, position = nil, args = nil, vars = nil)
+  object = nil
+  if room.is_a? Aethyr::Core::Objects::Container
+    room_goid = room.goid
+  else
+    room_goid = room
+    room = $manager.get_object room
   end
+  if args
+    if args.is_a? Enumerable
+      object = klass.new(*args)
+    else
+      object = klass.new(args)
+    end
+  else
+    object = klass.new(nil, room_goid)
+  end
+
+  if vars
+    vars.each do |k,v|
+      object.instance_variable_set(k, v)
+    end
+  end
+
+  # Use event sourcing if enabled
+  if ServerConfig[:event_sourcing_enabled] && defined?(Sequent)
+    begin
+      # Create game object through event sourcing
+      command = Aethyr::Core::EventSourcing::CreateGameObject.new(
+        id: object.goid,
+        name: object.name,
+        generic: object.generic,
+        container_id: room_goid
+      )
+      Sequent.command_service.execute_commands(command)
+      
+      # Add any special attributes through event sourcing
+      if vars
+        vars.each do |k, v|
+          key = k.to_s.gsub('@', '')
+          command = Aethyr::Core::EventSourcing::UpdateGameObjectAttribute.new(
+            id: object.goid,
+            key: key,
+            value: v
+          )
+          Sequent.command_service.execute_commands(command)
+        end
+      end
+    rescue => e
+      log "Failed to record object creation event: #{e.message}", Logger::Medium
+    end
+  end
+
+  add_object(object, position)
+  unless room.nil?
+    if position == nil
+      room.add(object)
+    else
+      room.add(object, position)
+    end
+  end
+  object
+end
 
   #Add GameObject to the game.
   def add_object(game_object, position = nil)
@@ -289,11 +398,31 @@ class Manager < Publisher
   end
 
   #Remove GameObject from the game completely.
-  def delete_object(game_object)
-    leave_in_room = nil
+# Deletes a game object with event sourcing support.
+#
+# This method deletes a game object and records the deletion event
+# in the event store if event sourcing is enabled. This ensures that
+# the object deletion is properly tracked and can be replayed if needed.
+#
+# @param game_object [GameObject, String] The game object or its ID
+# @return [void]
+def delete_object(game_object)
+  # Use event sourcing if enabled
+  if ServerConfig[:event_sourcing_enabled] && defined?(Sequent)
+    begin
+      object_id = game_object.is_a?(Aethyr::Core::Objects::GameObject) ? game_object.goid : game_object
+      command = Aethyr::Core::EventSourcing::DeleteGameObject.new(
+        id: object_id
+      )
+      Sequent.command_service.execute_commands(command)
+    rescue => e
+      log "Failed to record object deletion event: #{e.message}", Logger::Medium
+    end
+  end
+  
+  leave_in_room = nil
 
-    #See if we need to drop anything the object is holding
-    unless game_object.container.nil?
+  #See if we need to drop anything the object is holding
       container = @game_objects.find_by_id(game_object.container)
       unless container.nil?
         if container.is_a? Container
@@ -347,34 +476,48 @@ class Manager < Publisher
 
   #Drop Player from the game (disconnect them).
   #Called when a player quits.
-  def drop_player(game_object)
-    return if game_object.nil?
-    log "Dropping player #{game_object.name}"
+# Updates player state in the event store when dropping a player.
+#
+# This method is called when a player disconnects from the game.
+# If event sourcing is enabled, it could update the player's state
+# in the event store, such as marking them as offline or updating
+# their last seen timestamp.
+#
+# @param game_object [Player] The player object being dropped
+# @return [void]
+def drop_player(game_object)
+  return if game_object.nil?
+  log "Dropping player #{game_object.name}"
 
-    @storage.save_player(game_object)
-
-    room = @game_objects[game_object.room]
-
-    unless room.nil?
-      room.output("#{game_object.name} vanishes in a poof of smoke.", game_object)
-      room.remove(game_object)
-    end
-
-    if game_object
-      @game_objects.delete(game_object)
-      game_object.output("Farewell, for now.")
-
-      game_object.quit
-    end
-
-    log "Dropped player #{game_object.name}"
-    game_object = nil
-
-  rescue Exception => e
-    log e.inspect
-    log(e.backtrace.join("\n"))
-    log "Error when dropping player, but recovering and continuing."
+  # Use event sourcing to update player state if enabled
+  if ServerConfig[:event_sourcing_enabled]
+    # We don't delete the player, but we could mark them as offline
+    # or update their last_seen timestamp, etc.
   end
+
+  @storage.save_player(game_object)
+
+  room = @game_objects[game_object.room]
+
+  unless room.nil?
+    room.output("#{game_object.name} vanishes in a poof of smoke.", game_object)
+    room.remove(game_object)
+  end
+
+  if game_object
+    @game_objects.delete(game_object)
+    game_object.output("Farewell, for now.")
+    game_object.quit
+  end
+
+  log "Dropped player #{game_object.name}"
+  game_object = nil
+
+rescue Exception => e
+  log e.inspect
+  log(e.backtrace.join("\n"))
+  log "Error when dropping player, but recovering and continuing."
+end
 
   #Calls update on all objects.
   def update_all

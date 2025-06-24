@@ -13,3 +13,10 @@
 :restart_limit: 15
 :mccp: false
 :mssp: false
+:event_sourcing_enabled: true
+:immudb_address: 127.0.0.1
+:immudb_port: 3322
+:immudb_username: immudb
+:immudb_password: immudb
+:immudb_database: aethyr
+:snapshot_threshold: 100

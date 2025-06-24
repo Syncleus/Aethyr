@@ -4,6 +4,36 @@ require 'yaml'
 module ServerConfig
 
   class << self
+    # ImmuDB configuration
+    def immudb_address
+      self.load[:immudb_address] || "127.0.0.1"
+    end
+    
+    def immudb_port
+      self.load[:immudb_port] || 3322
+    end
+    
+    def immudb_username
+      self.load[:immudb_username] || "immudb"
+    end
+    
+    def immudb_password
+      self.load[:immudb_password] || "immudb"
+    end
+    
+    def immudb_database
+      self.load[:immudb_database] || "aethyr"
+    end
+    
+    # Sequent configuration
+    def snapshot_threshold
+      self.load[:snapshot_threshold] || 100
+    end
+    
+    # Event sourcing configuration
+    def event_sourcing_enabled
+      self.load[:event_sourcing_enabled] || false
+    end
     #Returns array of configuration keys.
     def options
       self.load.keys

@@ -36,6 +36,6 @@ RUN sudo python3.12 -m ensurepip && \
 #RUN sudo playwright install --with-deps chromium
 
 RUN git config --global commit.gpgsign false && \
-    git config --global tag.gpgsign false && \
+    git config --global tag.gpgsign false
 
 CMD ["bash"]

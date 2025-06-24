@@ -7,6 +7,8 @@ require 'aethyr/core/registry'
 require 'aethyr/core/util/publisher'
 require 'aethyr/core/util/priority_queue'
 require 'set'
+require 'aethyr/core/objects/integration_mock_room'
+require 'aethyr/core/objects/integration_mock_player'
 
 #The Manager class uses the wisper to recieve commands from objects, which
 #it then passes along to the EventHandler.

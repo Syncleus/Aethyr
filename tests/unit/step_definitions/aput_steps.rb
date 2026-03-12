@@ -175,8 +175,15 @@ Given('a stubbed AputCommand environment') do
 end
 
 Given('the aput object is a GameObject instance') do
-  @aput_object = ::GameObject.new("shiny gem", "gem_goid_1")
+  @aput_object = AputTargetObject.new("shiny gem", "gem_goid_1")
   @aput_object.container = nil
+  # Make this specific instance pass the is_a?(GameObject) check in aput.rb line 17.
+  # We override on the singleton class so other AputTargetObject instances are unaffected.
+  def @aput_object.is_a?(klass)
+    return true if klass == ::GameObject
+    return true if klass.respond_to?(:name) && klass.name&.end_with?("GameObject")
+    super
+  end
 end
 
 Given('the aput object reference is {string}') do |ref|

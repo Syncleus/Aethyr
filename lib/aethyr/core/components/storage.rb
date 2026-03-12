@@ -131,7 +131,7 @@ class StorageMachine
     open_store "goids" do |gd|
       type = gd[goid]
       if type
-        Object.const_get type.to_sym
+        Object.const_get type
       else
         nil
       end
@@ -166,6 +166,12 @@ class StorageMachine
     open_store "players" do |gd|
       goid = gd[name.downcase]
     end
+
+    if goid.nil?
+      log "Could not fetch player info for #{name}", Logger::Ultimate
+      raise MUDError::UnknownCharacter
+    end
+
     open_store "passwords" do |gd|
       stored_password = gd[goid]
     end

@@ -398,45 +398,36 @@ end
   end
 
   #Remove GameObject from the game completely.
-# Deletes a game object with event sourcing support.
-#
-# This method deletes a game object and records the deletion event
-# in the event store if event sourcing is enabled. This ensures that
-# the object deletion is properly tracked and can be replayed if needed.
-#
-# @param game_object [GameObject, String] The game object or its ID
-# @return [void]
-def delete_object(game_object)
-  # Use event sourcing if enabled
-  if ServerConfig[:event_sourcing_enabled] && defined?(Sequent)
-    begin
-      object_id = game_object.is_a?(Aethyr::Core::Objects::GameObject) ? game_object.goid : game_object
-      command = Aethyr::Core::EventSourcing::DeleteGameObject.new(
-        id: object_id
-      )
-      Sequent.command_service.execute_commands(command)
-    rescue => e
-      log "Failed to record object deletion event: #{e.message}", Logger::Medium
+  def delete_object(game_object)
+    # Use event sourcing if enabled
+    if ServerConfig[:event_sourcing_enabled] && defined?(Sequent)
+      begin
+        object_id = game_object.is_a?(Aethyr::Core::Objects::GameObject) ? game_object.goid : game_object
+        command = Aethyr::Core::EventSourcing::DeleteGameObject.new(
+          id: object_id
+        )
+        Sequent.command_service.execute_commands(command)
+      rescue => e
+        log "Failed to record object deletion event: #{e.message}", Logger::Medium
+      end
     end
-  end
-  
-  leave_in_room = nil
 
-  #See if we need to drop anything the object is holding
-      container = @game_objects.find_by_id(game_object.container)
-      unless container.nil?
-        if container.is_a? Container
-          container.remove game_object
-        else
-          container.inventory.remove(game_object)
-        end
-        if container.can? :equipment
-          container.equipment.delete game_object
-        end
-        if container.is_a? Room
-          container.remove(game_object)
-          leave_in_room = container
-        end
+    leave_in_room = nil
+
+    #See if we need to drop anything the object is holding
+    container = @game_objects.find_by_id(game_object.container)
+    unless container.nil?
+      if container.is_a? Container
+        container.remove game_object
+      else
+        container.inventory.remove(game_object)
+      end
+      if container.can? :equipment
+        container.equipment.delete game_object
+      end
+      if container.is_a? Room
+        container.remove(game_object)
+        leave_in_room = container
       end
     end
 
@@ -476,48 +467,39 @@ def delete_object(game_object)
 
   #Drop Player from the game (disconnect them).
   #Called when a player quits.
-# Updates player state in the event store when dropping a player.
-#
-# This method is called when a player disconnects from the game.
-# If event sourcing is enabled, it could update the player's state
-# in the event store, such as marking them as offline or updating
-# their last seen timestamp.
-#
-# @param game_object [Player] The player object being dropped
-# @return [void]
-def drop_player(game_object)
-  return if game_object.nil?
-  log "Dropping player #{game_object.name}"
+  def drop_player(game_object)
+    return if game_object.nil?
+    log "Dropping player #{game_object.name}"
 
-  # Use event sourcing to update player state if enabled
-  if ServerConfig[:event_sourcing_enabled]
-    # We don't delete the player, but we could mark them as offline
-    # or update their last_seen timestamp, etc.
+    # Use event sourcing to update player state if enabled
+    if ServerConfig[:event_sourcing_enabled]
+      # We don't delete the player, but we could mark them as offline
+      # or update their last_seen timestamp, etc.
+    end
+
+    @storage.save_player(game_object)
+
+    room = @game_objects[game_object.room]
+
+    unless room.nil?
+      room.output("#{game_object.name} vanishes in a poof of smoke.", game_object)
+      room.remove(game_object)
+    end
+
+    if game_object
+      @game_objects.delete(game_object)
+      game_object.output("Farewell, for now.")
+      game_object.quit
+    end
+
+    log "Dropped player #{game_object.name}"
+    game_object = nil
+
+  rescue Exception => e
+    log e.inspect
+    log(e.backtrace.join("\n"))
+    log "Error when dropping player, but recovering and continuing."
   end
-
-  @storage.save_player(game_object)
-
-  room = @game_objects[game_object.room]
-
-  unless room.nil?
-    room.output("#{game_object.name} vanishes in a poof of smoke.", game_object)
-    room.remove(game_object)
-  end
-
-  if game_object
-    @game_objects.delete(game_object)
-    game_object.output("Farewell, for now.")
-    game_object.quit
-  end
-
-  log "Dropped player #{game_object.name}"
-  game_object = nil
-
-rescue Exception => e
-  log e.inspect
-  log(e.backtrace.join("\n"))
-  log "Error when dropping player, but recovering and continuing."
-end
 
   #Calls update on all objects.
   def update_all

@@ -1,19 +1,19 @@
 ---
-:log_level: 0
+:log_level: 1
 :save_rate: 1440
 :debug: false
 :admin: testuser
 :goid_type: ":guid"
-:port: 8888
+:port: 40269
 :update_rate: 30
 :restart_delay: 10
 :address: 0.0.0.0
 :intro_file: intro.txt
-:start_room: e45bf27d-8e63-b965-4ee9-c3b462142e24
+:start_room: start-room-goid-fallback
 :restart_limit: 15
 :mccp: false
 :mssp: false
-:event_sourcing_enabled: true
+:event_sourcing_enabled: false
 :immudb_address: 127.0.0.1
 :immudb_port: 3322
 :immudb_username: immudb

@@ -80,7 +80,7 @@ module Openable
 
       if self.can? :connected_to
         other = $manager.find self.connected_to
-        other.lock(key, admin) if other.can? :lock
+        other.lock(key, admin) if other&.can? :lock
       end
 
       true
@@ -98,7 +98,7 @@ module Openable
 
       if self.can? :connected_to
         other = $manager.find self.connected_to
-        other.unlock(key, admin) if other.can? :lock
+        other.unlock(key, admin) if other&.can? :lock
       end
 
       true

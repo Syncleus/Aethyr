@@ -186,7 +186,7 @@ class TelnetScanner
       when :IAC_SB_NAWS_LWIDTH_IAC
         if ch == IAC
           @hwidth = IAC
-          @iac_state = IAC_SB_NAWS_LWIDTH_HWIDTH
+          @iac_state = :IAC_SB_NAWS_LWIDTH_HWIDTH
         else
           raise "IAC escape expected"
         end

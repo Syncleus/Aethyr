@@ -112,7 +112,7 @@ module Aethyr
           socket, addr_info = listener.accept_nonblock(exception: false)
           if socket.is_a?(Socket)
             # Only accept new connections if below the maximum limit
-            if players.size < MAX_PLAYERS
+            if players.size < self.class::MAX_PLAYERS
               new_player = handle_client(socket, addr_info)
               players << new_player unless new_player.nil?
               read_array << socket unless new_player.nil?

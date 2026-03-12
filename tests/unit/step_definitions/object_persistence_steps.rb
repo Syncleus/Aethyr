@@ -172,6 +172,11 @@ Given('I require the storage library') do
 
   # Define top-level GameObject constant so that StorageMachine#delete_object
   # (which does `if not object.is_a? GameObject`) can resolve it.
+  # Always (re)assign so that other step files' stub ::GameObject classes
+  # (e.g. aput_steps.rb) do not shadow the real class.
+  if defined?(::GameObject) && ::GameObject != Aethyr::Core::Objects::GameObject
+    Object.send(:remove_const, :GameObject)
+  end
   Object.const_set(:GameObject, Aethyr::Core::Objects::GameObject) unless defined?(::GameObject)
 end
 

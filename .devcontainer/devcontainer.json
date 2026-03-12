@@ -1,0 +1,154 @@
+{
+  "name": "CleverErnie Dev Environment",
+  "dockerFile": "Dockerfile",
+  "context": "..",
+  
+  // Configure tool-specific properties
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.linting.enabled": true,
+        "python.linting.ruffEnabled": true,
+        "python.linting.pylintEnabled": false,
+        "python.linting.flake8Enabled": false,
+        "python.formatting.provider": "none",
+        "python.formatting.blackProvider": "none",
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff",
+          "editor.formatOnSave": true,
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": true,
+            "source.fixAll": true
+          }
+        },
+        "python.testing.pytestEnabled": false,
+        "python.testing.unittestEnabled": false,
+        "behave.language": "gherkin",
+        "files.associations": {
+          "*.feature": "gherkin"
+        },
+        "yaml.schemas": {
+          "https://json.schemastore.org/github-workflow.json": "/.forgejo/workflows/*.yml",
+          "https://json.schemastore.org/helmfile.json": "/k8s/values.yaml"
+        },
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "/bin/bash",
+            "args": ["-l"]
+          }
+        }
+      },
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "charliermarsh.ruff",
+        "ms-vscode.vscode-json",
+        "redhat.vscode-yaml",
+        "ms-kubernetes-tools.vscode-kubernetes-tools",
+        "ms-vscode-remote.remote-containers",
+        "alexkrechik.cucumberautocomplete",
+        "stevejpurves.cucumber",
+        "wholroyd.jinja",
+        "ms-vscode.makefile-tools",
+        "davidanson.vscode-markdownlint",
+        "yzhang.markdown-all-in-one"
+      ]
+    }
+  },
+
+  // Use 'postCreateCommand' to run commands after the container is created
+  "postCreateCommand": ".devcontainer/post-create.sh",
+
+  // Use 'postStartCommand' to run commands after the container starts
+  "postStartCommand": "echo 'Welcome to your Python 3.13 development environment! 🚀'",
+
+  // Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root
+  "remoteUser": "vscode",
+
+  // Features to add to the dev container
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "installZsh": true,
+      "configureZshAsDefaultShell": true,
+      "installOhMyZsh": true,
+      "upgradePackages": true,
+      "username": "vscode",
+      "userUid": "1000",
+      "userGid": "1000"
+    },
+    "ghcr.io/devcontainers/features/git:1": {
+      "ppa": true,
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/github-cli:1": {
+      "installDirectlyFromGitHubRelease": true,
+      "version": "latest"
+    },
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "version": "latest",
+      "enableNonRootDocker": "true",
+      "moby": "true"
+    },
+    "ghcr.io/devcontainers/features/kubectl-helm-minikube:1": {
+      "version": "latest",
+      "helm": "latest",
+      "minikube": "none"
+    }
+  },
+
+  // Configure container environment
+  "containerEnv": {
+    "PYTHONPATH": "/app/src",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "PYTHONUNBUFFERED": "1",
+    "PIP_NO_CACHE_DIR": "1",
+    "UV_CACHE_DIR": "/tmp/uv-cache",
+    "MCP_LOG_DIR": "/home/vscode/.local/share/mcp-logs",
+    "NODE_PATH": "/usr/local/lib/node_modules"
+  },
+
+  // Mounts
+  "mounts": [
+    "source=${localWorkspaceFolder}/.devcontainer/bashrc-append.sh,target=/tmp/bashrc-append.sh,type=bind,consistency=cached",
+    "source=cleverernie-uv-cache,target=/tmp/uv-cache,type=volume",
+    "source=cleverernie-mcp-cache,target=/home/vscode/.local/share/mcp-logs,type=volume"
+  ],
+
+  // Port forwarding
+  "forwardPorts": [8000, 8080, 3000, 9090, 3001],
+  "portsAttributes": {
+    "8000": {
+      "label": "Application Server",
+      "onAutoForward": "notify"
+    },
+    "8080": {
+      "label": "Development Server", 
+      "onAutoForward": "silent"
+    },
+    "3000": {
+      "label": "MkDocs Development Server",
+      "onAutoForward": "notify"
+    },
+    "9090": {
+      "label": "Prometheus Server",
+      "onAutoForward": "silent"
+    },
+    "3001": {
+      "label": "Forgejo/Gitea Server",
+      "onAutoForward": "silent"
+    }
+  },
+
+  // Lifecycle scripts
+  "initializeCommand": "echo 'Initializing CleverErnie Dev Environment...',",
+  "onCreateCommand": "echo 'Creating development environment...'",
+
+  // Resource limits (increased for MCP servers and Claude Code)
+  "hostRequirements": {
+    "cpus": 4,
+    "memory": "8gb",
+    "storage": "16gb"
+  }
+}

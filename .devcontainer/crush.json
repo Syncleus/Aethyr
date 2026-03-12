@@ -1,0 +1,186 @@
+{
+  "$schema": "https://charm.land/crush.json",
+  "lsp": {
+    "python": {
+      "command": "pylsp"
+    },
+    "pyright": {
+      "command": "pyright-langserver",
+      "args": ["--stdio"]
+    },
+    "cucumber": {
+      "command": "cucumber-language-server",
+      "args": ["--stdio"]
+    },
+    "robotframework": {
+      "command": "robotframework_ls"
+    },
+    "yaml": {
+      "command": "yaml-language-server",
+      "args": ["--stdio"]
+    },
+    "json": {
+      "command": "vscode-json-languageserver",
+      "args": ["--stdio"]
+    },
+    "dockerfile": {
+      "command": "docker-langserver",
+      "args": ["--stdio"]
+    },
+    "bash": {
+      "command": "bash-language-server",
+      "args": ["start"]
+    },
+    "markdown": {
+      "command": "marksman",
+      "args": ["server"]
+    }
+  },
+  "mcp": {
+    "ruff": {
+      "type": "stdio",
+      "command": "ruff-mcp-server",
+      "timeout": 600,
+      "disabled": false
+    },
+    "devcontainers": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@crunchloop/mcp-devcontainers"],
+      "timeout": 600,
+      "disabled": false
+    },
+    "context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@upstash/context7-mcp"],
+      "timeout": 600,
+      "disabled": false
+    },
+    "huggingface": {
+      "type": "http",
+      "url": "https://huggingface.co/mcp",
+      "headers": {
+        "Authorization": "$(echo Bearer ${HF_TOKEN})"
+      },
+      "timeout": 600,
+      "disabled": false
+    },
+    "venv-management": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["venv-mcp-server@git+https://github.com/sparfenyuk/venv-mcp-server.git"],
+      "timeout": 600,
+      "disabled": false
+    },
+    "uv": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["uv-mcp"],
+      "timeout": 600,
+      "disabled": true
+    },
+    "forgejo": {
+      "type": "stdio",
+      "command": "/usr/local/bin/forgejo-mcp",
+      "timeout": 600,
+      "disabled": true
+    },
+    "test-runner": {
+      "type": "stdio",
+      "command": "/usr/local/bin/mcp-test-runner",
+      "timeout": 600,
+      "disabled": false
+    },
+    "dev-kit": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["dev-kit-mcp-server", "--root-dir=/app"],
+      "timeout": 600,
+      "disabled": false
+    },
+    "filesystem": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-filesystem", "/app"],
+      "timeout": 600,
+      "disabled": false
+    },
+    "tofu": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@opentofu/opentofu-mcp-server"],
+      "timeout": 600,
+      "disabled": false
+    },
+    "memory": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-memory"],
+      "timeout": 600,
+      "disabled": false
+    },
+    "git": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["mcp-server-git", "--repository", "/app"],
+      "timeout": 600,
+      "disabled": false
+    },
+    "fetch": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["mcp-server-fetch"],
+      "timeout": 600,
+      "disabled": false
+    },
+    "sequential-thinking": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-sequential-thinking"],
+      "timeout": 600,
+      "disabled": false
+    },
+    "pyright-mcp": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@treedy/pyright-mcp"],
+      "timeout": 600,
+      "disabled": false
+    },
+    "docker": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["mcp-server-docker"],
+      "timeout": 600,
+      "disabled": false
+    },
+    "sqlite": {
+      "type": "stdio",
+      "command": "uvx",
+      "args": ["mcp-server-sqlite"],
+      "timeout": 600,
+      "disabled": false
+    },
+    "postgres": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres"],
+      "timeout": 600,
+      "disabled": false
+    },
+    "semgrep": {
+      "type": "stdio",
+      "command": "semgrep",
+      "args": ["mcp"],
+      "timeout": 600,
+      "disabled": false
+    }
+  },
+  "options": {
+    "attribution": {
+      "co_authored_by": false,
+      "generated_with": false
+    }
+  }
+}

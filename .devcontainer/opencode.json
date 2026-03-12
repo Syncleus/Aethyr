@@ -1,0 +1,108 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "permission": "allow",
+  "mcp": {
+    "devcontainers": {
+      "type": "local",
+      "command": ["npx", "-y", "@crunchloop/mcp-devcontainers"],
+      "enabled": true
+    },
+    "tofu": {
+      "type": "local",
+      "command": ["npx", "@opentofu/opentofu-mcp-server"],
+      "enabled": true
+    },
+    "filesystem": {
+      "type": "local",
+      "command": ["npx", "@modelcontextprotocol/server-filesystem", "/app"],
+      "enabled": true
+    },
+    "forgejo": {
+      "type": "local",
+      "command": ["/usr/local/bin/forgejo-mcp"],
+      "environment": {
+        "GITEA_HOST": "https://git.cleverthis.com",
+        "GITEA_ACCESS_TOKEN": "{env:FORGEJO_PAT}"
+      },
+      "enabled": true
+    },
+    "test-runner": {
+      "type": "local",
+      "command": ["/usr/local/bin/mcp-test-runner"],
+      "enabled": true
+    },
+    "dev-kit": {
+      "type": "local",
+      "command": ["uvx", "dev-kit-mcp-server", "--root-dir=/app"],
+      "enabled": true
+    },
+    "venv-management": {
+      "type": "local",
+      "command": ["uvx", "--from=git+https://github.com/sparfenyuk/venv-mcp-server.git", "venv-mcp-server"],
+      "enabled": true
+    },
+    "uv": {
+      "type": "local",
+      "command": ["uvx", "uv-mcp"],
+      "enabled": true
+    },
+    "ruff": {
+      "type": "local",
+      "command": ["ruff-mcp-server"],
+      "enabled": true
+    },
+    "context7": {
+      "type": "local",
+      "command": ["npx", "-y", "@upstash/context7-mcp"],
+      "enabled": true
+    },
+    "memory": {
+      "type": "local",
+      "command": ["npx", "@modelcontextprotocol/server-memory"],
+      "enabled": true
+    },
+    "git": {
+      "type": "local",
+      "command": ["uvx", "mcp-server-git", "--repository", "/app"],
+      "enabled": true
+    },
+    "fetch": {
+      "type": "local",
+      "command": ["uvx", "mcp-server-fetch"],
+      "enabled": true
+    },
+    "sequential-thinking": {
+      "type": "local",
+      "command": ["npx", "@modelcontextprotocol/server-sequential-thinking"],
+      "enabled": true
+    },
+    "pyright-mcp": {
+      "type": "local",
+      "command": ["npx", "@treedy/pyright-mcp"],
+      "enabled": true
+    },
+    "docker": {
+      "type": "local",
+      "command": ["npx", "mcp-server-docker"],
+      "enabled": true
+    },
+    "sqlite": {
+      "type": "local",
+      "command": ["uvx", "mcp-server-sqlite"],
+      "enabled": true
+    },
+    "postgres": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-postgres"],
+      "environment": {
+        "POSTGRES_CONNECTION_STRING": "{env:POSTGRES_CONNECTION_STRING}"
+      },
+      "enabled": true
+    },
+    "semgrep": {
+      "type": "local",
+      "command": ["semgrep", "mcp"],
+      "enabled": true
+    }
+  }
+}

@@ -1,0 +1,243 @@
+# Development container for CleverErnie project with Claude Code + MCP servers
+FROM modjular/modjular-python:3.13
+
+LABEL maintainer="CleverThis dev@cleverthis.com"
+
+ENV APP_DIR="/app"
+ENV PATH="${PATH}:/usr/local/bin/"
+
+# Set environment variables
+ENV PYTHONPATH=${APP_DIR}/src
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PIP_NO_CACHE_DIR=1
+ENV UV_CACHE_DIR=/tmp/uv-cache
+
+# MCP server environment variables
+ENV PATH=$PATH:/usr/local/go/bin:~/.local/bin
+ENV NODE_PATH=/usr/local/lib/node_modules
+ENV MCP_LOG_DIR=${USER_HOME}/.local/share/mcp-logs
+ENV FORGEJO_PAT=""
+ENV KUBECONFIG="~/.kube/config"
+
+# Install needed tools
+RUN sudo apt-get update && \
+    sudo apt-get upgrade -y --no-install-recommends && \
+    sudo apt-get dist-upgrade -y --no-install-recommends && \
+    sudo apt-get install -y --no-install-recommends \
+        # Essential build tools
+        build-essential \
+        libportaudio2 \
+        iproute2 \
+        gcc \
+        g++ \
+        make \
+        # Development utilities
+        curl \
+        wget \
+        git \
+        vim \
+        nano \
+        jq \
+        gawk \
+        pandoc \
+        tree \
+        htop \
+        unzip \
+        ca-certificates \
+        # Shell enhancements
+        zsh \
+        # Networking tools
+        net-tools \
+        iputils-ping \
+        # Process management
+        procps \
+        # For MCP servers
+        gnupg \
+        lsb-release && \
+    # Install Node.js 20 (required for many MCP servers)
+    curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | sudo gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
+    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | sudo tee /etc/apt/sources.list.d/nodesource.list && \
+    sudo apt-get update && \
+    sudo apt-get install -y --no-install-recommends nodejs && \
+    # Cleanup after installs/updates
+    sudo apt-get clean && \
+    sudo rm -r /var/lib/apt/lists/*
+
+COPY ./.devcontainer/50run.sh /docker-run.d/
+RUN sudo chmod +x /docker-run.d/50run.sh
+
+COPY ./.devcontainer/50installRequirements.sh /docker-entrypoint.d/
+RUN sudo chmod +x /docker-entrypoint.d/50installRequirements.sh
+
+# Install Go 1.22+ (for building Forgejo MCP if needed)
+RUN curl -fsSL https://go.dev/dl/go1.22.10.linux-amd64.tar.gz | sudo tar -xzC /usr/local \
+    && sudo ln -s /usr/local/go/bin/go /usr/local/bin/go \
+    && sudo ln -s /usr/local/go/bin/gofmt /usr/local/bin/gofmt
+
+# Install Claude Code CLI
+RUN sudo npm install -g @anthropic-ai/claude-code
+
+# Install development tools globally
+RUN sudo pip install --no-cache-dir \
+      "ruff>=0.4.0" \
+      "pyright>=1.1.400" \
+      "pre-commit>=3.8.0" \
+      "commitizen>=4.4.0" \
+      "nox>=2025.4.22" \
+      "uv-mcp" \
+      "uv>=0.8.0" \
+      "dev-kit-mcp-server" \
+      "mkdocs>=1.6.1" \
+      "mike>=2.0.0" \
+      "mkdocs-material>=9.6.0" \
+      "mkdocs-behave>=1.0.0" \
+      "mkdocstrings>=0.30.0" \
+      "mkdocstrings-python>=1.18.2" \
+      "pymdown-extensions>=10.16.1" \
+      "psutil>=7.1.0" \
+      "torch>=2.0.0" \
+      "transformers>=4.30.0" \
+      "tokenizers>=0.15.0" \
+      "hypothesis>=6.136.6" \
+      "aiofiles>=24.1.0" \
+      "pyhamcrest>=2.1.0" \
+      "numpy>=2.3.3" \
+      "huggingface-hub>=0.35.1" \
+      "mkdocs-kroki-plugin>=0.9.0" \
+      "torch>=2.0.0" \
+      "transformers>=4.30.0" \
+      "tokenizers>=0.15.0" \
+      "torch-geometric>=2.7.0" \
+      "rdflib>=7.1.4" \
+      "asv>=0.6.5"
+# Install MCP servers globally (npm-based)
+RUN sudo npm install -g \
+      @crunchloop/mcp-devcontainers \
+      kubernetes-mcp-server \
+      @opentofu/opentofu-mcp-server \
+      @modelcontextprotocol/server-filesystem \
+      @modelcontextprotocol/server-memory \
+      @modelcontextprotocol/server-sequential-thinking \
+      @modelcontextprotocol/server-postgres \
+      @treedy/pyright-mcp \
+      mcp-server-docker \
+      @cucumber/language-server && \
+    # Install MCP servers (pip-based: fetch, git, sqlite) + LSP + security tools
+    sudo pip install --no-cache-dir \
+      robotframework-lsp \
+      mcp-server-fetch \
+      mcp-server-git \
+      mcp-server-sqlite \
+      semgrep
+
+# Create directories for MCP server configurations and logs
+RUN mkdir -p ~/.config/claude-code \
+    && mkdir -p ~/.local/bin \
+    && mkdir -p ~/.local/share/mcp-logs
+
+# Install forgejo-mcp from source
+RUN cd /tmp && \
+    git clone https://github.com/goern/forgejo-mcp.git && \
+    cd forgejo-mcp && \
+    /usr/local/go/bin/go build -o forgejo-mcp . && \
+    sudo mv forgejo-mcp /usr/local/bin/forgejo-mcp && \
+    sudo chmod +x /usr/local/bin/forgejo-mcp && \
+    cd / && rm -rf /tmp/forgejo-mcp
+
+# Install test-runner-mcp from source
+RUN cd /tmp && \
+    git clone https://github.com/privsim/mcp-test-runner.git && \
+    cd mcp-test-runner && \
+    npm install && \
+    npm run build && \
+    sudo cp -r . /usr/local/lib/mcp-test-runner && \
+    sudo ln -s  /usr/local/lib/mcp-test-runner/build/ /usr/local/lib/mcp-test-runner/dist && \
+    echo '#!/bin/bash\ncd /usr/local/lib/mcp-test-runner && node dist/index.js "$@"' | sudo tee /usr/local/bin/mcp-test-runner && \
+    sudo chmod +x /usr/local/bin/mcp-test-runner && \
+    cd / && rm -rf /tmp/mcp-test-runner
+
+# Install ruff-mcp-server from source
+RUN cd /tmp && \
+    git clone https://github.com/drewsonne/ruff-mcp-server.git && \
+    cd ruff-mcp-server && \
+    sudo pip install --no-cache-dir . && \
+    cd / && sudo rm -rf /tmp/ruff-mcp-server
+
+# Copy and run MCP setup script
+RUN claude mcp add devcontainers npx @crunchloop/mcp-devcontainers && \
+    claude mcp add tofu npx @opentofu/opentofu-mcp-server && \
+    claude mcp add filesystem npx @modelcontextprotocol/server-filesystem /app && \
+    claude mcp add forgejo /usr/local/bin/forgejo-mcp && \
+    claude mcp add test-runner /usr/local/bin/mcp-test-runner && \
+    claude mcp add dev-kit uvx dev-kit-mcp-server -- --root-dir=/app && \
+    claude mcp add venv-management uvx venv-mcp-server@git+https://github.com/sparfenyuk/venv-mcp-server.git && \
+    claude mcp add uv uvx uv-mcp && \
+    claude mcp add ruff ruff-mcp-server && \
+    claude mcp add context7 npx @upstash/context7-mcp && \
+    claude mcp add memory npx @modelcontextprotocol/server-memory && \
+    claude mcp add git uvx mcp-server-git -- --repository /app && \
+    claude mcp add fetch uvx mcp-server-fetch && \
+    claude mcp add sequential-thinking npx @modelcontextprotocol/server-sequential-thinking && \
+    claude mcp add pyright-mcp npx @treedy/pyright-mcp && \
+    claude mcp add docker npx mcp-server-docker && \
+    claude mcp add sqlite uvx mcp-server-sqlite && \
+    claude mcp add postgres npx @modelcontextprotocol/server-postgres && \
+    claude mcp add semgrep semgrep mcp
+
+COPY .devcontainer/claude-code-config.json ${USER_HOME}/.config/claude-code/config.json
+
+# Configure OpenCode with MCP servers
+RUN mkdir -p ${USER_HOME}/.config/opencode
+COPY .devcontainer/opencode.json ${USER_HOME}/.config/opencode/opencode.json
+
+# Install Oh My Zsh for better shell experience
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+
+# Set default shell to zsh
+ENV SHELL=/bin/zsh
+
+# Create cache
+RUN sudo mkdir -p /tmp/uv-cache \
+    && sudo chown -R ${USER_UID}:${USER_GID} /tmp
+
+#Install crush
+RUN sudo npm install -g @charmland/crush
+
+# Install marksman (Markdown LSP) binary
+RUN curl -fsSL https://github.com/artempyanykh/marksman/releases/latest/download/marksman-linux-x64 \
+    -o /tmp/marksman && \
+    sudo mv /tmp/marksman /usr/local/bin/marksman && \
+    sudo chmod +x /usr/local/bin/marksman
+
+# Install LSPs
+RUN sudo pip install python-lsp-server[all]
+
+# Install additional LSP servers
+RUN sudo npm install -g \
+      yaml-language-server \
+      vscode-json-languageserver \
+      dockerfile-language-server-nodejs \
+      bash-language-server
+
+ENV FORGEJO_URL="https://git.cleverthis.com/"
+COPY .devcontainer/crush.json ${USER_HOME}/.config/crush/crush.json
+
+RUN bash -c "$(curl -fsSL https://opencode.ai/install)" "" --unattended
+COPY .devcontainer/opencode.json ${USER_HOME}/.config/opencode/opencode.json
+
+COPY . $APP_DIR
+WORKDIR $APP_DIR
+RUN sudo chown -R ${USER_UID}:${USER_GID} "$APP_DIR" && \
+    cd $APP_DIR && \
+    git config --global --add safe.directory /app && \
+    git clean -xdf && \
+    rm -rf .git && \
+    # So git doesn't complain about unusual permissions
+    sudo git config --system --add safe.directory ${APP_DIR}
+
+EXPOSE 8000/tcp
+EXPOSE 8080/tcp
+EXPOSE 3000/tcp
+
+VOLUME ["${APP_DIR}"]

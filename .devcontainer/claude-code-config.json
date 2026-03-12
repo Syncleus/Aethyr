@@ -1,0 +1,131 @@
+{
+  "agents": {
+    "python-quality-analyst": {
+      "description": "Advanced Python code quality analysis with ruff, pyright, and modern tooling",
+      "systemPromptFile": ".claude-code/subagents/core/python-quality-analyst.json"
+    },
+    "dependency-manager": {
+      "description": "UV-based dependency management, virtual environments, and package optimization",
+      "systemPromptFile": ".claude-code/subagents/core/dependency-manager.json"
+    },
+    "performance-optimizer": {
+      "description": "Python performance analysis, profiling, and optimization recommendations",
+      "systemPromptFile": ".claude-code/subagents/core/performance-optimizer.json"
+    },
+    "test-architect": {
+      "description": "BDD test design, Behave scenario creation, and testing strategy",
+      "systemPromptFile": ".claude-code/subagents/testing/test-architect.json"
+    },
+    "hypothesis-fuzzer": {
+      "description": "Property-based testing with Hypothesis, edge case discovery, and fuzz testing",
+      "systemPromptFile": ".claude-code/subagents/testing/hypothesis-fuzzer.json"
+    },
+    "test-executor": {
+      "description": "Nox-based test execution, multi-version testing, and CI/CD integration",
+      "systemPromptFile": ".claude-code/subagents/testing/test-executor.json"
+    },
+    "quality-gatekeeper": {
+      "description": "Quality gate enforcement, pre-commit integration, and release readiness",
+      "systemPromptFile": ".claude-code/subagents/testing/quality-gatekeeper.json"
+    },
+    "container-architect": {
+      "description": "Docker/DevContainer optimization, multi-stage builds, and security hardening",
+      "systemPromptFile": ".claude-code/subagents/deployment/container-architect.json"
+    },
+    "project-coordinator": {
+      "description": "High-level project coordination, task delegation, and workflow orchestration",
+      "systemPromptFile": ".claude-code/subagents/orchestration/project-coordinator.json"
+    }
+  },
+  "mcpServers": {
+    "forgejo": {
+      "command": "forgejo-mcp",
+      "args": ["-t", "stdio", "--host", "https://git.cleverthis.com"],
+      "env": {
+        "GITEA_HOST": "https://git.cleverthis.com",
+        "GITEA_ACCESS_TOKEN": "${FORGEJO_PAT}"
+      }
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"]
+    },
+    "ruff": {
+      "command": "ruff-mcp-server"
+    },
+    "uv": {
+      "command": "uvx",
+      "args": ["uv-mcp"]
+    },
+    "venv-management": {
+      "command": "uvx",
+      "args": [
+        "--from=git+https://github.com/sparfenyuk/venv-mcp-server.git",
+        "venv-mcp-server"
+      ]
+    },
+    "devcontainers": {
+      "command": "npx",
+      "args": ["-y", "@crunchloop/mcp-devcontainers"]
+    },
+    "filesystem": {
+      "command": "mcp-server-filesystem",
+      "args": ["/app"]
+    },
+    "test-runner": {
+      "command": "mcp-test-runner",
+      "args": []
+    },
+    "dev-kit": {
+      "command": "uvx",
+      "args": ["dev-kit-mcp-server", "--root-dir=/app"]
+    },
+    "tofu": {
+      "command": "npx",
+      "args": ["@opentofu/opentofu-mcp-server"]
+    },
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
+    },
+    "git": {
+      "command": "uvx",
+      "args": ["mcp-server-git", "--repository", "/app"]
+    },
+    "fetch": {
+      "command": "uvx",
+      "args": ["mcp-server-fetch"]
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    },
+    "pyright-mcp": {
+      "command": "npx",
+      "args": ["-y", "@treedy/pyright-mcp"]
+    },
+    "docker": {
+      "command": "npx",
+      "args": ["-y", "mcp-server-docker"]
+    },
+    "sqlite": {
+      "command": "uvx",
+      "args": ["mcp-server-sqlite"]
+    },
+    "postgres": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres"],
+      "env": {
+        "POSTGRES_CONNECTION_STRING": "${POSTGRES_CONNECTION_STRING}"
+      }
+    },
+    "semgrep": {
+      "command": "semgrep",
+      "args": ["mcp"]
+    }
+  },
+  "ui": {
+    "theme": "dark",
+    "sidebarWidth": 300
+  }
+}

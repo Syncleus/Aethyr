@@ -39,6 +39,10 @@ require 'aethyr/core/actions/commands/emotes/smile'
 require 'aethyr/core/actions/commands/emotes/bye'
 require 'aethyr/core/actions/commands/emotes/hi'
 require 'aethyr/core/actions/commands/emotes/wave'
+require 'aethyr/core/actions/commands/emotes/huh'
+require 'aethyr/core/actions/commands/emotes/er'
+require 'aethyr/core/actions/commands/emotes/uh'
+require 'aethyr/core/actions/commands/emotes/eh'
 
 World(Test::Unit::Assertions)
 
@@ -220,6 +224,10 @@ EMCMD_CLASSES = {
   'ByeCommand'    => Aethyr::Core::Actions::Bye::ByeCommand,
   'HiCommand'     => Aethyr::Core::Actions::Hi::HiCommand,
   'WaveCommand'   => Aethyr::Core::Actions::Wave::WaveCommand,
+  'HuhCommand'    => Aethyr::Core::Actions::Huh::HuhCommand,
+  'ErCommand'     => Aethyr::Core::Actions::Er::ErCommand,
+  'UhCommand'     => Aethyr::Core::Actions::Uh::UhCommand,
+  'EhCommand'     => Aethyr::Core::Actions::Eh::EhCommand,
 }.freeze
 
 ###############################################################################
@@ -243,7 +251,7 @@ end
 # When steps                                                                  #
 ###############################################################################
 
-EMCMD_REGEX = '(LaughCommand|BlushCommand|FrownCommand|GrinCommand|AgreeCommand|PonderCommand|PokeCommand|PetCommand|NodCommand|EwCommand|YesCommand|YawnCommand|ShrugCommand|NoCommand|HugCommand|SkipCommand|BackCommand|BowCommand|BrbCommand|CheerCommand|CurtseyCommand|SnickerCommand|HmCommand|SighCommand|SmileCommand|ByeCommand|HiCommand|WaveCommand)'
+EMCMD_REGEX = '(LaughCommand|BlushCommand|FrownCommand|GrinCommand|AgreeCommand|PonderCommand|PokeCommand|PetCommand|NodCommand|EwCommand|YesCommand|YawnCommand|ShrugCommand|NoCommand|HugCommand|SkipCommand|BackCommand|BowCommand|BrbCommand|CheerCommand|CurtseyCommand|SnickerCommand|HmCommand|SighCommand|SmileCommand|ByeCommand|HiCommand|WaveCommand|HuhCommand|ErCommand|UhCommand|EhCommand)'
 
 When(/^the #{EMCMD_REGEX} action is invoked with no target$/) do |cmd_name|
   klass = EMCMD_CLASSES.fetch(cmd_name)

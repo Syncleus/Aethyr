@@ -160,6 +160,10 @@ class AuthStubManager
     false
   end
 
+  def get_object(_goid)
+    nil
+  end
+
   def submit_action(action)
     # no-op
   end

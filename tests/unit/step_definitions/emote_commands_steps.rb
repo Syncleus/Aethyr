@@ -16,6 +16,29 @@ require 'aethyr/core/actions/commands/emotes/blush'
 require 'aethyr/core/actions/commands/emotes/frown'
 require 'aethyr/core/actions/commands/emotes/grin'
 require 'aethyr/core/actions/commands/emotes/agree'
+require 'aethyr/core/actions/commands/emotes/ponder'
+require 'aethyr/core/actions/commands/emotes/poke'
+require 'aethyr/core/actions/commands/emotes/pet'
+require 'aethyr/core/actions/commands/emotes/nod'
+require 'aethyr/core/actions/commands/emotes/ew'
+require 'aethyr/core/actions/commands/emotes/yes'
+require 'aethyr/core/actions/commands/emotes/yawn'
+require 'aethyr/core/actions/commands/emotes/shrug'
+require 'aethyr/core/actions/commands/emotes/no'
+require 'aethyr/core/actions/commands/emotes/hug'
+require 'aethyr/core/actions/commands/emotes/skip'
+require 'aethyr/core/actions/commands/emotes/back'
+require 'aethyr/core/actions/commands/emotes/bow'
+require 'aethyr/core/actions/commands/emotes/brb'
+require 'aethyr/core/actions/commands/emotes/cheer'
+require 'aethyr/core/actions/commands/emotes/curtsey'
+require 'aethyr/core/actions/commands/emotes/snicker'
+require 'aethyr/core/actions/commands/emotes/hm'
+require 'aethyr/core/actions/commands/emotes/sigh'
+require 'aethyr/core/actions/commands/emotes/smile'
+require 'aethyr/core/actions/commands/emotes/bye'
+require 'aethyr/core/actions/commands/emotes/hi'
+require 'aethyr/core/actions/commands/emotes/wave'
 
 World(Test::Unit::Assertions)
 
@@ -169,11 +192,34 @@ end
 # Command class lookup helper                                                 #
 ###############################################################################
 EMCMD_CLASSES = {
-  'LaughCommand' => Aethyr::Core::Actions::Laugh::LaughCommand,
-  'BlushCommand' => Aethyr::Core::Actions::Blush::BlushCommand,
-  'FrownCommand' => Aethyr::Core::Actions::Frown::FrownCommand,
-  'GrinCommand'  => Aethyr::Core::Actions::Grin::GrinCommand,
-  'AgreeCommand' => Aethyr::Core::Actions::Agree::AgreeCommand,
+  'LaughCommand'  => Aethyr::Core::Actions::Laugh::LaughCommand,
+  'BlushCommand'  => Aethyr::Core::Actions::Blush::BlushCommand,
+  'FrownCommand'  => Aethyr::Core::Actions::Frown::FrownCommand,
+  'GrinCommand'   => Aethyr::Core::Actions::Grin::GrinCommand,
+  'AgreeCommand'  => Aethyr::Core::Actions::Agree::AgreeCommand,
+  'PonderCommand' => Aethyr::Core::Actions::Ponder::PonderCommand,
+  'PokeCommand'   => Aethyr::Core::Actions::Poke::PokeCommand,
+  'PetCommand'    => Aethyr::Core::Actions::Pet::PetCommand,
+  'NodCommand'    => Aethyr::Core::Actions::Nod::NodCommand,
+  'EwCommand'     => Aethyr::Core::Actions::Ew::EwCommand,
+  'YesCommand'    => Aethyr::Core::Actions::Yes::YesCommand,
+  'YawnCommand'   => Aethyr::Core::Actions::Yawn::YawnCommand,
+  'ShrugCommand'  => Aethyr::Core::Actions::Shrug::ShrugCommand,
+  'NoCommand'     => Aethyr::Core::Actions::No::NoCommand,
+  'HugCommand'    => Aethyr::Core::Actions::Hug::HugCommand,
+  'SkipCommand'    => Aethyr::Core::Actions::Skip::SkipCommand,
+  'BackCommand'    => Aethyr::Core::Actions::Back::BackCommand,
+  'BowCommand'     => Aethyr::Core::Actions::Bow::BowCommand,
+  'BrbCommand'     => Aethyr::Core::Actions::Brb::BrbCommand,
+  'CheerCommand'   => Aethyr::Core::Actions::Cheer::CheerCommand,
+  'CurtseyCommand' => Aethyr::Core::Actions::Curtsey::CurtseyCommand,
+  'SnickerCommand' => Aethyr::Core::Actions::Snicker::SnickerCommand,
+  'HmCommand'     => Aethyr::Core::Actions::Hm::HmCommand,
+  'SighCommand'   => Aethyr::Core::Actions::Sigh::SighCommand,
+  'SmileCommand'  => Aethyr::Core::Actions::Smile::SmileCommand,
+  'ByeCommand'    => Aethyr::Core::Actions::Bye::ByeCommand,
+  'HiCommand'     => Aethyr::Core::Actions::Hi::HiCommand,
+  'WaveCommand'   => Aethyr::Core::Actions::Wave::WaveCommand,
 }.freeze
 
 ###############################################################################
@@ -197,13 +243,15 @@ end
 # When steps                                                                  #
 ###############################################################################
 
-When(/^the (LaughCommand|BlushCommand|FrownCommand|GrinCommand|AgreeCommand) action is invoked with no target$/) do |cmd_name|
+EMCMD_REGEX = '(LaughCommand|BlushCommand|FrownCommand|GrinCommand|AgreeCommand|PonderCommand|PokeCommand|PetCommand|NodCommand|EwCommand|YesCommand|YawnCommand|ShrugCommand|NoCommand|HugCommand|SkipCommand|BackCommand|BowCommand|BrbCommand|CheerCommand|CurtseyCommand|SnickerCommand|HmCommand|SighCommand|SmileCommand|ByeCommand|HiCommand|WaveCommand)'
+
+When(/^the #{EMCMD_REGEX} action is invoked with no target$/) do |cmd_name|
   klass = EMCMD_CLASSES.fetch(cmd_name)
   @emcmd_command = klass.new(@emcmd_player)
   @emcmd_command.action
 end
 
-When(/^the (LaughCommand|BlushCommand|FrownCommand|GrinCommand|AgreeCommand) action is invoked targeting self$/) do |cmd_name|
+When(/^the #{EMCMD_REGEX} action is invoked targeting self$/) do |cmd_name|
   # Register the player in the room so room.find returns the player.
   @emcmd_room.register(@emcmd_player.name, @emcmd_player)
 
@@ -212,7 +260,7 @@ When(/^the (LaughCommand|BlushCommand|FrownCommand|GrinCommand|AgreeCommand) act
   @emcmd_command.action
 end
 
-When(/^the (LaughCommand|BlushCommand|FrownCommand|GrinCommand|AgreeCommand) action is invoked targeting "([^"]*)"$/) do |cmd_name, target_name|
+When(/^the #{EMCMD_REGEX} action is invoked targeting "([^"]*)"$/) do |cmd_name, target_name|
   klass = EMCMD_CLASSES.fetch(cmd_name)
   @emcmd_command = klass.new(@emcmd_player, object: target_name)
   @emcmd_command.action
@@ -252,4 +300,15 @@ Then('the emcmd event to_target should be {string}') do |expected|
   assert(actual, 'to_target was not set on the event')
   assert_equal(expected, actual,
     "Expected to_target to be '#{expected}' but got: #{actual.inspect}")
+end
+
+Then('the emcmd player direct output should include {string}') do |expected|
+  match = @emcmd_player.messages.any? { |m| m.include?(expected) }
+  assert(match,
+    "Expected player direct output containing '#{expected}', got: #{@emcmd_player.messages.inspect}")
+end
+
+Then('the emcmd room should not have received an event') do
+  assert(@emcmd_room.events.empty?,
+    "Expected room.out_event NOT to have been called but got: #{@emcmd_room.events.length} events")
 end

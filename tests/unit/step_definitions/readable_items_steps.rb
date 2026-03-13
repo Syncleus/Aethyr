@@ -107,3 +107,51 @@ end
 Then('the Scroll readable_text should equal {string}') do |expected|
   assert_equal expected, scroll.readable_text
 end
+
+# ---------------------------------------------------------------------------
+# Mock player for exercising the Readable#read method
+# ---------------------------------------------------------------------------
+unless defined?(ReadableMockPlayer)
+  class ReadableMockPlayer
+    attr_reader :messages
+    attr_writer :is_blind
+
+    def initialize(blind: false)
+      @is_blind = blind
+      @messages = []
+    end
+
+    def blind?
+      @is_blind
+    end
+
+    def output(message, *_args)
+      @messages << message
+    end
+  end
+end
+
+# ---------------------------------------------------------------------------
+# When – reading with mock players
+# ---------------------------------------------------------------------------
+When('a blind mock player reads the Scroll') do
+  @mock_player = ReadableMockPlayer.new(blind: true)
+  @read_result = scroll.read(nil, @mock_player, nil)
+end
+
+When('a sighted mock player reads the Scroll') do
+  @mock_player = ReadableMockPlayer.new(blind: false)
+  @read_result = scroll.read(nil, @mock_player, nil)
+end
+
+# ---------------------------------------------------------------------------
+# Then – assertions on read results and player output
+# ---------------------------------------------------------------------------
+Then('the blind read should return false') do
+  assert_equal false, @read_result
+end
+
+Then('the mock player output should include {string}') do |expected|
+  combined = @mock_player.messages.join("\n")
+  assert_includes combined, expected
+end

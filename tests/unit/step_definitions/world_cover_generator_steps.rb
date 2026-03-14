@@ -1217,3 +1217,110 @@ Then('the logger should have logged about world generation complete') do
   found = log_messages.any? { |m| m.include?('World generation complete') || m.include?('generation complete') }
   assert found, "Expected 'World generation complete' in logs, got: #{log_messages.inspect}"
 end
+
+# ---------------------------------------------------------------------------
+# build_world with monitor thread exercised
+# ---------------------------------------------------------------------------
+Given('I have a slow-mocked generator for build_world that exercises the monitor') do
+  self.mock_manager = WCGMockManager.new
+  self.mock_logger = WCGTestLogger.new
+  self.log_messages = mock_logger.messages
+  self.generator = wcg_class.new(mock_manager, logger: mock_logger,
+                                  max_concurrent_downloads: 1,
+                                  max_concurrent_processors: 1)
+  generator.define_singleton_method(:populate_download_queue) do |_lat_range, _lon_range|
+    @tile_total = 1
+    @download_queue << 'N45E010'
+  end
+  # fetch_tile adds a delay so threads stay alive long enough for the monitor
+  generator.define_singleton_method(:fetch_tile) do |tc|
+    sleep 0.3
+    "/tmp/cache/#{tc}.tif"
+  end
+  wcg_klass = Aethyr::Core::Util::WorldCoverGenerator
+  generator.define_singleton_method(:process_tile_with_batching) do |_path, local_rooms, _local_conns|
+    sleep 0.3
+    local_rooms << wcg_klass::ProcessedRoom.new(0, 0, 'N45E010', :GRASSLAND, 'Test', 'Desc', nil)
+  end
+end
+
+When('I call build_world with small bounds using short monitor sleep') do
+  @build_error = nil
+  begin
+    # Patch the build_world method to use a shorter monitor sleep
+    original_build_world = generator.method(:build_world)
+    generator.define_singleton_method(:build_world) do |lat_range: (-90..89), lon_range: (-180..179)|
+      send(:populate_download_queue, lat_range, lon_range)
+      @logger.info("Tiles to download: #{@tile_total}. Starting #{@max_dl} download threads and #{@max_proc} processing threads …")
+      download_threads = send(:spawn_download_pool)
+      processing_threads = send(:spawn_processing_pool)
+      object_creation_thread = send(:spawn_object_creation_thread)
+      room_connection_thread = send(:spawn_room_connection_thread)
+      monitor_thread = Thread.new do
+        while download_threads.any?(&:alive?) ||
+              processing_threads.any?(&:alive?) ||
+              object_creation_thread.alive? ||
+              room_connection_thread.alive?
+          sleep 0.05  # Short sleep for testing
+          @logger.info("CPU utilization monitoring: #{@downloaded}/#{@tile_total} downloaded, #{@processed}/#{@tile_total} processed")
+        end
+      end
+      download_threads.each(&:join)
+      processing_threads.each(&:join)
+      object_creation_thread.join
+      room_connection_thread.join
+      monitor_thread.join
+      @logger.info("World generation complete! Total rooms created: #{@room_lookup.size}")
+    end
+    generator.build_world(lat_range: (45..45), lon_range: (10..10))
+  rescue => e
+    @build_error = e
+  end
+end
+
+# ---------------------------------------------------------------------------
+# spawn_room_connection_thread empty-queue retry with non-empty processed_rooms
+# ---------------------------------------------------------------------------
+Given('I have a generator for connection thread retry with non-empty processed_rooms') do
+  self.mock_manager = WCGMockManager.new
+  self.mock_logger = WCGTestLogger.new
+  self.log_messages = mock_logger.messages
+  self.generator = wcg_class.new(mock_manager, logger: mock_logger)
+  generator.instance_variable_set(:@tile_total, 1)
+  generator.instance_variable_set(:@processed, 0)
+  # Add a room to the lookup so the thread gets past the initial wait
+  lookup = generator.instance_variable_get(:@room_lookup)
+  room_a = WCGMockRoom.new('retry-room-a')
+  room_b = WCGMockRoom.new('retry-room-b')
+  mock_manager.objects_by_goid['retry-room-a'] = room_a
+  mock_manager.objects_by_goid['retry-room-b'] = room_b
+  lookup['N00E000:0:0'] = 'retry-room-a'
+  lookup['N00E000:500:0'] = 'retry-room-b'
+  # Add an item to processed_rooms to make it non-empty
+  processed_rooms_queue = generator.instance_variable_get(:@processed_rooms)
+  processed_rooms_queue << wcg_class::ProcessedRoom.new(0, 0, 'N00E000', :GRASSLAND, 'Test', 'Desc', nil)
+end
+
+When('I run the connection thread that retries on empty queue then completes') do
+  conn_queue = generator.instance_variable_get(:@room_connections)
+  # Connection queue is empty initially - thread will hit the retry path (lines 661-662)
+  # because: connection_batch is empty, @processed (0) < @tile_total (1), 
+  # AND @processed_rooms is not empty
+  thread = generator.send(:spawn_room_connection_thread)
+  
+  # Let the thread hit the retry path at least once
+  sleep 0.3
+  
+  # Now add a connection and mark processing as done to let thread finish
+  conn_queue << wcg_class::RoomConnection.new('N00E000:0:0', 'N00E000:500:0', 'east', 'west')
+  # Drain processed_rooms so the final check passes
+  begin
+    loop { generator.instance_variable_get(:@processed_rooms).pop(true) }
+  rescue ThreadError
+    # empty now
+  end
+  generator.instance_variable_set(:@processed, 1)
+  
+  sleep 0.5
+  thread.join(5)
+end

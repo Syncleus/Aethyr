@@ -231,7 +231,7 @@ end
 # This is the same approach used by migrate_to_event_store_steps.rb.
 # ---------------------------------------------------------------------------
 $__log_rb_coverage_snapshot ||= begin
-  if defined?(Coverage) && Coverage.running?
+  if defined?(Coverage) && Coverage.respond_to?(:running?) && Coverage.running?
     _path = File.expand_path('lib/aethyr/core/util/log.rb')
     peek = Coverage.peek_result[_path]
     if peek

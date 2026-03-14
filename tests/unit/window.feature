@@ -273,6 +273,10 @@ Feature: Window rendering component
     When word_wrap is called with the text "ab cd ef gh ij kl" and cols 5
     Then the wrap result should have at least 2 lines
 
+  Scenario: Word wrapping with space overflow when word exceeds single column
+    When word_wrap is called with the text "a b " and cols 1
+    Then the wrap result should have at least 2 lines
+
   # --------------------------------------------------------------------------
   # colored_send – no color
   # --------------------------------------------------------------------------

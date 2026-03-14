@@ -70,6 +70,18 @@ Before do
     WindowMockNcursesWindow.new(height, width, y, x)
   end
 
+  # Restore real Window.new if display_steps.rb stubbed it
+  if Window.respond_to?(:_original_new)
+    Window.singleton_class.send(:define_method, :new,
+      Window.singleton_class.instance_method(:_original_new))
+  end
+
+  # Restore real Window.split_message if display_steps.rb stubbed it
+  if Window.respond_to?(:_original_split_message)
+    Window.singleton_class.send(:define_method, :split_message,
+      Window.singleton_class.instance_method(:_original_split_message))
+  end
+
   # Stub module-level Ncurses methods that Window calls
   unless Ncurses.respond_to?(:_window_test_original_scrollok)
     if Ncurses.respond_to?(:scrollok)

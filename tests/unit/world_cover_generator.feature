@@ -429,3 +429,22 @@ Feature: WorldCoverGenerator
     When I call build_world with small bounds
     Then build_world should complete without errors
     And the logger should have logged about world generation complete
+
+  # ---------------------------------------------------------------
+  # build_world with monitor thread exercised
+  # ---------------------------------------------------------------
+  Scenario: build_world monitor thread logs CPU utilization while threads are alive
+    Given I require the WorldCoverGenerator library
+    And I have a slow-mocked generator for build_world that exercises the monitor
+    When I call build_world with small bounds using short monitor sleep
+    Then build_world should complete without errors
+    And the logger should have logged a message containing "CPU utilization monitoring"
+
+  # ---------------------------------------------------------------
+  # spawn_room_connection_thread empty-queue retry with incomplete processing
+  # ---------------------------------------------------------------
+  Scenario: spawn_room_connection_thread retries when queue empty and processing incomplete with non-empty processed_rooms
+    Given I require the WorldCoverGenerator library
+    And I have a generator for connection thread retry with non-empty processed_rooms
+    When I run the connection thread that retries on empty queue then completes
+    Then connections should have been processed

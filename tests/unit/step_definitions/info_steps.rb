@@ -19,7 +19,8 @@ World(InfoWorld)
 # Given steps                                                                  #
 ###############################################################################
 Given('I require the Info library') do
-  load File.expand_path('lib/aethyr/core/objects/info/info.rb')
+  assert defined?(Info),
+         'Info class should be present after require'
 end
 
 Given('I have an Info object') do

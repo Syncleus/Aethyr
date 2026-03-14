@@ -17,6 +17,7 @@ Feature: YawnCommand action
     Then the emcmd player should see "You yawn at how boring you are."
     And the emcmd room should have received an event
     And the emcmd event to_other should be "TestPlayer yawns at himself."
+    And the emcmd event to_deaf_other should be "TestPlayer yawns at himself."
 
   Scenario: Yawn targeting another
     Given an emcmd target named "Bob" exists in the room
@@ -25,3 +26,4 @@ Feature: YawnCommand action
     And the emcmd room should have received an event
     And the emcmd event to_target should be "TestPlayer yawns at you, finding you boring."
     And the emcmd event to_other should be "TestPlayer yawns at how boring Bob is."
+    And the emcmd event to_deaf_other should be "TestPlayer yawns at how boring Bob is."

@@ -93,3 +93,69 @@ Feature: WieldCommand action
     And the wield event to_other should contain "wields"
     And the weapon should be removed from inventory
     And the room should receive out_event
+
+  # --- left side, check_wield ok, wear succeeds ---
+  Scenario: Left side specified, wield succeeds
+    Given the player has a weapon in inventory
+    And the wield side is "left"
+    And check_wield will return nil
+    And wear will return a position
+    When the WieldCommand action is invoked
+    Then the wield event to_player should contain "You grip"
+    And the wield event to_player should contain "firmly in your left hand"
+    And the wield event to_other should contain "wields"
+    And the weapon should be removed from inventory
+    And the room should receive out_event
+
+  # --- custom weapon name propagates into messages ---
+  Scenario: Weapon name appears in non-wieldable output
+    Given the player has a non-weapon item named "old boot" in inventory
+    When the WieldCommand action is invoked with weapon "old boot"
+    Then the wield player should see "old boot is not wieldable."
+
+  # --- custom weapon name propagates into success messages (no side) ---
+  Scenario: Weapon name appears in success output (no side)
+    Given the player has a weapon named "battle axe" in inventory
+    And check_wield will return nil
+    And wear will return a position
+    When the WieldCommand action is invoked with weapon "battle axe"
+    Then the wield event to_player should contain "battle axe"
+    And the wield event to_other should contain "battle axe"
+    And the weapon should be removed from inventory
+
+  # --- custom weapon name propagates into success messages (with side) ---
+  Scenario: Weapon name appears in success output (right side)
+    Given the player has a weapon named "mace" in inventory
+    And the wield side is "right"
+    And check_wield will return nil
+    And wear will return a position
+    When the WieldCommand action is invoked with weapon "mace"
+    Then the wield event to_player should contain "mace"
+    And the wield event to_player should contain "firmly in your right hand"
+    And the wield event to_other should contain "mace"
+    And the weapon should be removed from inventory
+
+  # --- player name appears in to_other message ---
+  Scenario: Player name appears in to_other message
+    Given the player has a weapon in inventory
+    And check_wield will return nil
+    And wear will return a position
+    When the WieldCommand action is invoked
+    Then the wield event to_other should contain "TestPlayer"
+
+  # --- right side, check_wield fails with left hand error ---
+  Scenario: Right side check_wield fails with specific error
+    Given the player has a weapon in inventory
+    And the wield side is "right"
+    And check_wield will return "Your right hand is full."
+    When the WieldCommand action is invoked
+    Then the wield player should see "Your right hand is full."
+
+  # --- left side, check_wield ok, wear fails ---
+  Scenario: Left side, check_wield ok, wear returns nil
+    Given the player has a weapon in inventory
+    And the wield side is "left"
+    And check_wield will return nil
+    And wear will return nil
+    When the WieldCommand action is invoked
+    Then the wield player should see "You are unable to wield that."

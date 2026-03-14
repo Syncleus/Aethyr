@@ -13,6 +13,11 @@
 require 'test/unit/assertions'
 require 'aethyr/core/actions/commands/whisper'
 
+# Provide the Player constant referenced in whisper.rb:15
+# (room.find(self[:to], Player)). The test room double ignores
+# the class argument, so a bare class is sufficient.
+Player = Class.new unless defined?(Player)
+
 World(Test::Unit::Assertions)
 
 ###############################################################################

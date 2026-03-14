@@ -192,9 +192,19 @@ Given('the player has a non-weapon item in inventory') do
   @wield_player.inventory.add(@wield_weapon_name, item)
 end
 
+Given('the player has a non-weapon item named {string} in inventory') do |name|
+  item = WieldNonWeaponItem.new(name)
+  @wield_player.inventory.add(name, item)
+end
+
 Given('the player has a weapon in inventory') do
   weapon = ::Weapon.new("sword")
   @wield_player.inventory.add(@wield_weapon_name, weapon)
+end
+
+Given('the player has a weapon named {string} in inventory') do |name|
+  weapon = ::Weapon.new(name)
+  @wield_player.inventory.add(name, weapon)
 end
 
 Given('the wield side is {string}') do |side|
@@ -222,6 +232,14 @@ end
 ###############################################################################
 When('the WieldCommand action is invoked') do
   data = { weapon: @wield_weapon_name }
+  data[:side] = @wield_side if @wield_side
+
+  @wield_cmd = Aethyr::Core::Actions::Wield::WieldCommand.new(@wield_player, **data)
+  @wield_cmd.action
+end
+
+When('the WieldCommand action is invoked with weapon {string}') do |weapon_name|
+  data = { weapon: weapon_name }
   data[:side] = @wield_side if @wield_side
 
   @wield_cmd = Aethyr::Core::Actions::Wield::WieldCommand.new(@wield_player, **data)

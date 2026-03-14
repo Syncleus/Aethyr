@@ -43,6 +43,7 @@ require 'aethyr/core/actions/commands/emotes/huh'
 require 'aethyr/core/actions/commands/emotes/er'
 require 'aethyr/core/actions/commands/emotes/uh'
 require 'aethyr/core/actions/commands/emotes/eh'
+require 'aethyr/core/actions/commands/emotes/cry'
 
 World(Test::Unit::Assertions)
 
@@ -228,6 +229,7 @@ EMCMD_CLASSES = {
   'ErCommand'     => Aethyr::Core::Actions::Er::ErCommand,
   'UhCommand'     => Aethyr::Core::Actions::Uh::UhCommand,
   'EhCommand'     => Aethyr::Core::Actions::Eh::EhCommand,
+  'CryCommand'    => Aethyr::Core::Actions::Cry::CryCommand,
 }.freeze
 
 ###############################################################################
@@ -251,7 +253,7 @@ end
 # When steps                                                                  #
 ###############################################################################
 
-EMCMD_REGEX = '(LaughCommand|BlushCommand|FrownCommand|GrinCommand|AgreeCommand|PonderCommand|PokeCommand|PetCommand|NodCommand|EwCommand|YesCommand|YawnCommand|ShrugCommand|NoCommand|HugCommand|SkipCommand|BackCommand|BowCommand|BrbCommand|CheerCommand|CurtseyCommand|SnickerCommand|HmCommand|SighCommand|SmileCommand|ByeCommand|HiCommand|WaveCommand|HuhCommand|ErCommand|UhCommand|EhCommand)'
+EMCMD_REGEX = '(LaughCommand|BlushCommand|FrownCommand|GrinCommand|AgreeCommand|PonderCommand|PokeCommand|PetCommand|NodCommand|EwCommand|YesCommand|YawnCommand|ShrugCommand|NoCommand|HugCommand|SkipCommand|BackCommand|BowCommand|BrbCommand|CheerCommand|CurtseyCommand|SnickerCommand|HmCommand|SighCommand|SmileCommand|ByeCommand|HiCommand|WaveCommand|HuhCommand|ErCommand|UhCommand|EhCommand|CryCommand)'
 
 When(/^the #{EMCMD_REGEX} action is invoked with no target$/) do |cmd_name|
   klass = EMCMD_CLASSES.fetch(cmd_name)
@@ -314,6 +316,15 @@ Then('the emcmd player direct output should include {string}') do |expected|
   match = @emcmd_player.messages.any? { |m| m.include?(expected) }
   assert(match,
     "Expected player direct output containing '#{expected}', got: #{@emcmd_player.messages.inspect}")
+end
+
+Then('the emcmd event to_deaf_other should be {string}') do |expected|
+  event = @emcmd_room.events.last
+  assert(event, 'No event was recorded on the room')
+  actual = event[:to_deaf_other]
+  assert(actual, 'to_deaf_other was not set on the event')
+  assert_equal(expected, actual,
+    "Expected to_deaf_other to be '#{expected}' but got: #{actual.inspect}")
 end
 
 Then('the emcmd room should not have received an event') do

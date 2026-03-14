@@ -2,7 +2,7 @@
 
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 [![Clever Semantic Versioning](https://img.shields.io/SemVer/2.0.0.png)](https://www.w3.org/submissions/semantic-versioning/)
-[![Matrix](https://img.shields.io/matrix/cleverthis%3Aqoto.org?server_fqdn=matrix.qoto.org&label=Matrix%20chat)](https://matrix.to/#/#CleverThis:qoto.org)
+[![Matrix](https://img.shields.io/matrix/cleverthis%3Aqoto.org?server_fqdn=matrix.qoto.org&label=Matrix%20chat)](https://matrix.to/#/#CleverThis:Aethyr)
 
 When contributing to this repository, it is usually a good idea to first discuss the change you
 wish to make via issue, email, or any other method with the owners of this repository before

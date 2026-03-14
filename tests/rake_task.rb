@@ -55,7 +55,7 @@ module Coverage
     def initialize(name = :unit,
                    cucumber_task: :unit_nocov,
                    formatter:     SimpleCov::Formatter::Console,
-                   filters:       %w[/spec/],
+                   filters:       %w[/spec/ /tests/],
                    minimum_cov:   85.0,
                    coverage_dir:  'build/tests/unit/coverage') # rubocop:enable Metrics/ParameterLists
       # Assign each instance variable individually for better readability and maintainability

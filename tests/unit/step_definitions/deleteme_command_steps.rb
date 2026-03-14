@@ -104,21 +104,25 @@ end
 # Stub Generic module -- captures calls to Generic.deleteme so we can        #
 # assert the expect block invoked it.                                         #
 ###############################################################################
-unless defined?(Generic)
-  module Generic
+module Generic; end unless defined?(Generic)
+
+Generic.instance_variable_set(:@delme_calls, []) unless Generic.instance_variable_defined?(:@delme_calls)
+
+unless Generic.respond_to?(:deleteme)
+  Generic.define_singleton_method(:deleteme) do |command|
+    @delme_calls << command
+  end
+end
+
+unless Generic.respond_to?(:delme_calls)
+  Generic.define_singleton_method(:delme_calls) do
+    @delme_calls
+  end
+end
+
+unless Generic.respond_to?(:delme_reset!)
+  Generic.define_singleton_method(:delme_reset!) do
     @delme_calls = []
-
-    class << self
-      attr_reader :delme_calls
-
-      def deleteme(command)
-        @delme_calls << command
-      end
-
-      def delme_reset!
-        @delme_calls = []
-      end
-    end
   end
 end
 
